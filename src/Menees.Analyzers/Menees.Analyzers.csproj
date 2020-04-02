@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard1.3</TargetFramework>
+		<RootNamespace>Menees.Analyzers</RootNamespace>
+		<AssemblyName>Menees.Analyzers</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+		<EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
+	</ItemGroup>
+
+</Project>

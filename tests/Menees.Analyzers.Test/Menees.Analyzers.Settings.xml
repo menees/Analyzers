@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Menees.Analyzers.Settings>
+	<TabSize>4</TabSize>
+	<!-- Note: The rest of these values are intentionally set small for unit testing.  Production values should be larger. -->
+	<MaxLineColumns>40</MaxLineColumns>
+	<MaxMethodLines>5</MaxMethodLines>
+	<MaxPropertyAccessorLines>5</MaxPropertyAccessorLines>
+	<MaxFileLines>20</MaxFileLines>
+	<MaxUnregionedLines>20</MaxUnregionedLines>
+
+	<TypeFileNameExclusions>
+		<FileName>Enumerations.cs</FileName>
+		<FileName>Interfaces.cs</FileName>
+		<FileName>Delegates.cs</FileName>
+		<!-- This is just an example.  AssemblyInfo files normally don't contain types, so they don't need to be excluded. -->
+		<FileRegex>.*AssemblyInfo\.cs$</FileRegex>
+	</TypeFileNameExclusions>
+
+	<AllowedNumericLiterals>
+		<Literal>0</Literal>
+		<Literal>1</Literal>
+		<Literal>2</Literal>
+	</AllowedNumericLiterals>
+
+	<UnitTestAttributes>
+		<!-- From MSTest -->
+		<Class>TestClass</Class>
+		<Method>TestMethod</Method>
+
+		<!-- From NUnit -->
+		<Class>TestFixture</Class>
+		<Method>Test</Method>
+	</UnitTestAttributes>
+</Menees.Analyzers.Settings>
