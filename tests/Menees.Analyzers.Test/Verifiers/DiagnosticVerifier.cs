@@ -1,5 +1,6 @@
 namespace Menees.Analyzers.Test
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
@@ -36,6 +37,11 @@ namespace Menees.Analyzers.Test
 		#endregion
 
 		#region Verifier wrappers
+
+		/// <summary>
+		/// In Release builds, some analyzers may be disabled by default, so we shouldn't complain if they return no diagnostics.
+		/// </summary>
+		protected static bool IsEnabled(DiagnosticAnalyzer analyzer) => analyzer.SupportedDiagnostics.Any(d => d.IsEnabledByDefault);
 
 		/// <summary>
 		/// Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source
@@ -91,8 +97,11 @@ namespace Menees.Analyzers.Test
 		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
 		private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
 		{
-			var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
-			VerifyDiagnosticResults(diagnostics, analyzer, expected);
+			if (IsEnabled(analyzer))
+			{
+				var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
+				VerifyDiagnosticResults(diagnostics, analyzer, expected);
+			}
 		}
 
 		#endregion

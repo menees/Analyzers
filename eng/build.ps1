@@ -1,9 +1,10 @@
 param(
 	[bool] $build = $true,
+	[bool] $test = $false,
 	[string[]] $configurations = @('Debug', 'Release'),
 	[bool] $publish = $false,
 	[string] $msBuildVerbosity = 'minimal',
-    [string] $nugetApiKey = $null
+	[string] $nugetApiKey = $null
 )
 
 Set-StrictMode -Version Latest
@@ -25,12 +26,32 @@ if ($build)
 {
 	foreach ($configuration in $configurations)
 	{
+		Write-Host "`nRestoring $configuration packages"
 		# Restore NuGet packages first
-		# For information on the following error: NuGet.targets(124,5): error : Ambiguous project name 'Menees.Analyzers'
-		# See https://github.com/NuGet/Home/issues/6143#issuecomment-343647462
+		# We have to restore the Test project (which pulls in the main and CodeFixes projects) and skip the Vsix project.
+		# Vsix is a legacy .csproj format that references Menees.Analyzers as a project and an analyzer,
+		# which leads to the following error during a package restore: NuGet.targets(124,5): error : Ambiguous project name 'Menees.Analyzers'
 		# This is also mentioned in src\Menees.Analyzers.CodeFixes\Menees.Analyzers.nuspec.
-		msbuild $slnPath /p:Configuration=$configuration /t:Restore /v:$msBuildVerbosity /nologo
+		# See https://github.com/NuGet/Home/issues/6143#issuecomment-343647462
+		dotnet restore /p:Configuration=$configuration /v:$msBuildVerbosity "$repoPath\tests\Menees.Analyzers.Test\Menees.Analyzers.Test.csproj"
+
+		Write-Host "`nBuilding $configuration projects"
 		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
+	}
+}
+
+if ($test)
+{
+	# Using "dotnet test Analyzers.sln" gets the NuGet restore error mentioned above.
+	# So we have to directly run the vstest app against the DLLs we built above.
+	foreach ($configuration in $configurations)
+	{
+		$testDlls = @(Get-ChildItem -r "$repoPath\tests\**\*.Test.dll" | Where-Object {$_.Directory -like "*\bin\$configuration\*"})
+		foreach ($testDll in $testDlls)
+		{
+			write-host "`n`n***** $testDll *****"
+			vstest.console.exe $testDll /Platform:X64
+		}
 	}
 }
 
