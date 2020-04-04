@@ -102,9 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\License.txt">
-      <Link>License.txt</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <Link>License.txt</Link>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

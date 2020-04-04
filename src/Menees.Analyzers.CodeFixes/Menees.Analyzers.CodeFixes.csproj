@@ -2,24 +2,16 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard1.3</TargetFramework>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageId>Menees.Analyzers.2017</PackageId>
-		<Product>Menees.Analyzers</Product>
-		<PackageTags>Analyzers, DotNetAnalyzers, Roslyn</PackageTags>
-		<Description>Provides analyzers for validating that:
-* Tabs are used for indentation.
-* Lengths of lines, methods, properties, and files are acceptable.
-* #regions are used within long files and files that contain multiple types.
-* Method blocks use a single return.
-* File names match the names of types they contain.
-* Preferred exception types are used.
-* Magic numbers aren't used.
-* Using directives are indented consistently.
-* Flags enum members are zero, powers of two, or named member combinations.
-* UTC times are used.</Description>
+		<NuspecFile>Menees.Analyzers.nuspec</NuspecFile>
+		<!-- Pass MSBuild properties through to the Nuspec file as $xxx$ properties. -->
+		<NuspecProperties>configuration=$(Configuration);version=$(Version);copyright=$(Copyright);authors=$(Authors)</NuspecProperties>
+		<!-- https://github.com/NuGet/Home/issues/4587 -->
+		<NoPackageAnalysis>true</NoPackageAnalysis>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -33,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Menees.Analyzers\Menees.Analyzers.csproj" Pack="true"/>
+		<ProjectReference Include="..\Menees.Analyzers\Menees.Analyzers.csproj" />
 	</ItemGroup>
 
 </Project>

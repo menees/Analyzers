@@ -1,6 +1,12 @@
+[![Nuget](https://img.shields.io/nuget/v/Menees.Analyzers)](https://www.nuget.org/packages/Menees.Analyzers/)
+
 # Analyzers 
 
-This project provides several new C# code analysis rules for Visual Studio 2017 and later. These rules can be used standalone, or they can be used with other analyzers like [StyleCopAnalyzers](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) and [Code-Cracker](https://github.com/code-cracker/code-cracker).
+This project provides several new C# code analysis rules for Visual Studio 2015 and later. These rules can be used standalone, or they can be used with other analyzers like [StyleCopAnalyzers](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) and [Code-Cracker](https://github.com/code-cracker/code-cracker).
+
+Many of the rule limits can be configured using a Menees.Analyzers.Settings.xml file, which must comply with the Menees.Analyzers.Settings.xsd schema.  The schema and Settings.cs file (for "documentation") are available in the [Menees.Analyzers source code](src/Menees.Analyzers).  A project using Menees.Analyzers with a custom settings file should set the Build Action for its Menees.Analyzers.Settings.xml file to "C# analyzer additional file".
+
+This software is CharityWare. If you use it, I ask that you donate something to the charity of your choice.
 
 | ID  | Title | Comment |
 | ------ | ----------------------------------- | --- |
@@ -17,7 +23,3 @@ This project provides several new C# code analysis rules for Visual Studio 2017 
 | MEN011 | Align using directives  | Ensures that using directives are aligned.  This is important when using directives are nested inside a namespace (per [SA1200: UsingDirectivesMustBePlacedWithinNamespace](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1200.md)) because Visual Studio will often fail to indent them correctly if they're added while code contains syntax errors.  This rule includes a code fix provider. |
 | MEN012 | Flags should be powers of two | Flags enum members should be powers of two or bitwise-or combinations of named members. This rule is a complement to [CA2217](https://msdn.microsoft.com/en-us/library/ms182335.aspx). |
 | MEN013 | Use UTC time | Recommends UTC times because they're unambiguous and always increasing. This rule includes a code fix provider.  |
-
-  Many of the rule limits can be configured using a Menees.Analyzers.Settings.xml file, which must comply with the Menees.Analyzers.Settings.xsd schema.  The schema and Settings.cs file (for "documentation") are available in the source code.  A project using Menees.Analyzers with a custom settings file should set the Build Action for its Menees.Analyzers.Settings.xml file to "C# analyzer additional file".
-
-This software is CharityWare. If you use it, I ask that you donate something to the charity of your choice.

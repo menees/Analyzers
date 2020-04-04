@@ -1,0 +1,53 @@
+﻿<?xml version="1.0"?>
+<!--
+	As of March 2020 Microsoft's Roslyn example analyzers still use .nuspec files rather than using SDK project support for automatically creating packages.
+
+	With a Nuspec file we can include the main DLL and the CodeFixes DLL in the same package. SDK projects can only make a package per assembly.
+
+	With a Nuspec file we can set the package ID independently from the project name. That lets us avoid an error when the CodeFixes project tries to use
+	a package ID of Menees.Analyzers even though that's the name of another project in the solution (https://github.com/NuGet/Home/issues/6143#issuecomment-343647462).
+
+	Nuspec reference: https://docs.microsoft.com/en-us/nuget/reference/nuspec
+	Nuspec schema: https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Packaging/compiler/resources/nuspec.xsd
+-->
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+	<metadata>
+		<id>Menees.Analyzers</id>
+		<version>$version$</version>
+		<title>Menees.Analyzers</title>
+		<authors>$authors$</authors>
+		<owners>$authors$</owners>
+		<license type="expression">MIT</license>
+		<projectUrl>https://github.com/bmenees/Analyzers</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Provides analyzers for validating that:
+		* Tabs are used for indentation.
+		* Lengths of lines, methods, properties, and files are acceptable.
+		* #regions are used within long files and files that contain multiple types.
+		* Method blocks use a single return.
+		* File names match the names of types they contain.
+		* Preferred exception types are used.
+		* Magic numbers aren't used.
+		* Using directives are indented consistently.
+		* Flags enum members are zero, powers of two, or named member combinations.
+		* UTC times are used.
+		</description>
+		<!-- <releaseNotes></releaseNotes> -->
+		<copyright>$copyright$</copyright>
+		<tags>Analyzers, DotNetAnalyzers, Roslyn</tags>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System" targetFramework="" />
+		</frameworkAssemblies>
+		<developmentDependency>true</developmentDependency>
+	</metadata>
+	<!-- The convention for analyzers is to put language agnostic dlls in analyzers\dotnet and language specific analyzers in either analyzers\dotnet\cs or analyzers\dotnet\vb -->
+	<files>
+		<!-- Binaries and symbols -->
+		<file src="bin\$Configuration$\netstandard1.3\Menees.Analyzers.dll" target="analyzers\dotnet\cs" />
+		<file src="bin\$Configuration$\netstandard1.3\Menees.Analyzers.CodeFixes.dll" target="analyzers\dotnet\cs" />
+
+		<!-- Scripts -->
+		<file src="tools\install.ps1" target="tools\" />
+		<file src="tools\uninstall.ps1" target="tools\" />
+	</files>
+</package>

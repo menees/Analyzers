@@ -2,8 +2,6 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard1.3</TargetFramework>
-		<RootNamespace>Menees.Analyzers</RootNamespace>
-		<AssemblyName>Menees.Analyzers</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
