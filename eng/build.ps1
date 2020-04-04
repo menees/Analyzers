@@ -26,14 +26,9 @@ if ($build)
 {
 	foreach ($configuration in $configurations)
 	{
-		Write-Host "`nRestoring $configuration packages"
 		# Restore NuGet packages first
-		# We have to restore the Test project (which pulls in the main and CodeFixes projects) and skip the Vsix project.
-		# Vsix is a legacy .csproj format that references Menees.Analyzers as a project and an analyzer,
-		# which leads to the following error during a package restore: NuGet.targets(124,5): error : Ambiguous project name 'Menees.Analyzers'
-		# This is also mentioned in src\Menees.Analyzers.CodeFixes\Menees.Analyzers.nuspec.
-		# See https://github.com/NuGet/Home/issues/6143#issuecomment-343647462
-		dotnet restore /p:Configuration=$configuration /v:$msBuildVerbosity "$repoPath\tests\Menees.Analyzers.Test\Menees.Analyzers.Test.csproj"
+		Write-Host "`nRestoring $configuration packages"
+		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo /t:Restore
 
 		Write-Host "`nBuilding $configuration projects"
 		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
@@ -80,9 +75,10 @@ if ($publish)
 				Copy-Item -Path $package -Destination $artifactsPath
 				Write-Host "Published" ([IO.Path]::GetFileName($package))
 
-				$vsix = "$repoPath\src\Menees.Analyzers.Vsix\bin\Release\Menees.Analyzers.vsix"
-				Copy-Item -Path $vsix -Destination $artifactsPath
-				Write-Host "Published" ([IO.Path]::GetFileName($vsix))
+				$vsixSource = "$repoPath\src\Menees.Analyzers.Vsix\bin\Release\netstandard1.3\Menees.Analyzers.Vsix.vsix"
+				$vsixTarget = "$artifactsPath\Menees.Analyzers.vsix"
+				Copy-Item -Path $vsixSource -Destination $vsixTarget
+				Write-Host "Published" ([IO.Path]::GetFileName($vsixTarget))
 
 				if ($nugetApiKey)
 				{
