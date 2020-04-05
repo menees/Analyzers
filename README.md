@@ -1,4 +1,4 @@
-![windows build & test](https://github.com/bmenees/Analyzers/workflows/windows%20build%20&%20test/badge.svg) [![Nuget](https://img.shields.io/nuget/v/Menees.Analyzers)](https://www.nuget.org/packages/Menees.Analyzers/)
+![windows build & test](https://github.com/menees/Analyzers/workflows/windows%20build%20&%20test/badge.svg) [![Nuget](https://img.shields.io/nuget/v/Menees.Analyzers)](https://www.nuget.org/packages/Menees.Analyzers/)
 
 # Analyzers 
 

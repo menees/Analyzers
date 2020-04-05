@@ -15,7 +15,7 @@
 		<authors>$authors$</authors>
 		<owners>$authors$</owners>
 		<license type="expression">MIT</license>
-		<projectUrl>https://github.com/bmenees/Analyzers</projectUrl>
+		<projectUrl>https://github.com/menees/Analyzers</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Provides analyzers for validating that:
 		* Tabs are used for indentation.
