@@ -35,8 +35,14 @@
 		private static readonly IEnumerable<Predicate<string>> DefaultTypeFileNameExclusions = new[]
 		{
 			CreateFileNamePredicate("Enumerations.cs"),
+			CreateFileRegexPredicate(@"^Enumerations\..*\.cs$"),
 			CreateFileNamePredicate("Interfaces.cs"),
+			CreateFileRegexPredicate(@"^Interfaces\..*\.cs$"),
 			CreateFileNamePredicate("Delegates.cs"),
+			CreateFileRegexPredicate(@"^Delegates\..*\.cs$"),
+
+			// Razor pages like Page.cshtml.cs contain PageModel instead of just Page.
+			CreateFileRegexPredicate(@"^.*\.cshtml.*\.cs$"),
 
 			// Note: We don't need to do the following because these files shouldn't contain types (just assembly attributes):
 			// CreateFileRegexPredicate(".*AssemblyInfo\.cs$"),
@@ -50,6 +56,11 @@
 
 		private IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
 		private HashSet<string> allowedNumericLiterals = new HashSet<string>(new[] { "0", "1", "2", "100" });
+		private HashSet<string> allowedNumericCallerNames = new HashSet<string>(new[] 
+		{
+			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
+		});
+		private IEnumerable<Predicate<string>> allowedNumericCallerRegexes;
 
 		#endregion
 
@@ -83,6 +94,10 @@
 			{
 				this.allowedNumericLiterals = new HashSet<string>(
 					allowedNumericLiteralsElement.Elements("Literal").Select(literal => literal.Value));
+				this.allowedNumericCallerNames = new HashSet<string>(
+					allowedNumericLiteralsElement.Elements("CallerName").Select(callerName => callerName.Value));
+				this.allowedNumericCallerRegexes = allowedNumericLiteralsElement.Elements("CallerRegex")
+					.Select<XElement, Predicate<string>>(callerRegex => callerName => Regex.IsMatch(callerName, callerRegex.Value)).ToList();
 			}
 
 			XElement unitTestAttributes = xml.Element("UnitTestAttributes");
@@ -212,6 +227,18 @@
 				// or trailing fractional zeros (e.g., .0 on 1.0).
 				Tuple<string, NumberBase> split = SplitNumericLiteral(text);
 				result = this.allowedNumericLiterals.Contains(split.Item1);
+			}
+
+			return result;
+		}
+
+		public bool IsAllowedNumericLiteralCaller(string callerName)
+		{
+			bool result = this.allowedNumericCallerNames.Contains(callerName);
+
+			if (!result)
+			{
+				result = this.allowedNumericCallerRegexes.Any(regexIsMatch => regexIsMatch(callerName));
 			}
 
 			return result;

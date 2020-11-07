@@ -122,8 +122,7 @@
 								break;
 
 							case SyntaxKind.InvocationExpression:
-								// Allow cases like item.GetXxx(n) for n in [0,255] to handle cases like IDataRecord.Get and Array.Get accessors.
-								allowed = IsGetIndexInvocation(literalExpression);
+								allowed = IsAllowedInvocation(literalExpression, settings);
 								break;
 						}
 
@@ -133,7 +132,7 @@
 			return result;
 		}
 
-		private static bool IsGetIndexInvocation(LiteralExpressionSyntax literalExpression)
+		private static bool IsAllowedInvocation(LiteralExpressionSyntax literalExpression, Settings settings)
 		{
 			bool result = false;
 
@@ -161,9 +160,17 @@
 								break;
 						}
 
-						if (invokedMemberName?.StartsWith("Get") ?? false)
+						if (!string.IsNullOrEmpty(invokedMemberName))
 						{
-							result = Settings.TryParseIntegerLiteral(literalExpression.Token.ValueText, out byte value);
+							// Allow cases like item.GetXxx(n) for n in [0,255] to handle cases like IDataRecord.Get and Array.Get accessors.
+							if (invokedMemberName.StartsWith("Get"))
+							{
+								result = Settings.TryParseIntegerLiteral(literalExpression.Token.ValueText, out byte _);
+							}
+							else
+							{
+								result = settings.IsAllowedNumericLiteralCaller(invokedMemberName);
+							}
 						}
 					}
 				}

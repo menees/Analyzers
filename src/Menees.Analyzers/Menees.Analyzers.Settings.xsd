@@ -18,7 +18,7 @@
 
 				<xs:element name="TypeFileNameExclusions" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
-						<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:choice minOccurs="1" maxOccurs="unbounded">
 							<xs:element name="FileName" type="NonEmptyString"/>
 							<xs:element name="FileRegex" type="NonEmptyString"/>
 						</xs:choice>
@@ -27,15 +27,17 @@
 
 				<xs:element name="AllowedNumericLiterals" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
-						<xs:sequence maxOccurs="unbounded">
+						<xs:choice maxOccurs="unbounded">
 							<xs:element name="Literal" type="xs:decimal"/>
-						</xs:sequence>
+							<xs:element name="CallerName" type="NonEmptyString"/>
+							<xs:element name="CallerRegex" type="NonEmptyString"/>
+						</xs:choice>
 					</xs:complexType>
 				</xs:element>
 
 				<xs:element name="UnitTestAttributes" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
-						<xs:choice minOccurs="0" maxOccurs="unbounded">
+						<xs:choice minOccurs="1" maxOccurs="unbounded">
 							<xs:element name="Class" type="NonEmptyString"/>
 							<xs:element name="Method" type="NonEmptyString"/>
 						</xs:choice>

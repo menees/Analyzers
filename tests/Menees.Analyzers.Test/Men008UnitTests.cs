@@ -102,14 +102,14 @@ namespace Testing
 				new DiagnosticResult(analyzer)
 				{
 					Message = "File name Test1.cs doesn't match the name of a contained type.",
-					Locations = new[] { new DiagnosticResultLocation("Test1.cs", 4, 1) }
+					Locations = new[] { new DiagnosticResultLocation("Test1.cs", 2, 1) }
 				},
 			};
 
 			string[] test = new[]
 			{
 				"partial class Test0 { }", // Test0.cs
-				"partial class Test0 { }" // Test1.cs
+				"//Line1\r\npartial class Test0 { }" // Test1.cs
 			};
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

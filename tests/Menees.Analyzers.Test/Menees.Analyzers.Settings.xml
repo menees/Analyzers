@@ -20,6 +20,8 @@
 		<Literal>0</Literal>
 		<Literal>1</Literal>
 		<Literal>2</Literal>
+		<CallerName>FromDays</CallerName>
+		<CallerRegex>^From(Hours|Minutes)$</CallerRegex>
 	</AllowedNumericLiterals>
 
 	<UnitTestAttributes>

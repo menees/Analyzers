@@ -53,6 +53,8 @@ class MagicNumbers
 
 	private int GetTwice(int value) => 2 * value;
 
+	public TimeSpan GetTime() => TimeSpan.FromDays(3) + TimeSpan.FromHours(4.5) + TimeSpan.FromMinutes(6);
+
 	public double GetRate()
 	{
 		const double ThursdayValue = 17.5;
@@ -172,7 +174,7 @@ class MagicNumbers
 
 		int[] dayCodes = new int[sundayValue];
 		var indexTooLarge = dayCodes[256]; // Only 0-255 are allowed non-magic indexes.
-		return 17 + dayCodes[sundayValue - 7] + dayCodes[(int)mondayValue + 0b010];
+		return 17 + dayCodes[sundayValue - 7] + dayCodes[(int)mondayValue + 0b010] + (int)TimeSpan.FromSeconds(5).Ticks;
 	}
 }";
 
@@ -213,6 +215,11 @@ class MagicNumbers
 				{
 					Message = "The numeric literal 0b010 should be replaced with a named constant.",
 					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 45, 71) }
+				},
+				new DiagnosticResult(analyzer)
+				{
+					Message = "The numeric literal 5 should be replaced with a named constant.",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 45, 106) }
 				},
 			};
 

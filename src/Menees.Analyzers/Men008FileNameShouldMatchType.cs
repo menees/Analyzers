@@ -137,9 +137,10 @@
 						string fileName = Path.GetFileName(tree.FilePath);
 						if (match == null)
 						{
-							SourceText text = tree.GetText(context.CancellationToken);
-							Tuple<string, Location> filelocation = Rules.GetFileLocation(tree, text);
-							context.ReportDiagnostic(Diagnostic.Create(Rule, filelocation.Item2, fileName, "doesn't match the name of a contained type"));
+							// Use the location of the first type in the file so #pragma or SuppressMessage can be applied to it locally.
+							// Otherwise, if I just used the file location, then an assembly-level global suppression would be required.
+							Location location = typeNodes.First().GetFirstLineLocation();
+							context.ReportDiagnostic(Diagnostic.Create(Rule, location, fileName, "doesn't match the name of a contained type"));
 						}
 						else
 						{
