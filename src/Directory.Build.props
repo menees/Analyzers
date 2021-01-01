@@ -9,7 +9,7 @@
 		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
 		<SignAssembly>true</SignAssembly>
 		<LangVersion>latest</LangVersion>
-		<Copyright>Copyright © 2015-2020 Bill Menees</Copyright>
+		<Copyright>Copyright © 2015-2021 Bill Menees</Copyright>
 		<NoWarn>1701;1702;1705;SA0001</NoWarn>
 
 		<!-- These paths must be relative to the projects that include the property (not to this .props file). -->
