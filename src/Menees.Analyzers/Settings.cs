@@ -236,7 +236,7 @@
 		{
 			bool result = this.allowedNumericCallerNames.Contains(callerName);
 
-			if (!result)
+			if (!result && this.allowedNumericCallerRegexes != null)
 			{
 				result = this.allowedNumericCallerRegexes.Any(regexIsMatch => regexIsMatch(callerName));
 			}
