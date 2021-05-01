@@ -75,7 +75,7 @@ if ($publish)
 				Copy-Item -Path $package -Destination $artifactsPath
 				Write-Host "Published" ([IO.Path]::GetFileName($package))
 
-				$vsixSource = "$repoPath\src\Menees.Analyzers.Vsix\bin\Release\netstandard1.3\Menees.Analyzers.Vsix.vsix"
+				$vsixSource = "$repoPath\src\Menees.Analyzers.Vsix\bin\Release\netstandard2.0\Menees.Analyzers.Vsix.vsix"
 				$vsixTarget = "$artifactsPath\Menees.Analyzers.vsix"
 				Copy-Item -Path $vsixSource -Destination $vsixTarget
 				Write-Host "Published" ([IO.Path]::GetFileName($vsixTarget))
