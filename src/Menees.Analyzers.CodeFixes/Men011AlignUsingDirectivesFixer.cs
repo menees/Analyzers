@@ -81,7 +81,7 @@
 			if (syntaxRoot.FindNode(diagnostic.Location.SourceSpan) is UsingDirectiveSyntax directive
 				&& diagnostic.Properties.TryGetValue(LevelProperty, out string levelText) && int.TryParse(levelText, out int level))
 			{
-				IndentInfo indent = new IndentInfo(directive, level);
+				IndentInfo indent = new(directive, level);
 				result = ApplyFix(indent, syntaxRoot, result);
 			}
 

@@ -37,7 +37,7 @@
 			new LocalizableResourceString(nameof(Resources.Men010Description), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
 
 		private Settings settings;
 

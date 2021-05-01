@@ -261,6 +261,11 @@
     <Rule Id="CA2242" Action="Error" />
     <Rule Id="CA2243" Action="Error" />
   </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.Analyzers" RuleNamespace="Microsoft.CodeAnalysis.Analyzers">
+    <Rule Id="RS1025" Action="None" />
+    <Rule Id="RS1026" Action="None" />
+    <Rule Id="RS2008" Action="None" />
+  </Rules>
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA0001" Action="None" />
     <Rule Id="SA1027" Action="None" />

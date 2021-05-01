@@ -37,15 +37,16 @@
 			new LocalizableResourceString(nameof(Resources.Men008Title), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Naming, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Naming, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new HashSet<SyntaxKind>
+		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new()
 		{
 			SyntaxKind.ClassDeclaration,
 			SyntaxKind.StructDeclaration,
 			SyntaxKind.InterfaceDeclaration,
 			SyntaxKind.EnumDeclaration,
 			SyntaxKind.DelegateDeclaration,
+			SyntaxKind.RecordDeclaration,
 		};
 
 		private Settings settings;

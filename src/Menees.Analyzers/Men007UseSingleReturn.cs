@@ -42,10 +42,10 @@ namespace Menees.Analyzers
 			new LocalizableResourceString(nameof(Resources.Men007Description), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
 
 		private static readonly DiagnosticDescriptor RuleVoid =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormatVoid, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormatVoid, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
 
 		#endregion
 

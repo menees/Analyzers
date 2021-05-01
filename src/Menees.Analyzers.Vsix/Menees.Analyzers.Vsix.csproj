@@ -7,7 +7,7 @@
 	<Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
 	<PropertyGroup>
-		<TargetFramework>netstandard1.3</TargetFramework>
+		<TargetFramework>netstandard2.0</TargetFramework>
 		<RootNamespace>Menees.Analyzers</RootNamespace>
 		<AssemblyName>Menees.Analyzers.Vsix</AssemblyName>
 	</PropertyGroup>
@@ -28,7 +28,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.VSSDK.BuildTools" Version="15.1.192" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.VSSDK.BuildTools" Version="16.9.1050" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>

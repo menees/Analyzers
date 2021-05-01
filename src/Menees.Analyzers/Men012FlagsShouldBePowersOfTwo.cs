@@ -18,7 +18,6 @@ namespace Menees.Analyzers
 
 	#endregion
 
-	[SuppressMessage("Microsoft.Naming", "CA1726:UsePreferredTerms", MessageId = "Flags", Justification = "This refers to the [Flags] attribute.")]
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public sealed class Men012FlagsShouldBePowersOfTwo : DiagnosticAnalyzer
 	{
@@ -43,12 +42,12 @@ namespace Menees.Analyzers
 			new LocalizableResourceString(nameof(Resources.Men012Description), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
 		private static readonly DiagnosticDescriptor RuleNoValue =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormatNoValue, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormatNoValue, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<string> FlagsAttributeNames = new HashSet<string>() { "Flags", "FlagsAttribute" };
+		private static readonly HashSet<string> FlagsAttributeNames = new() { "Flags", "FlagsAttribute" };
 
 		#endregion
 

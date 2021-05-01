@@ -36,7 +36,7 @@ namespace Menees.Analyzers
 			new LocalizableResourceString(nameof(Resources.Men001Description), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Spacing, DiagnosticSeverity.Warning, Rules.DisabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Spacing, DiagnosticSeverity.Warning, Rules.DisabledByDefault, Description);
 
 		#endregion
 

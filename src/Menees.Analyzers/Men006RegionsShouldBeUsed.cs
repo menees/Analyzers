@@ -37,19 +37,20 @@
 			new LocalizableResourceString(nameof(Resources.Men006Description), Resources.ResourceManager, typeof(Resources));
 
 		private static readonly DiagnosticDescriptor Rule =
-			new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Rules.Layout, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
+			new(DiagnosticId, Title, MessageFormat, Rules.Layout, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new HashSet<SyntaxKind>
+		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new()
 		{
 			SyntaxKind.ClassDeclaration,
 			SyntaxKind.StructDeclaration,
 			SyntaxKind.InterfaceDeclaration,
 			SyntaxKind.EnumDeclaration,
+			SyntaxKind.RecordDeclaration,
 
 			// Note: We don't care about SyntaxKind.DelegateDeclaration because those will usually be one-liners.
 		};
 
-		private static readonly HashSet<string> DesignerGeneratedRegions = new HashSet<string>
+		private static readonly HashSet<string> DesignerGeneratedRegions = new()
 		{
 			// VS 2002/3 put the designer-generated code in the main file (since partial classes didn't exist until VS 2005).
 			// We'll ignore those designer-generated regions.
@@ -135,7 +136,7 @@
 			// In a perfect world, the #region and #endregion directives will be balanced (even if they're nested).
 			// But we have to gracefully handle if they're mismatched or out of order.
 			var regionBounds = new List<Tuple<RegionDirectiveTriviaSyntax, EndRegionDirectiveTriviaSyntax>>();
-			Stack<RegionDirectiveTriviaSyntax> regionStack = new Stack<RegionDirectiveTriviaSyntax>();
+			Stack<RegionDirectiveTriviaSyntax> regionStack = new();
 			foreach (SyntaxNode node in regionNodes)
 			{
 				if (node.IsKind(SyntaxKind.RegionDirectiveTrivia))

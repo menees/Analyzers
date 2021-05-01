@@ -71,6 +71,23 @@ namespace Test
 	}
 }";
 			this.VerifyCSharpDiagnostic(test);
+
+			test = @"
+#region Using Directives
+using System;
+#endregion
+
+namespace Settings
+{
+	public record Test
+	{
+		#region Public Properties
+		public string Name { get; init; } = string.Empty;
+		public string Value { get; init; } = string.Empty;
+		#endregion
+	}
+}";
+			this.VerifyCSharpDiagnostic(test);
 		}
 
 		#endregion
@@ -154,7 +171,7 @@ namespace ConsoleApplication1
 		#region InvalidCodeTestPartialRegions
 
 		[TestMethod]
-		public void InvalidCodeTestPartialRegions()
+		public void InvalidCodeTestClassPartialRegions()
 		{
 			const string test = @"
 namespace ConsoleApplication1
@@ -196,6 +213,45 @@ namespace ConsoleApplication1
 				{
 					Message = "#regions should be used around all members in Type2.",
 					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 19, 2) }
+				},
+			};
+
+			this.VerifyCSharpDiagnostic(test, expected);
+		}
+
+		[TestMethod]
+		public void InvalidCodeTestRecordPartialRegions()
+		{
+			const string test = @"
+namespace ConsoleApplication1
+{
+	using System;
+
+	public record Type1
+	{
+		#region Constructors
+
+		public Type1()
+		{
+		}
+
+		#endregion
+
+		public Name { get; set; }
+	}
+}";
+			var analyzer = this.CSharpDiagnosticAnalyzer;
+			DiagnosticResult[] expected = new[]
+			{
+				new DiagnosticResult(analyzer)
+				{
+					Message = "#regions should be used around using directives.",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 2) }
+				},
+				new DiagnosticResult(analyzer)
+				{
+					Message = "#regions should be used around all members in Type1.",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 2) }
 				},
 			};
 

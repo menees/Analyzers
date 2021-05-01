@@ -30,7 +30,7 @@
 		private const string SettingsEnvironmentVariable = "%" + SettingsBaseName + "%";
 		private const string SettingsRegistryPath = @"Software\Menees\" + SettingsBaseName;
 
-		private static readonly SourceTextValueProvider<Settings> ValueProvider = new SourceTextValueProvider<Settings>(LoadSettings);
+		private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
 
 		private static readonly IEnumerable<Predicate<string>> DefaultTypeFileNameExclusions = new[]
 		{
@@ -50,13 +50,13 @@
 		};
 
 		// Note: The UL compound suffix is handled in a loop through these suffixes.
-		private static readonly HashSet<char> CSharpNumericSuffixes = new HashSet<char>(new[] { 'L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm', });
+		private static readonly HashSet<char> CSharpNumericSuffixes = new(new[] { 'L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm', });
 
-		private static readonly Settings DefaultSettings = new Settings();
+		private static readonly Settings DefaultSettings = new();
 
 		private IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
-		private HashSet<string> allowedNumericLiterals = new HashSet<string>(new[] { "0", "1", "2", "100" });
-		private HashSet<string> allowedNumericCallerNames = new HashSet<string>(new[] 
+		private HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
+		private HashSet<string> allowedNumericCallerNames = new(new[] 
 		{
 			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
 		});
@@ -252,7 +252,7 @@
 		{
 			string text = sourceText.ToString();
 			XElement xml = XElement.Parse(text);
-			Settings result = new Settings(xml);
+			Settings result = new(xml);
 			return result;
 		}
 

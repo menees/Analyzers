@@ -45,6 +45,10 @@ namespace ValidCode
 			this.VerifyCSharpDiagnostic(test);
 			this.VerifyCSharpDiagnostic("namespace X { class Test0 { } }");
 			this.VerifyCSharpDiagnostic("class Outer { class Test0 { } }");
+			this.VerifyCSharpDiagnostic("namespace X { record Test0 { } }");
+			this.VerifyCSharpDiagnostic("record Outer { record Test0 { } }");
+			this.VerifyCSharpDiagnostic("namespace X { struct Test0 { } }");
+			this.VerifyCSharpDiagnostic("struct Outer { struct Test0 { } }");
 
 			// These will use file names Test0.cs and Test1.cs.
 			this.VerifyCSharpDiagnostic(new[] { @"partial class Test { }", @"partial class Test { }" });
@@ -71,22 +75,21 @@ namespace ValidCode
 		[TestMethod]
 		public void InvalidCodeTestSingleType()
 		{
-			const string test = @"
-namespace Testing
-{
-	class Invalid { }
-}";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
+			foreach (string declarationType in new[] { "class", "struct", "record" })
 			{
-				new DiagnosticResult(analyzer)
+				string test = @"namespace Testing {" + declarationType + " Invalid { } }";
+				var analyzer = this.CSharpDiagnosticAnalyzer;
+				DiagnosticResult[] expected = new[]
 				{
-					Message = "File name Test0.cs doesn't match the name of a contained type.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 2) }
-				},
-			};
+					new DiagnosticResult(analyzer)
+					{
+						Message = "File name Test0.cs doesn't match the name of a contained type.",
+						Locations = new[] { new DiagnosticResultLocation("Test0.cs", 1, 20) }
+					},
+				};
 
-			this.VerifyCSharpDiagnostic(test, expected);
+				this.VerifyCSharpDiagnostic(test, expected);
+			}
 		}
 
 		#endregion

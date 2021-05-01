@@ -40,8 +40,8 @@
 	<!-- The convention for analyzers is to put language agnostic dlls in analyzers\dotnet and language specific analyzers in either analyzers\dotnet\cs or analyzers\dotnet\vb -->
 	<files>
 		<!-- Binaries and symbols -->
-		<file src="bin\$Configuration$\netstandard1.3\Menees.Analyzers.dll" target="analyzers\dotnet\cs" />
-		<file src="bin\$Configuration$\netstandard1.3\Menees.Analyzers.CodeFixes.dll" target="analyzers\dotnet\cs" />
+		<file src="bin\$Configuration$\netstandard2.0\Menees.Analyzers.dll" target="analyzers\dotnet\cs" />
+		<file src="bin\$Configuration$\netstandard2.0\Menees.Analyzers.CodeFixes.dll" target="analyzers\dotnet\cs" />
 
 		<!-- Scripts -->
 		<file src="tools\install.ps1" target="tools\" />
