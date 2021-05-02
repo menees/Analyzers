@@ -10,8 +10,6 @@ namespace Menees.Analyzers.Test
 	using Microsoft.CodeAnalysis.Diagnostics;
 	using Microsoft.CodeAnalysis.Text;
 
-#pragma warning disable SA1202
-
 	/// <summary>
 	/// Class for turning strings into documents and getting the diagnostics on them
 	/// All methods are static
@@ -176,4 +174,3 @@ namespace Menees.Analyzers.Test
 		#endregion
 	}
 }
-#pragma warning restore SA1202

@@ -104,7 +104,6 @@ namespace Menees.Analyzers.Test
 			}
 		}
 
-		[SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Unit tests need to assign new dictionary.")]
 		public Dictionary<string, string> Properties { get; set; }
 	}
 }

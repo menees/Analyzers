@@ -98,9 +98,7 @@ namespace Menees.Analyzers
 				{
 					// Check for DateTime, which could be fully-qualified, partially-qualified, or unqualified (e.g., via "using static").
 					// I'm omitting DateTimeOffset.Now since it retains the local offset, and its comparisons use the UTC time.
-#pragma warning disable IDE0019 // Use pattern matching
 					var memberAccess = identifier.Parent as MemberAccessExpressionSyntax;
-#pragma warning restore IDE0019 // Use pattern matching
 					if ((memberAccess != null && memberAccess.Name == identifier && IsSystemDateTimeReference(memberAccess.Expression))
 						|| ((memberAccess == null || memberAccess.Expression == identifier) && IsUsingStaticDateTimeReference(identifier.SyntaxTree)))
 					{

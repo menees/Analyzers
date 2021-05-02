@@ -27,8 +27,6 @@
 
 		private const string SettingsBaseName = "Menees.Analyzers.Settings";
 		private const string SettingsFileName = SettingsBaseName + ".xml";
-		private const string SettingsEnvironmentVariable = "%" + SettingsBaseName + "%";
-		private const string SettingsRegistryPath = @"Software\Menees\" + SettingsBaseName;
 
 		private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
 
@@ -54,13 +52,13 @@
 
 		private static readonly Settings DefaultSettings = new();
 
-		private IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
-		private HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
-		private HashSet<string> allowedNumericCallerNames = new(new[] 
+		private readonly IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
+		private readonly HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
+		private readonly HashSet<string> allowedNumericCallerNames = new(new[]
 		{
 			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
 		});
-		private IEnumerable<Predicate<string>> allowedNumericCallerRegexes;
+		private readonly IEnumerable<Predicate<string>> allowedNumericCallerRegexes;
 
 		#endregion
 

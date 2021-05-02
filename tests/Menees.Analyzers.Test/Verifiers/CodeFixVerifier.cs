@@ -10,8 +10,6 @@ namespace Menees.Analyzers.Test
 	using Microsoft.CodeAnalysis.Formatting;
 	using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#pragma warning disable SA1005, SA1101, SA1116
-
 	/// <summary>
 	/// Superclass of all Unit tests made for diagnostics with codefixes.
 	/// Contains methods used to verify correctness of codefixes
@@ -133,4 +131,3 @@ namespace Menees.Analyzers.Test
 		}
 	}
 }
-#pragma warning restore SA1005, SA1101, SA1116

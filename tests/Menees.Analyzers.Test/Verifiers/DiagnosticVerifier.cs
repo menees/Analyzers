@@ -9,8 +9,6 @@ namespace Menees.Analyzers.Test
 	using Microsoft.CodeAnalysis.Diagnostics;
 	using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#pragma warning disable SA1101, SA1116, SA1117, SA1204
-
 	/// <summary>
 	/// Superclass of all Unit Tests for DiagnosticAnalyzers
 	/// </summary>
@@ -238,7 +236,7 @@ namespace Menees.Analyzers.Test
 			var builder = new StringBuilder();
 			for (int i = 0; i < diagnostics.Length; ++i)
 			{
-				builder.AppendLine("// " + diagnostics[i].ToString());
+				builder.AppendLine("// " + diagnostics[i]);
 
 				var analyzerType = analyzer.GetType();
 				var rules = analyzer.SupportedDiagnostics;
@@ -284,4 +282,3 @@ namespace Menees.Analyzers.Test
 		#endregion
 	}
 }
-#pragma warning restore SA1101, SA1116, SA1117, SA1204

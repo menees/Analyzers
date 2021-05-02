@@ -79,10 +79,10 @@ namespace Menees.Analyzers
 			// not just functions.  So, we need to check for a few types here instead of dozens of kinds.
 			switch (node)
 			{
-				case AccessorDeclarationSyntax accessor:
-				case AnonymousFunctionExpressionSyntax anonymous:
-				case BaseMethodDeclarationSyntax method:
-				case LocalFunctionStatementSyntax local:
+				case AccessorDeclarationSyntax:
+				case AnonymousFunctionExpressionSyntax:
+				case BaseMethodDeclarationSyntax:
+				case LocalFunctionStatementSyntax:
 					// Note: If you add another case here, then add another case in GetReturnContainerInfo.
 					result = true;
 					break;
