@@ -72,23 +72,26 @@ namespace Menees.Analyzers
 					// Instead of requiring invocation.Parent to be IfStatementSyntax, we'll be more permissive.
 					// We'll search the whole containing block, and we'll require the indexer call to be after the ContainsKey call.
 					BlockSyntax searchBlock = invocation.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
-
-					ExpressionSyntax dictionary = memberAccess.Expression;
-					ArgumentSyntax keyArg = invocation.ArgumentList.Arguments[0];
-					foreach (var indexer in searchBlock?.DescendantNodes().OfType<ElementAccessExpressionSyntax>())
+					if (searchBlock != null)
 					{
-						if (indexer.Expression.IsEquivalentTo(dictionary)
-							&& indexer.ArgumentList.Arguments.Count == 1
-							&& indexer.ArgumentList.Arguments[0].IsEquivalentTo(keyArg)
-							&& indexer.SpanStart > invocation.SpanStart)
+						ExpressionSyntax dictionary = memberAccess.Expression;
+						ArgumentSyntax keyArg = invocation.ArgumentList.Arguments[0];
+						foreach (var indexer in searchBlock.DescendantNodes().OfType<ElementAccessExpressionSyntax>())
 						{
-							Location location = identifier.GetLocation();
+							if (indexer.Expression.IsEquivalentTo(dictionary)
+								&& indexer.ArgumentList.Arguments.Count == 1
+								&& indexer.ArgumentList.Arguments[0].IsEquivalentTo(keyArg)
+								&& indexer.SpanStart > invocation.SpanStart
+								&& indexer.Parent is not AssignmentExpressionSyntax)
+							{
+								Location location = identifier.GetLocation();
 
-							// It's a lot of work to try to determine the out data type depending on whether the dictionary
-							// is a local variable, member variable, parameter, member property, etc. So I'll just use var.
-							string preferred = $"{dictionary}.TryGetValue({keyArg}, out var value)";
-							context.ReportDiagnostic(
-								Diagnostic.Create(Rule, location, preferred, invocation.ToString(), indexer.ToString()));
+								// It's a lot of work to try to determine the out data type depending on whether the dictionary
+								// is a local variable, member variable, parameter, member property, etc. So I'll just use var.
+								string preferred = $"{dictionary}.TryGetValue({keyArg}, out var value)";
+								context.ReportDiagnostic(
+									Diagnostic.Create(Rule, location, preferred, invocation.ToString(), indexer.ToString()));
+							}
 						}
 					}
 				}

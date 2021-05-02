@@ -34,6 +34,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
 {
+	Dictionary<string, string> _entries = new();
+
 	public Testing()
 	{
 		Dictionary<string, int> test = new();
@@ -42,6 +44,16 @@ class Testing
 			Debug.WriteLine(""Contains a"");
 		}
 	}
+
+	public void Mask()
+	{
+		if (_entries.ContainsKey(""Password""))
+		{
+			_entries[""Password""] = ""********"";
+		}
+	}
+
+	public bool ContainsKey(string key) => _entries.ContainsKey(key);
 }";
 			this.VerifyCSharpDiagnostic(test);
 		}
