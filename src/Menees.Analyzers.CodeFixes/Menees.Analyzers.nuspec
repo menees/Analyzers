@@ -28,6 +28,7 @@
 		* Using directives are indented consistently.
 		* Flags enum members are zero, powers of two, or named member combinations.
 		* UTC times are used.
+		* TryGetValue is used instead of ContainsKey and this[key].
 		</description>
 		<!-- <releaseNotes></releaseNotes> -->
 		<copyright>$copyright$</copyright>

@@ -10,7 +10,6 @@
 
 namespace Menees.Analyzers {
     using System;
-    using System.Reflection;
     
     
     /// <summary>
@@ -40,7 +39,7 @@ namespace Menees.Analyzers {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -427,6 +426,33 @@ namespace Menees.Analyzers {
         internal static string Men013Title {
             get {
                 return ResourceManager.GetString("Men013Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TryGetValue does a single key lookup, which is more efficient than doing a ContainsKey lookup and a this[key] lookup..
+        /// </summary>
+        internal static string Men014Description {
+            get {
+                return ResourceManager.GetString("Men014Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use {0} instead of {1} and {2}..
+        /// </summary>
+        internal static string Men014MessageFormat {
+            get {
+                return ResourceManager.GetString("Men014MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prefer TryGetValue.
+        /// </summary>
+        internal static string Men014Title {
+            get {
+                return ResourceManager.GetString("Men014Title", resourceCulture);
             }
         }
     }

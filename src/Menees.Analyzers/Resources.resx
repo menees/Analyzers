@@ -243,4 +243,13 @@
   <data name="Men013Title" xml:space="preserve">
     <value>Use UTC time</value>
   </data>
+  <data name="Men014Description" xml:space="preserve">
+    <value>TryGetValue does a single key lookup, which is more efficient than doing a ContainsKey lookup and a this[key] lookup.</value>
+  </data>
+  <data name="Men014MessageFormat" xml:space="preserve">
+    <value>Use {0} instead of {1} and {2}.</value>
+  </data>
+  <data name="Men014Title" xml:space="preserve">
+    <value>Prefer TryGetValue</value>
+  </data>
 </root>
