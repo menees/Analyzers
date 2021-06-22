@@ -10,7 +10,6 @@
 
 namespace Menees.Analyzers.CodeFixes {
     using System;
-    using System.Reflection;
     
     
     /// <summary>
@@ -40,7 +39,7 @@ namespace Menees.Analyzers.CodeFixes {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.CodeFixes.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.CodeFixes.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -89,11 +88,20 @@ namespace Menees.Analyzers.CodeFixes {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace with UTC time..
+        ///   Looks up a localized string similar to Replace with UTC time.
         /// </summary>
         internal static string Men013CodeFix {
             get {
                 return ResourceManager.GetString("Men013CodeFix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with preferred term.
+        /// </summary>
+        internal static string Men015CodeFix {
+            get {
+                return ResourceManager.GetString("Men015CodeFix", resourceCulture);
             }
         }
     }

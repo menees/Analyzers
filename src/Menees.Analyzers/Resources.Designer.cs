@@ -455,5 +455,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men014Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preferred terms and casing should be used in identifiers..
+        /// </summary>
+        internal static string Men015Description {
+            get {
+                return ResourceManager.GetString("Men015Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use {0} instead of {1}..
+        /// </summary>
+        internal static string Men015MessageFormat {
+            get {
+                return ResourceManager.GetString("Men015MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred terms.
+        /// </summary>
+        internal static string Men015Title {
+            get {
+                return ResourceManager.GetString("Men015Title", resourceCulture);
+            }
+        }
     }
 }

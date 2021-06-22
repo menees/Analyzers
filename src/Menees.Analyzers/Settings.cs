@@ -50,6 +50,32 @@
 		// Note: The UL compound suffix is handled in a loop through these suffixes.
 		private static readonly HashSet<char> CSharpNumericSuffixes = new(new[] { 'L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm', });
 
+		private static readonly Dictionary<string, string> DefaultPreferredTerms = new()
+		{
+			// These are the single terms from CA1726 plus the special case of "ID -> Id" from CA1709.
+			// https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1726?view=vs-2019#rule-description
+			// https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1709?view=vs-2019#rule-description
+			{ "Arent", "AreNot" },
+			{ "Cancelled", "Canceled" },
+			{ "Cant", "Cannot" },
+			{ "Couldnt", "CouldNot" },
+			{ "Didnt", "DidNot" },
+			{ "Doesnt", "DoesNot" },
+			{ "Dont", "DoNot" },
+			{ "Hadnt", "HadNot" },
+			{ "Hasnt", "HasNot" },
+			{ "Havent", "HaveNot" },
+			{ "ID", "Id" },
+			{ "Indices", "Indexes" },
+			{ "Isnt", "IsNot" },
+			{ "Shouldnt", "ShouldNot" },
+			{ "Wasnt", "WasNot" },
+			{ "Werent", "WereNot" },
+			{ "Wont", "WillNot" },
+			{ "Wouldnt", "WouldNot" },
+			{ "Writeable", "Writable" },
+		};
+
 		private static readonly Settings DefaultSettings = new();
 
 		private readonly IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
@@ -59,6 +85,7 @@
 			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
 		});
 		private readonly IEnumerable<Predicate<string>> allowedNumericCallerRegexes;
+		private readonly Dictionary<string, string> preferredTerms = DefaultPreferredTerms;
 
 		#endregion
 
@@ -107,6 +134,14 @@
 				this.TestMethodAttributeNames = new HashSet<string>(
 					unitTestAttributes.Elements("Method").Select(element => element.Value));
 			}
+
+			XElement preferredTermsElement = xml.Element("PreferredTerms");
+			if (preferredTermsElement != null)
+			{
+				this.preferredTerms = preferredTermsElement.Elements("Term")
+					.Select(term => new KeyValuePair<string, string>(term.Attribute("Avoid").Value, term.Attribute("Prefer").Value))
+					.ToDictionary(pair => pair.Key, pair => pair.Value);
+			}
 		}
 
 		#endregion
@@ -148,6 +183,8 @@
 		public HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(new[] { "TestMethod", "Test", "Fact" });
 
 		public HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(new[] { "TestClass", "TestFixture" });
+
+		public bool HasPreferredTerms => this.preferredTerms.Count > 0;
 
 		#endregion
 
@@ -237,6 +274,35 @@
 			if (!result && this.allowedNumericCallerRegexes != null)
 			{
 				result = this.allowedNumericCallerRegexes.Any(regexIsMatch => regexIsMatch(callerName));
+			}
+
+			return result;
+		}
+
+		public bool UsePreferredTerm(string term, out string preferredTerm)
+		{
+			bool result = false;
+
+			if (string.IsNullOrEmpty(term))
+			{
+				preferredTerm = term;
+			}
+			else if (char.IsLower(term[0]))
+			{
+				StringBuilder change = new(term);
+				change[0] = char.ToUpper(change[0]);
+				term = change.ToString();
+				if (this.preferredTerms.TryGetValue(term, out preferredTerm))
+				{
+					change = new(preferredTerm);
+					change[0] = char.ToLower(change[0]);
+					preferredTerm = change.ToString();
+					result = true;
+				}
+			}
+			else if (this.preferredTerms.TryGetValue(term, out preferredTerm))
+			{
+				result = true;
 			}
 
 			return result;

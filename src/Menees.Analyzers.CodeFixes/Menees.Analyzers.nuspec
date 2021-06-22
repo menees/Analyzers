@@ -29,6 +29,7 @@
 		* Flags enum members are zero, powers of two, or named member combinations.
 		* UTC times are used.
 		* TryGetValue is used instead of ContainsKey and this[key].
+		* Preferred terms are used in identifiers.
 		</description>
 		<!-- <releaseNotes></releaseNotes> -->
 		<copyright>$copyright$</copyright>

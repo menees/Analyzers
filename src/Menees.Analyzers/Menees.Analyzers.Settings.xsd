@@ -43,6 +43,19 @@
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
+				
+				<xs:element name="PreferredTerms" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:choice minOccurs="1" maxOccurs="unbounded">
+							<xs:element name="Term">
+								<xs:complexType>
+									<xs:attribute name="Avoid" use="required"/>
+									<xs:attribute name="Prefer" use="required"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
 			</xs:all>
 		</xs:complexType>
 	</xs:element>

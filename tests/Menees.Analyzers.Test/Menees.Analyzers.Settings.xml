@@ -33,4 +33,12 @@
 		<Class>TestFixture</Class>
 		<Method>Test</Method>
 	</UnitTestAttributes>
+
+	<PreferredTerms>
+		<Term Avoid="Cancelled" Prefer="Canceled" />
+		<Term Avoid="Colour" Prefer="Color"/>
+		<Term Avoid="ID" Prefer="Id" />
+		<Term Avoid="Indices" Prefer="Indexes" />
+		<Term Avoid="Kustom" Prefer="Custom"/>
+	</PreferredTerms>
 </Menees.Analyzers.Settings>

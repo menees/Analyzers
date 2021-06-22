@@ -128,6 +128,9 @@
     <value>Indent using directive to match nesting level</value>
   </data>
   <data name="Men013CodeFix" xml:space="preserve">
-    <value>Replace with UTC time.</value>
+    <value>Replace with UTC time</value>
+  </data>
+  <data name="Men015CodeFix" xml:space="preserve">
+    <value>Replace with preferred term</value>
   </data>
 </root>
