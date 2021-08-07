@@ -102,6 +102,11 @@ class MagicNumbers
 			record.GetInt16(72);
 			record.GetByte(87);
 		}
+
+		string x = ""Testing is fun"";
+		x = x[3..5] + x[6..^3];
+		x.ToString();
+
 		return one;
 	}
 

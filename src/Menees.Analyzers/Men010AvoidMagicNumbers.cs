@@ -124,6 +124,11 @@
 							case SyntaxKind.InvocationExpression:
 								allowed = IsAllowedInvocation(literalExpression, settings);
 								break;
+
+							case SyntaxKind.IndexExpression:
+							case SyntaxKind.RangeExpression:
+								allowed = literalExpression.Parent == ancestor;
+								break;
 						}
 
 						return allowed;
