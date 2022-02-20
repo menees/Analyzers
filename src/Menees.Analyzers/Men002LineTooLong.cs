@@ -110,12 +110,33 @@
 					TextSpan lineSpan = line.Span;
 					if (lineSpan.Length * tabSize > maxLength)
 					{
-						int displayLength = GetLineDisplayLength(line.ToString(), tabSize, maxLength, out int maxIndex);
+						string lineText = line.ToString();
+						int displayLength = GetLineDisplayLength(lineText, tabSize, maxLength, out int maxIndex);
 						if (displayLength > maxLength)
 						{
-							TextSpan excess = TextSpan.FromBounds(lineSpan.Start + maxIndex, lineSpan.End);
-							Location location = Location.Create(context.Tree, excess);
-							context.ReportDiagnostic(Diagnostic.Create(Rule, location, maxLength, displayLength));
+							bool report = true;
+							if (this.settings.AllowLongUriLines)
+							{
+								// Ignore if the whole line minus comment delimiters passes Uri.TryCreate(absolute) (e.g., for http or UNC URLs).
+								string scrubbed = lineText.Trim();
+								if (scrubbed.StartsWith("//"))
+								{
+									scrubbed = scrubbed.Substring(2).Trim();
+								}
+								else if (scrubbed.StartsWith("/*") && scrubbed.EndsWith("*/"))
+								{
+									scrubbed = scrubbed.Substring(2, scrubbed.Length - 4).Trim();
+								}
+
+								report = !Uri.TryCreate(scrubbed, UriKind.Absolute, out _);
+							}
+
+							if (report)
+							{
+								TextSpan excess = TextSpan.FromBounds(lineSpan.Start + maxIndex, lineSpan.End);
+								Location location = Location.Create(context.Tree, excess);
+								context.ReportDiagnostic(Diagnostic.Create(Rule, location, maxLength, displayLength));
+							}
 						}
 					}
 				}

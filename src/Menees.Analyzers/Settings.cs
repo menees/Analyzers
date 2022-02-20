@@ -104,6 +104,7 @@
 			this.MaxPropertyAccessorLines = GetSetting(xml, nameof(this.MaxPropertyAccessorLines), this.MaxPropertyAccessorLines);
 			this.MaxFileLines = GetSetting(xml, nameof(this.MaxFileLines), this.MaxFileLines);
 			this.MaxUnregionedLines = GetSetting(xml, nameof(this.MaxUnregionedLines), this.MaxUnregionedLines);
+			this.AllowLongUriLines = GetSetting(xml, nameof(this.AllowLongUriLines), this.AllowLongUriLines);
 
 			XElement typeFileNameExclusionsElement = xml.Element("TypeFileNameExclusions");
 			if (typeFileNameExclusionsElement != null)
@@ -185,6 +186,8 @@
 		public HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(new[] { "TestClass", "TestFixture" });
 
 		public bool HasPreferredTerms => this.preferredTerms.Count > 0;
+
+		public bool AllowLongUriLines { get; } = true;
 
 		#endregion
 
@@ -321,13 +324,19 @@
 		}
 
 		private static int GetSetting(XElement xml, string elementName, int defaultValue)
+			=> GetSetting(xml, elementName, defaultValue, (string text, out int value) => int.TryParse(text, out value) && value > 0);
+
+		private static bool GetSetting(XElement xml, string elementName, bool defaultValue)
+			=> GetSetting(xml, elementName, defaultValue, bool.TryParse);
+
+		private static T GetSetting<T>(XElement xml, string elementName, T defaultValue, TryParse<T> tryParse)
 		{
-			int result = defaultValue;
+			T result = defaultValue;
 
 			XElement element = xml.Element(elementName);
 			if (element != null)
 			{
-				if (int.TryParse(element.Value, out int value) && value > 0)
+				if (tryParse(element.Value, out T value))
 				{
 					result = value;
 				}
@@ -399,6 +408,12 @@
 
 			return Tuple.Create(result, numberBase);
 		}
+
+		#endregion
+
+		#region Private Delegates
+
+		private delegate bool TryParse<T>(string text, out T value);
 
 		#endregion
 	}
