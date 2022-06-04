@@ -10,6 +10,7 @@
 		<xs:complexType>
 			<xs:all>
 				<xs:element name="TabSize" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="NotifyLineColumns" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
 				<xs:element name="MaxLineColumns" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
 				<xs:element name="MaxMethodLines" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
 				<xs:element name="MaxPropertyAccessorLines" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>

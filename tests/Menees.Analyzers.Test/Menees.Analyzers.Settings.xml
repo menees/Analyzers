@@ -2,6 +2,7 @@
 <Menees.Analyzers.Settings>
 	<TabSize>4</TabSize>
 	<!-- Note: The rest of these values are intentionally set small for unit testing.  Production values should be larger. -->
+	<NotifyLineColumns>35</NotifyLineColumns>
 	<MaxLineColumns>40</MaxLineColumns>
 	<MaxMethodLines>5</MaxMethodLines>
 	<MaxPropertyAccessorLines>5</MaxPropertyAccessorLines>

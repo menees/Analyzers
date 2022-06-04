@@ -38,7 +38,7 @@ namespace Test
 		/// <summary>Test</summary>
 		public Testing()
 		{
-			// AllowLongUriLines=true
+			// LongUriLines=true
 			// https://www.amazon.com/Brain-Games%C2%AE-Large-Print-Searches/dp/1640304606/ref=sr_1_2?crid=3KP7CV3HBJADN&keywords=big+long+search+text&qid=1645375366&sprefix=big+long+search+text%2Caps%2C72&sr=8-2
 			/* https://www.google.com/maps/place/Yellowstone+National+Park/@44.5854032,-111.0744669,9z/data=!3m1!4b1!4m5!3m4!1s0x5351e55555555555:0xaca8f930348fe1bb!8m2!3d44.427963!4d-110.588455 */
 			/*
@@ -73,6 +73,7 @@ namespace ConsoleApplication1
 		/// </summary>
 		public TypeName() // This line is also much too long.
 		{
+			// AllowLongUriLines=true
 			// GT fans: https://www.amazon.com/yourfanshop?selectedTeamName=Georgia%20Tech%20Yellow%20Jackets&asin=&refinement=popular&team=375636011
 		}
 	}
@@ -92,8 +93,15 @@ namespace ConsoleApplication1
 				},
 				new DiagnosticResult(analyzer)
 				{
+					Id = Men002LineTooLong.DiagnosticIdNotify,
+					Severity = DiagnosticSeverity.Info,
+					Message = "Line is over 35 characters (now 37).",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 27) },
+				},
+				new DiagnosticResult(analyzer)
+				{
 					Message = "Line must be no longer than 40 characters (now 149).",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 32) }
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 15, 32) }
 				},
 			};
 

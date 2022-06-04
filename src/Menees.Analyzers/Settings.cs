@@ -100,6 +100,7 @@
 		{
 			this.TabSize = GetSetting(xml, nameof(this.TabSize), this.TabSize);
 			this.MaxLineColumns = GetSetting(xml, nameof(this.MaxLineColumns), this.MaxLineColumns);
+			this.NotifyLineColumns = GetSetting(xml, nameof(this.NotifyLineColumns), this.NotifyLineColumns);
 			this.MaxMethodLines = GetSetting(xml, nameof(this.MaxMethodLines), this.MaxMethodLines);
 			this.MaxPropertyAccessorLines = GetSetting(xml, nameof(this.MaxPropertyAccessorLines), this.MaxPropertyAccessorLines);
 			this.MaxFileLines = GetSetting(xml, nameof(this.MaxFileLines), this.MaxFileLines);
@@ -169,6 +170,11 @@
 		/// (e.g., Men001CodeFixProvider.GetTabSize).
 		/// </summary>
 		public int TabSize { get; } = 4;
+
+		// NOTE: NotifyLineColumns uses the same default value as MaxLineColumns so Men002LineTooLong
+		// can skip all Notify checking unless MEN002A is enabled AND NotifyLineColumns is explicitly
+		// configured to be less than MaxLineColumns.
+		public int NotifyLineColumns { get; } = 160;
 
 		public int MaxLineColumns { get; } = 160;
 

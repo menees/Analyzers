@@ -19,7 +19,7 @@ namespace Menees.Analyzers {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -106,11 +106,29 @@ namespace Menees.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Line is over {0} characters (now {1})..
+        /// </summary>
+        internal static string Men002MessageFormatNotify {
+            get {
+                return ResourceManager.GetString("Men002MessageFormatNotify", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Line is too long.
         /// </summary>
         internal static string Men002Title {
             get {
                 return ResourceManager.GetString("Men002Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Line is long.
+        /// </summary>
+        internal static string Men002TitleNotify {
+            get {
+                return ResourceManager.GetString("Men002TitleNotify", resourceCulture);
             }
         }
         
