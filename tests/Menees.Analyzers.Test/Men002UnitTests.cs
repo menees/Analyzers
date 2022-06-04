@@ -91,6 +91,7 @@ namespace ConsoleApplication1
 					Message = "Line must be no longer than 40 characters (now 61).",
 					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 35) }
 				},
+#if DEBUG // MEN002A is disabled by default, so it won't run in release build unit tests.
 				new DiagnosticResult(analyzer)
 				{
 					Id = Men002LineTooLong.DiagnosticIdNotify,
@@ -98,6 +99,7 @@ namespace ConsoleApplication1
 					Message = "Line is over 35 characters (now 37).",
 					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 27) },
 				},
+#endif
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Line must be no longer than 40 characters (now 149).",
