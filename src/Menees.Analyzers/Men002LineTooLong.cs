@@ -3,13 +3,8 @@
 	#region Using Directives
 
 	using System;
-	using System.Collections.Generic;
 	using System.Collections.Immutable;
-	using System.Linq;
-	using System.Threading;
 	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
 	using Microsoft.CodeAnalysis.Diagnostics;
 	using Microsoft.CodeAnalysis.Text;
 
@@ -164,7 +159,11 @@
 			{
 				// Ignore if the whole line minus comment delimiters passes Uri.TryCreate(absolute) (e.g., for http or UNC URLs).
 				string scrubbed = lineText.Trim();
-				if (scrubbed.StartsWith("//"))
+				if (scrubbed.StartsWith("///"))
+				{
+					scrubbed = scrubbed.Substring(2).Trim();
+				}
+				else if (scrubbed.StartsWith("///"))
 				{
 					scrubbed = scrubbed.Substring(2).Trim();
 				}
