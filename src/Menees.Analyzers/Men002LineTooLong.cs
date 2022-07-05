@@ -111,6 +111,11 @@
 
 		private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
 		{
+			if (!this.settings.IsTypeFileNameCandidate(context.Tree.FilePath))
+			{
+				return;
+			}
+
 			if (context.Tree.TryGetText(out SourceText text))
 			{
 				int tabSize = this.settings.TabSize;
