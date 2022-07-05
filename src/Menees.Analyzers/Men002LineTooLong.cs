@@ -161,9 +161,9 @@
 				string scrubbed = lineText.Trim();
 				if (scrubbed.StartsWith("///"))
 				{
-					scrubbed = scrubbed.Substring(2).Trim();
+					scrubbed = scrubbed.Substring(3).Trim();
 				}
-				else if (scrubbed.StartsWith("///"))
+				else if (scrubbed.StartsWith("//"))
 				{
 					scrubbed = scrubbed.Substring(2).Trim();
 				}
