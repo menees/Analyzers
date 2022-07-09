@@ -27,12 +27,4 @@
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
-	  <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.9.4" />
-	  <PackageReference Update="MSTest.TestAdapter" Version="2.2.3" />
-	  <PackageReference Update="MSTest.TestFramework" Version="2.2.3" />
-	</ItemGroup>
-
 </Project>
