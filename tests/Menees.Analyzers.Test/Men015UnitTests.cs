@@ -1,18 +1,5 @@
 ﻿namespace Menees.Analyzers.Test
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using Menees.Analyzers;
-	using Menees.Analyzers.Test;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CodeFixes;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-	#endregion
-
 	[TestClass]
 	public class Men015UnitTests : CodeFixVerifier
 	{

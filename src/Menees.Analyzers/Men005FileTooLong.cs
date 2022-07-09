@@ -1,23 +1,7 @@
 ﻿namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.IO;
-	using System.Linq;
-	using System.Threading;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men005FileTooLong : DiagnosticAnalyzer
+	public sealed class Men005FileTooLong : Analyzer
 	{
 		#region Public Constants
 
@@ -39,8 +23,6 @@
 		private static readonly DiagnosticDescriptor Rule =
 			new(DiagnosticId, Title, MessageFormat, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -53,8 +35,8 @@
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterSyntaxTreeActionHonorExclusions(this.HandleSyntaxTree);
+			base.Initialize(context);
+			context.RegisterSyntaxTreeActionHonorExclusions(this, this.HandleSyntaxTree);
 		}
 
 		#endregion
@@ -66,7 +48,7 @@
 			SyntaxTree tree = context.Tree;
 			if (tree.TryGetText(out SourceText text))
 			{
-				int maxLength = this.settings.MaxFileLines;
+				int maxLength = this.Settings.MaxFileLines;
 				int fileLength = text.Lines.Count;
 				if (fileLength > maxLength)
 				{

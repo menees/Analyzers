@@ -1,23 +1,7 @@
 ﻿namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.IO;
-	using System.Linq;
-	using System.Threading;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men006RegionsShouldBeUsed : DiagnosticAnalyzer
+	public sealed class Men006RegionsShouldBeUsed : Analyzer
 	{
 		#region Public Constants
 
@@ -58,8 +42,6 @@
 			"Component Designer generated code",
 		};
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -72,8 +54,8 @@
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterSyntaxTreeActionHonorExclusions(this.HandleSyntaxTree);
+			base.Initialize(context);
+			context.RegisterSyntaxTreeActionHonorExclusions(this, this.HandleSyntaxTree);
 		}
 
 		#endregion
@@ -162,7 +144,7 @@
 			SyntaxNode root = tree.GetRoot(context.CancellationToken);
 			if (root != null && !HasExistingRegions(context, root) && tree.TryGetText(out SourceText text))
 			{
-				int maxLength = this.settings.MaxUnregionedLines;
+				int maxLength = this.Settings.MaxUnregionedLines;
 				int fileLength = text.Lines.Count;
 				if (fileLength > maxLength)
 				{

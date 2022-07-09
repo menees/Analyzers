@@ -1,23 +1,7 @@
 namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Diagnostics;
-	using System.Linq;
-	using System.Text;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-	using StyleCop.Analyzers;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men004PropertyAccessorTooLong : DiagnosticAnalyzer
+	public sealed class Men004PropertyAccessorTooLong : Analyzer
 	{
 		#region Public Constants
 
@@ -47,8 +31,6 @@ namespace Menees.Analyzers
 			SyntaxKind.RemoveAccessorDeclaration,
 		};
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -61,8 +43,8 @@ namespace Menees.Analyzers
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterCodeBlockActionHonorExclusions(this.HandleAccessor);
+			base.Initialize(context);
+			context.RegisterCodeBlockActionHonorExclusions(this, this.HandleAccessor);
 		}
 
 		#endregion
@@ -71,7 +53,7 @@ namespace Menees.Analyzers
 
 		private void HandleAccessor(CodeBlockAnalysisContext context)
 		{
-			Men003MethodTooLong.HandleBlockTooLong(context, SupportedSyntaxKinds, Rule, this.settings.MaxPropertyAccessorLines);
+			Men003MethodTooLong.HandleBlockTooLong(context, SupportedSyntaxKinds, Rule, this.Settings.MaxPropertyAccessorLines);
 		}
 
 		#endregion

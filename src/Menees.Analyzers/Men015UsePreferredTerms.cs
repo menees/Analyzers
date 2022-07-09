@@ -1,22 +1,7 @@
 ﻿namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Diagnostics.CodeAnalysis;
-	using System.Linq;
-	using System.Text;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men015UsePreferredTerms : DiagnosticAnalyzer
+	public sealed class Men015UsePreferredTerms : Analyzer
 	{
 		#region Public Constants
 
@@ -60,8 +45,6 @@
 			SyntaxKind.EnumMemberDeclaration,
 		};
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -72,7 +55,6 @@
 
 		#region Public Methods
 
-		[SuppressMessage("Style", "IDE0056:Use index operator", Justification = "Index type not available in .NET Framework builds.")]
 		public static string[] SplitIntoTerms(string identifier)
 		{
 			identifier ??= string.Empty;
@@ -126,8 +108,8 @@
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterSyntaxTreeActionHonorExclusions(HandleIdentifer);
+			base.Initialize(context);
+			context.RegisterSyntaxTreeActionHonorExclusions(this, HandleIdentifer);
 		}
 
 		#endregion
@@ -136,7 +118,7 @@
 
 		private void HandleIdentifer(SyntaxTreeAnalysisContext context)
 		{
-			if (this.settings.HasPreferredTerms)
+			if (this.Settings.HasPreferredTerms)
 			{
 				SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
 				if (root != null)
@@ -150,7 +132,7 @@
 					foreach (SyntaxToken identifier in identifierTokens)
 					{
 						string text = identifier.Text;
-						if (this.settings.UsePreferredTerm(text, out string preferredTerm))
+						if (this.Settings.UsePreferredTerm(text, out string preferredTerm))
 						{
 							Report();
 						}
@@ -161,7 +143,7 @@
 							List<string> preferredTerms = new(terms.Length);
 							foreach (string term in terms)
 							{
-								if (this.settings.UsePreferredTerm(term, out preferredTerm))
+								if (this.Settings.UsePreferredTerm(term, out preferredTerm))
 								{
 									preferredTerms.Add(preferredTerm);
 									report = true;

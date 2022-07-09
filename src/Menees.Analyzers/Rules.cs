@@ -1,22 +1,5 @@
 ﻿namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.IO;
-	using System.Linq;
-	using System.Threading;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-	using StyleCop.Analyzers;
-
-	#endregion
-
 	public static class Rules
 	{
 		#region Public Constants
@@ -113,8 +96,13 @@
 			return result;
 		}
 
-		public static void RegisterCodeBlockActionHonorExclusions(
+		#endregion
+
+		#region Internal Methods
+
+		internal static void RegisterCodeBlockActionHonorExclusions(
 			this AnalysisContext context,
+			Analyzer analyzer,
 			Action<CodeBlockAnalysisContext> action)
 		{
 			ConfigureStandardAnalysis(context);
@@ -123,15 +111,16 @@
 				c =>
 				{
 					SyntaxTree tree = c.CodeBlock.SyntaxTree;
-					if (tree != null && !tree.IsGeneratedDocument(c.CancellationToken))
+					if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 					{
 						action(c);
 					}
 				});
 		}
 
-		public static void RegisterSyntaxTreeActionHonorExclusions(
+		internal static void RegisterSyntaxTreeActionHonorExclusions(
 			this AnalysisContext context,
+			Analyzer analyzer,
 			Action<SyntaxTreeAnalysisContext> action)
 		{
 			ConfigureStandardAnalysis(context);
@@ -139,15 +128,16 @@
 			context.RegisterSyntaxTreeAction(
 				c =>
 				{
-					if (!c.IsGeneratedDocument())
+					if (!c.IsGeneratedDocument(analyzer.Settings))
 					{
 						action(c);
 					}
 				});
 		}
 
-		public static void RegisterSyntaxNodeActionHonorExclusions(
+		internal static void RegisterSyntaxNodeActionHonorExclusions(
 			this AnalysisContext context,
+			Analyzer analyzer,
 			Action<SyntaxNodeAnalysisContext> action,
 			params SyntaxKind[] syntaxKinds)
 		{
@@ -157,7 +147,7 @@
 				c =>
 				{
 					SyntaxTree tree = c.Node?.SyntaxTree;
-					if (tree != null && !tree.IsGeneratedDocument(c.CancellationToken))
+					if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 					{
 						action(c);
 					}
@@ -165,7 +155,7 @@
 				ImmutableArray.Create(syntaxKinds));
 		}
 
-		public static bool HasIndicatorAttribute(this SyntaxList<AttributeListSyntax> attributeLists, ISet<string> attributeNames)
+		internal static bool HasIndicatorAttribute(this SyntaxList<AttributeListSyntax> attributeLists, ISet<string> attributeNames)
 		{
 			bool result = attributeLists.Any(list => list.Attributes.Any(
 				attribute => (attribute.ArgumentList?.Arguments.Count ?? 0) == 0

@@ -1,23 +1,7 @@
 namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Diagnostics;
-	using System.Linq;
-	using System.Text;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-	using StyleCop.Analyzers;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men003MethodTooLong : DiagnosticAnalyzer
+	public sealed class Men003MethodTooLong : Analyzer
 	{
 		#region Public Constants
 
@@ -48,8 +32,6 @@ namespace Menees.Analyzers
 			SyntaxKind.OperatorDeclaration,
 		};
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -62,8 +44,8 @@ namespace Menees.Analyzers
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterCodeBlockActionHonorExclusions(this.HandleMethod);
+			base.Initialize(context);
+			context.RegisterCodeBlockActionHonorExclusions(this, this.HandleMethod);
 		}
 
 		#endregion
@@ -162,7 +144,7 @@ namespace Menees.Analyzers
 
 		private void HandleMethod(CodeBlockAnalysisContext context)
 		{
-			HandleBlockTooLong(context, SupportedSyntaxKinds, Rule, this.settings.MaxMethodLines);
+			HandleBlockTooLong(context, SupportedSyntaxKinds, Rule, this.Settings.MaxMethodLines);
 		}
 
 		#endregion

@@ -12,6 +12,8 @@
 		<LangVersion>latest</LangVersion>
 		<Copyright>Copyright © 2015-$([System.DateTime]::UtcNow.ToString(`yyyy`)) Bill Menees</Copyright>
 		<NoWarn>1701;1702;1705;SA0001</NoWarn>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- These paths must be relative to the projects that include the property (not to this .props file). -->
 		<CodeAnalysisRuleSet>../Analyzers.ruleset</CodeAnalysisRuleSet>
@@ -19,7 +21,7 @@
 
 		<!-- Make the assembly, file, and NuGet package versions the same. -->
 		<!-- NOTE: Change the version in Vsix\source.extension.vsixmanifest to match this! -->
-		<Version>3.0.6</Version>
+		<Version>3.0.7</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -39,5 +41,17 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<!-- Add some more implicit usings for this product. -->
+		<Using Include="System.Collections.Immutable" />
+		<Using Include="System.Runtime.CompilerServices" />
+		<Using Include="System.Text" />
+		<Using Include="Microsoft.CodeAnalysis" />
+		<Using Include="Microsoft.CodeAnalysis.CSharp" />
+		<Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
+		<Using Include="Microsoft.CodeAnalysis.Diagnostics" />
+		<Using Include="Microsoft.CodeAnalysis.Text"/>
 	</ItemGroup>
 </Project>

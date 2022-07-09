@@ -1,22 +1,7 @@
 ﻿namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Linq;
-	using System.Threading;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men002LineTooLong : DiagnosticAnalyzer
+	public sealed class Men002LineTooLong : Analyzer
 	{
 		#region Public Constants
 
@@ -50,8 +35,6 @@
 		private static readonly DiagnosticDescriptor RuleNotify =
 			new(DiagnosticIdNotify, TitleNotify, MessageFormatNotify, Rules.Layout, DiagnosticSeverity.Info, Rules.DisabledByDefault, Description);
 
-		private Settings settings;
-
 		#endregion
 
 		#region Public Properties
@@ -64,8 +47,8 @@
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.settings = Settings.Cache(startContext); });
-			context.RegisterSyntaxTreeActionHonorExclusions(this.HandleSyntaxTree);
+			base.Initialize(context);
+			context.RegisterSyntaxTreeActionHonorExclusions(this, this.HandleSyntaxTree);
 		}
 
 		#endregion
@@ -118,9 +101,9 @@
 		{
 			if (context.Tree.TryGetText(out SourceText text))
 			{
-				int tabSize = this.settings.TabSize;
-				int notifyLength = this.settings.NotifyLineColumns;
-				int maxLength = this.settings.MaxLineColumns;
+				int tabSize = this.Settings.TabSize;
+				int notifyLength = this.Settings.NotifyLineColumns;
+				int maxLength = this.Settings.MaxLineColumns;
 
 				foreach (TextLine line in text.Lines)
 				{
@@ -160,17 +143,19 @@
 			int thresholdIndex)
 		{
 			bool report = true;
-			if (this.settings.AllowLongUriLines)
+			if (this.Settings.AllowLongUriLines)
 			{
 				// Ignore if the whole line minus comment delimiters passes Uri.TryCreate(absolute) (e.g., for http or UNC URLs).
 				string scrubbed = lineText.Trim();
 				if (scrubbed.StartsWith("//"))
 				{
-					scrubbed = scrubbed.Substring(2).Trim();
+					// Ignore multiple leading '/' in case the URL is inside a doc comment.
+					scrubbed = scrubbed.Substring(2).TrimStart('/').Trim();
 				}
 				else if (scrubbed.StartsWith("/*") && scrubbed.EndsWith("*/"))
 				{
-					scrubbed = scrubbed.Substring(2, scrubbed.Length - 4).Trim();
+					// Ignore extra '*' in case the comment is like /** URL **/
+					scrubbed = scrubbed.Substring(2, scrubbed.Length - 4).Trim('*').Trim();
 				}
 
 				report = !Uri.TryCreate(scrubbed, UriKind.Absolute, out _);

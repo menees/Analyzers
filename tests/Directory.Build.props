@@ -1,26 +1,14 @@
 <Project>
+	<ImportGroup>
+		<!--Include all src folder build props first. From https://stackoverflow.com/a/45976205/1882616 -->
+		<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\src'))" />
+	</ImportGroup>
+	
 	<PropertyGroup>
-		<NeutralLanguage>en-US</NeutralLanguage>
-		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<Authors>Bill Menees</Authors>
-		<PackageProjectUrl>http://www.menees.com</PackageProjectUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/menees/Analyzers</RepositoryUrl>
-		<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-		<LangVersion>latest</LangVersion>
 		<IsPackable>false</IsPackable>
 		<NoWarn>1701;1702;1705;SA0001;SA1413</NoWarn>
+		<AssemblyOriginatorKeyFile/>
 		<CodeAnalysisRuleSet>..\..\src\Analyzers.ruleset</CodeAnalysisRuleSet>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<DefineConstants>TRACE</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,5 +16,11 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
 		<PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="System.CodeDom.Compiler" />
+		<Using Include="Microsoft.CodeAnalysis.CodeFixes"/>
+		<Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
 	</ItemGroup>
 </Project>

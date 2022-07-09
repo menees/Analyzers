@@ -1,13 +1,5 @@
 namespace Menees.Analyzers.Test
 {
-	using System;
-	using System.CodeDom.Compiler;
-	using System.Collections.Generic;
-	using System.Diagnostics.CodeAnalysis;
-	using System.Linq;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.Diagnostics;
-
 	/// <summary>
 	/// Location where the diagnostic appears, as determined by path, line number, and column number.
 	/// </summary>

@@ -28,4 +28,13 @@
 		<ProjectReference Include="..\Menees.Analyzers\Menees.Analyzers.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<!-- Add some more implicit usings for this project. -->
+		<Using Include="System.Composition" />
+		<Using Include="System.Threading.Tasks" />
+		<Using Include="Microsoft.CodeAnalysis.CodeActions" />
+		<Using Include="Microsoft.CodeAnalysis.CodeFixes" />
+		<Using Include="Microsoft.CodeAnalysis.Formatting" />
+		<Using Include="Microsoft.CodeAnalysis.Options" />
+	</ItemGroup>	
 </Project>

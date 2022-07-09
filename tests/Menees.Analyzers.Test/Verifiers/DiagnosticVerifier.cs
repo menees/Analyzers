@@ -1,14 +1,5 @@
 namespace Menees.Analyzers.Test
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 	/// <summary>
 	/// Superclass of all Unit Tests for DiagnosticAnalyzers
 	/// </summary>

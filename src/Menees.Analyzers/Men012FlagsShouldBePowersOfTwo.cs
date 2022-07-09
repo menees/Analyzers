@@ -1,25 +1,7 @@
 namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Diagnostics;
-	using System.Diagnostics.CodeAnalysis;
-	using System.Linq;
-	using System.Text;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-	using StyleCop.Analyzers;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men012FlagsShouldBePowersOfTwo : DiagnosticAnalyzer
+	public sealed class Men012FlagsShouldBePowersOfTwo : Analyzer
 	{
 		#region Public Constants
 
@@ -61,7 +43,8 @@ namespace Menees.Analyzers
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterSyntaxNodeActionHonorExclusions(HandleEnum, SyntaxKind.EnumDeclaration);
+			base.Initialize(context);
+			context.RegisterSyntaxNodeActionHonorExclusions(this, HandleEnum, SyntaxKind.EnumDeclaration);
 		}
 
 		#endregion

@@ -2,22 +2,9 @@
 {
 	#region Using Directives
 
-	using System;
-	using System.Collections.Generic;
 	using System.Globalization;
-	using System.IO;
-	using System.Linq;
-	using System.Reflection;
-	using System.Text;
 	using System.Text.RegularExpressions;
-	using System.Threading;
-	using System.Threading.Tasks;
-	using System.Xml;
 	using System.Xml.Linq;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-	using Microsoft.Win32;
 
 	#endregion
 
@@ -29,6 +16,12 @@
 		private const string SettingsFileName = SettingsBaseName + ".xml";
 
 		private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
+
+		private static readonly IEnumerable<Predicate<string>> DefaultAnalyzeFileNameExclusions = new[]
+		{
+			CreateFileNamePredicate("GeneratedCode.cs"),
+			CreateFileRegexPredicate(@"\.(designer|generated|codegen)\.cs$"),
+		};
 
 		private static readonly IEnumerable<Predicate<string>> DefaultTypeFileNameExclusions = new[]
 		{
@@ -78,7 +71,8 @@
 
 		private static readonly Settings DefaultSettings = new();
 
-		private readonly IEnumerable<Predicate<string>> typeFileNameExclusions = DefaultTypeFileNameExclusions;
+		private readonly IEnumerable<Predicate<string>> analyzeFileNameExclusions;
+		private readonly IEnumerable<Predicate<string>> typeFileNameExclusions;
 		private readonly HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
 		private readonly HashSet<string> allowedNumericCallerNames = new(new[]
 		{
@@ -107,14 +101,8 @@
 			this.MaxUnregionedLines = GetSetting(xml, nameof(this.MaxUnregionedLines), this.MaxUnregionedLines);
 			this.AllowLongUriLines = GetSetting(xml, nameof(this.AllowLongUriLines), this.AllowLongUriLines);
 
-			XElement typeFileNameExclusionsElement = xml.Element("TypeFileNameExclusions");
-			if (typeFileNameExclusionsElement != null)
-			{
-				this.typeFileNameExclusions =
-					typeFileNameExclusionsElement.Elements("FileRegex").Select(element => CreateFileRegexPredicate(element.Value))
-					.Concat(typeFileNameExclusionsElement.Elements("FileName").Select(element => CreateFileNamePredicate(element.Value)))
-					.ToList();
-			}
+			this.analyzeFileNameExclusions = GetFileNameExclusions(xml, "AnalyzeFileNameExclusions", DefaultAnalyzeFileNameExclusions);
+			this.typeFileNameExclusions = GetFileNameExclusions(xml, "TypeFileNameExclusions", DefaultTypeFileNameExclusions);
 
 			XElement allowedNumericLiteralsElement = xml.Element("AllowedNumericLiterals");
 			if (allowedNumericLiteralsElement != null)
@@ -259,8 +247,11 @@
 			return result;
 		}
 
-		public bool IsTypeFileNameCandidate(string fileName)
-			=> !string.IsNullOrEmpty(fileName) && !this.typeFileNameExclusions.Any(isExcluded => isExcluded(Path.GetFileName(fileName)));
+		public bool IsAnalyzeFileNameCandidate(string filePath)
+			=> IsFileNameCandidate(filePath, this.analyzeFileNameExclusions);
+
+		public bool IsTypeFileNameCandidate(string filePath)
+			=> IsFileNameCandidate(filePath, this.typeFileNameExclusions);
 
 		public bool IsAllowedNumericLiteral(string text)
 		{
@@ -352,10 +343,41 @@
 		}
 
 		private static Predicate<string> CreateFileRegexPredicate(string fileRegex)
-			=> value => Regex.IsMatch(value, fileRegex, RegexOptions.IgnoreCase);
+			=> value => Regex.IsMatch(value, fileRegex, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
 
 		private static Predicate<string> CreateFileNamePredicate(string fileName)
 			=> value => string.Equals(value, fileName, StringComparison.CurrentCultureIgnoreCase);
+
+
+		private static IEnumerable<Predicate<string>> GetFileNameExclusions(
+			XElement xml, string elementName, IEnumerable<Predicate<string>> defaultExclusions)
+		{
+			IEnumerable<Predicate<string>> result = defaultExclusions;
+
+			XElement exclusionsElement = xml.Element(elementName);
+			if (exclusionsElement != null)
+			{
+				result =
+					exclusionsElement.Elements("FileRegex").Select(element => CreateFileRegexPredicate(element.Value))
+					.Concat(exclusionsElement.Elements("FileName").Select(element => CreateFileNamePredicate(element.Value)))
+					.ToList();
+			}
+
+			return result;
+		}
+
+		private static bool IsFileNameCandidate(string filePath, IEnumerable<Predicate<string>> exclusions)
+		{
+			bool result = false;
+
+			if (!string.IsNullOrEmpty(filePath))
+			{
+				string fileName = Path.GetFileName(filePath);
+				result = !exclusions.Any(isExcluded => isExcluded(fileName));
+			}
+
+			return result;
+		}
 
 		private static Tuple<string, NumberBase> SplitNumericLiteral(string text)
 		{

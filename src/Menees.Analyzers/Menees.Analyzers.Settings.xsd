@@ -17,6 +17,15 @@
 				<xs:element name="MaxFileLines" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
 				<xs:element name="MaxUnregionedLines" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1"/>
 
+				<xs:element name="AnalyzeFileNameExclusions" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:choice minOccurs="1" maxOccurs="unbounded">
+							<xs:element name="FileName" type="NonEmptyString"/>
+							<xs:element name="FileRegex" type="NonEmptyString"/>
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+				
 				<xs:element name="TypeFileNameExclusions" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:choice minOccurs="1" maxOccurs="unbounded">

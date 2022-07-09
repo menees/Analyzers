@@ -1,22 +1,7 @@
 namespace Menees.Analyzers
 {
-	#region Using Directives
-
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.Immutable;
-	using System.Linq;
-	using System.Threading;
-	using Microsoft.CodeAnalysis;
-	using Microsoft.CodeAnalysis.CSharp;
-	using Microsoft.CodeAnalysis.CSharp.Syntax;
-	using Microsoft.CodeAnalysis.Diagnostics;
-	using Microsoft.CodeAnalysis.Text;
-
-	#endregion
-
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public sealed class Men001TabsShouldBeUsed : DiagnosticAnalyzer
+	public sealed class Men001TabsShouldBeUsed : Analyzer
 	{
 		#region Public Constants
 
@@ -50,7 +35,8 @@ namespace Menees.Analyzers
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterSyntaxTreeActionHonorExclusions(HandleSyntaxTree);
+			base.Initialize(context);
+			context.RegisterSyntaxTreeActionHonorExclusions(this, HandleSyntaxTree);
 		}
 
 		#endregion
