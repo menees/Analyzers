@@ -33,9 +33,9 @@ namespace Menees.Analyzers
 
 		#region Public Methods
 
-		public static string GetPreferredTypeName(string currentTypeName)
+		public static string? GetPreferredTypeName(string currentTypeName)
 		{
-			string result = null;
+			string? result = null;
 
 			switch (currentTypeName)
 			{
@@ -59,7 +59,7 @@ namespace Menees.Analyzers
 
 		private static void HandleThrow(SyntaxNodeAnalysisContext context)
 		{
-			ObjectCreationExpressionSyntax creation = null;
+			ObjectCreationExpressionSyntax? creation = null;
 			switch (context.Node)
 			{
 				case ThrowStatementSyntax statement:
@@ -96,7 +96,7 @@ namespace Menees.Analyzers
 		private static void HandleExceptionType(SyntaxNodeAnalysisContext context, IdentifierNameSyntax simpleTypeName)
 		{
 			string currentType = simpleTypeName.Identifier.Text;
-			string preferredType = GetPreferredTypeName(currentType);
+			string? preferredType = GetPreferredTypeName(currentType);
 			if (!string.IsNullOrEmpty(preferredType))
 			{
 				// The code fix provider depends on this returning the location of the IdentifierNameSyntax.

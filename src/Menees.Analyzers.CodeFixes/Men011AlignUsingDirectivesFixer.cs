@@ -52,8 +52,8 @@
 			Diagnostic diagnostic,
 			CancellationToken cancellationToken)
 		{
-			SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-			Document result = ApplyFix(diagnostic, syntaxRoot, document);
+			SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			Document result = syntaxRoot == null ? document : ApplyFix(diagnostic, syntaxRoot, document);
 			return result;
 		}
 
@@ -62,7 +62,7 @@
 			Document result = document;
 
 			if (syntaxRoot.FindNode(diagnostic.Location.SourceSpan) is UsingDirectiveSyntax directive
-				&& diagnostic.Properties.TryGetValue(LevelProperty, out string levelText) && int.TryParse(levelText, out int level))
+				&& diagnostic.Properties.TryGetValue(LevelProperty, out string? levelText) && int.TryParse(levelText, out int level))
 			{
 				IndentInfo indent = new(directive, level);
 				result = ApplyFix(indent, syntaxRoot, result);

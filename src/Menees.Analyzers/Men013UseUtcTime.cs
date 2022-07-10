@@ -35,9 +35,9 @@ namespace Menees.Analyzers
 
 		#region Public Methods
 
-		public static string GetPreferredText(string text)
+		public static string? GetPreferredText(string text)
 		{
-			string preferredText = null;
+			string? preferredText = null;
 			switch (text)
 			{
 				case "Now":
@@ -52,14 +52,14 @@ namespace Menees.Analyzers
 			return preferredText;
 		}
 
-		public static ImmutableDictionary<string, string> GetProperties(IdentifierNameSyntax identifier, string preferredText)
+		public static ImmutableDictionary<string, string?> GetProperties(IdentifierNameSyntax identifier, string preferredText)
 		{
 			// When "using static System.DateTime" is involved, then we can't always replace Today with UtcNow.Date.
 			// See the InvalidCodeUsingStaticTest unit test for some examples of where we leave Today.
 			bool canFix = preferredText.IndexOf('.') < 0
 				|| (identifier.Parent is MemberAccessExpressionSyntax access && access.Name == identifier);
 
-			var builder = ImmutableDictionary.CreateBuilder<string, string>();
+			var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 			builder.Add(CanFixKey, canFix.ToString());
 			return builder.ToImmutable();
 		}
@@ -79,7 +79,7 @@ namespace Menees.Analyzers
 			if (context.Node is IdentifierNameSyntax identifier)
 			{
 				string text = identifier.Identifier.Text;
-				string preferredText = GetPreferredText(text);
+				string? preferredText = GetPreferredText(text);
 				if (preferredText != null)
 				{
 					// Check for DateTime, which could be fully-qualified, partially-qualified, or unqualified (e.g., via "using static").
@@ -90,7 +90,7 @@ namespace Menees.Analyzers
 					{
 						// The code fix provider depends on this returning the location of the IdentifierNameSyntax.
 						Location location = identifier.GetLocation();
-						ImmutableDictionary<string, string> fixerProperties = GetProperties(identifier, preferredText);
+						ImmutableDictionary<string, string?> fixerProperties = GetProperties(identifier, preferredText);
 						context.ReportDiagnostic(Diagnostic.Create(Rule, location, fixerProperties, preferredText, text));
 					}
 				}

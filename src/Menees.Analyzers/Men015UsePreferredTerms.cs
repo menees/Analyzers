@@ -167,14 +167,14 @@
 							Location location = identifier.GetLocation();
 
 							// The code fix provider also needs a custom property to give it the preferred term to use.
-							var builder = ImmutableDictionary.CreateBuilder<string, string>();
+							var builder = ImmutableDictionary.CreateBuilder<string, string?>();
 							builder.Add(PreferredKey, preferredTerm);
 
 							// The code fix provider can't fix some things (e.g., namespace TestID.Other since only last part can be renamed).
-							bool canFix = SimpleIdentifierDeclarationKinds.Contains(identifier.Parent.Kind());
+							bool canFix = identifier.Parent != null && SimpleIdentifierDeclarationKinds.Contains(identifier.Parent.Kind());
 							builder.Add(CanFixKey, canFix.ToString());
 
-							ImmutableDictionary<string, string> properties = builder.ToImmutable();
+							ImmutableDictionary<string, string?> properties = builder.ToImmutable();
 							context.ReportDiagnostic(Diagnostic.Create(Rule, location, properties, preferredTerm, text));
 						}
 					}
@@ -195,7 +195,7 @@
 					&& declaration?.Parent?.Parent?.Kind() == SyntaxKind.NamespaceDeclaration)
 				|| (kind == SyntaxKind.IdentifierName
 					&& declaration?.Parent?.Kind() == SyntaxKind.NameEquals
-					&& declaration?.Parent?.Parent.Kind() == SyntaxKind.UsingDirective);
+					&& declaration?.Parent?.Parent?.Kind() == SyntaxKind.UsingDirective);
 			return result;
 		}
 

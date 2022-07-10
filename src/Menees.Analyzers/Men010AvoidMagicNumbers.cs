@@ -125,29 +125,29 @@
 
 			if (HasParentChain(literalExpression, SyntaxKind.Argument, SyntaxKind.ArgumentList, SyntaxKind.InvocationExpression))
 			{
-				ArgumentListSyntax argList = literalExpression?.Parent?.Parent as ArgumentListSyntax;
+				ArgumentListSyntax? argList = literalExpression?.Parent?.Parent as ArgumentListSyntax;
 				if (argList?.Arguments.Count == 1)
 				{
 					if (argList.Parent is InvocationExpressionSyntax invocation && invocation.Expression != null)
 					{
-						string invokedMemberName = null;
+						string? invokedMemberName = null;
 						switch (invocation.Expression.Kind())
 						{
 							case SyntaxKind.IdentifierName:
 								// A direct reference to an inherited or declared member with no this or base qualifier.
-								IdentifierNameSyntax identifier = invocation.Expression as IdentifierNameSyntax;
+								IdentifierNameSyntax? identifier = invocation.Expression as IdentifierNameSyntax;
 								invokedMemberName = identifier?.Identifier.ValueText;
 								break;
 
 							case SyntaxKind.SimpleMemberAccessExpression:
 							case SyntaxKind.PointerMemberAccessExpression:
 								// A reference like item.Method or item->Method.
-								MemberAccessExpressionSyntax access = invocation.Expression as MemberAccessExpressionSyntax;
+								MemberAccessExpressionSyntax? access = invocation.Expression as MemberAccessExpressionSyntax;
 								invokedMemberName = access?.Name?.Identifier.ValueText;
 								break;
 						}
 
-						if (!string.IsNullOrEmpty(invokedMemberName))
+						if (!string.IsNullOrEmpty(invokedMemberName) && invokedMemberName != null && literalExpression != null)
 						{
 							// Allow cases like item.GetXxx(n) for n in [0,255] to handle cases like IDataRecord.Get and Array.Get accessors.
 							if (invokedMemberName.StartsWith("Get"))
@@ -187,7 +187,7 @@
 		{
 			bool result = false;
 
-			SyntaxNode parent = literalExpression.Parent;
+			SyntaxNode? parent = literalExpression.Parent;
 			if (parent?.Kind() == level1)
 			{
 				parent = parent.Parent;
@@ -208,7 +208,7 @@
 		{
 			bool result = false;
 
-			SyntaxNode parent = literalExpression.Parent;
+			SyntaxNode? parent = literalExpression.Parent;
 			if (parent?.Kind() == level1)
 			{
 				parent = parent.Parent;
@@ -234,7 +234,7 @@
 		{
 			bool result = false;
 
-			SyntaxNode parent = literalExpression.Parent;
+			SyntaxNode? parent = literalExpression.Parent;
 			if (parent?.Kind() == level1)
 			{
 				parent = parent.Parent;

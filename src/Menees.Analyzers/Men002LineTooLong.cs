@@ -99,7 +99,7 @@
 
 		private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
 		{
-			if (context.Tree.TryGetText(out SourceText text))
+			if (context.Tree.TryGetText(out SourceText? text))
 			{
 				int tabSize = this.Settings.TabSize;
 				int notifyLength = this.Settings.NotifyLineColumns;

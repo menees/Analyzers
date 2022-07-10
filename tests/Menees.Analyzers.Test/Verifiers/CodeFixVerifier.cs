@@ -9,24 +9,15 @@ namespace Menees.Analyzers.Test
 	/// </summary>
 	public abstract partial class CodeFixVerifier : DiagnosticVerifier
 	{
-		protected virtual CodeFixProvider CSharpCodeFixProvider => null;
+		protected virtual CodeFixProvider? CSharpCodeFixProvider => null;
 
 		/// <summary>
 		/// Returns the codefix being tested (C#) - to be implemented in non-abstract class
 		/// </summary>
 		/// <returns>The CodeFixProvider to be used for CSharp code</returns>
-		protected virtual CodeFixProvider GetCSharpCodeFixProvider()
+		protected virtual CodeFixProvider? GetCSharpCodeFixProvider()
 		{
 			return this.CSharpCodeFixProvider;
-		}
-
-		/// <summary>
-		/// Returns the codefix being tested (VB) - to be implemented in non-abstract class
-		/// </summary>
-		/// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-		protected virtual CodeFixProvider GetBasicCodeFixProvider()
-		{
-			return null;
 		}
 
 		/// <summary>
@@ -42,18 +33,6 @@ namespace Menees.Analyzers.Test
 		}
 
 		/// <summary>
-		/// Called to test a VB codefix when applied on the inputted string as a source
-		/// </summary>
-		/// <param name="oldSource">A class in the form of a string before the CodeFix was applied to it</param>
-		/// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
-		/// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
-		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-		protected void VerifyBasicFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
-		{
-			VerifyFix(LanguageNames.VisualBasic, GetBasicDiagnosticAnalyzer(), GetBasicCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
-		}
-
-		/// <summary>
 		/// General verifier for codefixes.
 		/// Creates a Document from the source string, then gets diagnostics on it and applies the relevant codefixes.
 		/// Then gets the string after the codefix is applied and compares it with the expected result.
@@ -66,9 +45,9 @@ namespace Menees.Analyzers.Test
 		/// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
 		/// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
 		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-		private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+		private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider? codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
 		{
-			if (IsEnabled(analyzer))
+			if (IsEnabled(analyzer) && codeFixProvider != null)
 			{
 				var document = CreateDocument(oldSource, language);
 				var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
@@ -101,7 +80,12 @@ namespace Menees.Analyzers.Test
 					if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
 					{
 						// Format and get the compiler diagnostics again so that the locations make sense in the output
-						document = document.WithSyntaxRoot(Formatter.Format(document.GetSyntaxRootAsync().Result, Formatter.Annotation, document.Project.Solution.Workspace));
+						SyntaxNode? syntaxRoot = document.GetSyntaxRootAsync()?.Result;
+						if (syntaxRoot != null)
+						{
+							document = document.WithSyntaxRoot(Formatter.Format(syntaxRoot, Formatter.Annotation, document.Project.Solution.Workspace));
+						}
+
 						newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
 						Assert.IsTrue(false,

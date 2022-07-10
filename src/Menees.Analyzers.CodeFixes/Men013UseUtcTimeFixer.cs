@@ -24,7 +24,7 @@
 		{
 			foreach (Diagnostic diagnostic in context.Diagnostics.Where(d => FixableDiagnostics.Contains(d.Id)))
 			{
-				if (diagnostic.Properties.TryGetValue(Men013UseUtcTime.CanFixKey, out string canFixText)
+				if (diagnostic.Properties.TryGetValue(Men013UseUtcTime.CanFixKey, out string? canFixText)
 					&& bool.TryParse(canFixText, out bool canFix) && canFix)
 				{
 					context.RegisterCodeFix(
@@ -48,57 +48,60 @@
 			Diagnostic diagnostic,
 			CancellationToken cancellationToken)
 		{
-			SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-
 			Document result = document;
-			SyntaxNode violatingNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
-			if (violatingNode is IdentifierNameSyntax violatingIdentifier)
+
+			SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			if (syntaxRoot != null)
 			{
-				SyntaxToken violatingToken = violatingIdentifier.Identifier;
-				string newName = Men013UseUtcTime.GetPreferredText(violatingToken.Text);
-
-				if (!string.IsNullOrEmpty(newName))
+				SyntaxNode violatingNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+				if (violatingNode is IdentifierNameSyntax violatingIdentifier)
 				{
-					SyntaxNode oldNode = violatingIdentifier;
-					SyntaxNode newNode;
+					SyntaxToken violatingToken = violatingIdentifier.Identifier;
+					string? newName = Men013UseUtcTime.GetPreferredText(violatingToken.Text);
 
-					int dotIndex = newName.IndexOf('.');
-					if (dotIndex > 0)
+					if (!string.IsNullOrEmpty(newName) && newName != null)
 					{
-						string[] names = newName.Split('.');
-						if (names.Length != 2)
-						{
-							throw new ArgumentException("Unsupported new name: " + newName);
-						}
+						SyntaxNode oldNode = violatingIdentifier;
+						SyntaxNode newNode;
 
-						switch (oldNode?.Parent)
+						int dotIndex = newName.IndexOf('.');
+						if (dotIndex > 0)
 						{
-							case MemberAccessExpressionSyntax oldAccess:
-								oldNode = oldAccess;
-								newNode = SyntaxFactory.MemberAccessExpression(
-									SyntaxKind.SimpleMemberAccessExpression,
-									SyntaxFactory.MemberAccessExpression(
+							string[] names = newName.Split('.');
+							if (names.Length != 2)
+							{
+								throw new ArgumentException("Unsupported new name: " + newName);
+							}
+
+							switch (oldNode?.Parent)
+							{
+								case MemberAccessExpressionSyntax oldAccess:
+									oldNode = oldAccess;
+									newNode = SyntaxFactory.MemberAccessExpression(
 										SyntaxKind.SimpleMemberAccessExpression,
-										oldAccess.Expression,
-										SyntaxFactory.IdentifierName(names[0])),
-									SyntaxFactory.Token(SyntaxKind.DotToken),
-									CreateIdentifier(violatingToken, names[1]));
-								break;
+										SyntaxFactory.MemberAccessExpression(
+											SyntaxKind.SimpleMemberAccessExpression,
+											oldAccess.Expression,
+											SyntaxFactory.IdentifierName(names[0])),
+										SyntaxFactory.Token(SyntaxKind.DotToken),
+										CreateIdentifier(violatingToken, names[1]));
+									break;
 
-							default:
-								// When "using static" is involved, we may not have a simple member access.
-								// It's too hard to handle all possible cases where an identifier could be used
-								// (e.g., either side of binary expressions, on left side of member access).
-								throw new ArgumentException("Unsupported parent: " + oldNode?.Parent);
+								default:
+									// When "using static" is involved, we may not have a simple member access.
+									// It's too hard to handle all possible cases where an identifier could be used
+									// (e.g., either side of binary expressions, on left side of member access).
+									throw new ArgumentException("Unsupported parent: " + oldNode?.Parent);
+							}
 						}
-					}
-					else
-					{
-						newNode = CreateIdentifier(violatingToken, newName);
-					}
+						else
+						{
+							newNode = CreateIdentifier(violatingToken, newName);
+						}
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
-					result = document.WithSyntaxRoot(newSyntaxRoot);
+						var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
+						result = document.WithSyntaxRoot(newSyntaxRoot);
+					}
 				}
 			}
 

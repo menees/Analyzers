@@ -46,7 +46,7 @@
 		private void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
 		{
 			SyntaxTree tree = context.Tree;
-			if (tree.TryGetText(out SourceText text))
+			if (tree.TryGetText(out SourceText? text))
 			{
 				int maxLength = this.Settings.MaxFileLines;
 				int fileLength = text.Lines.Count;

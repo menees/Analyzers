@@ -14,6 +14,7 @@
 		<NoWarn>1701;1702;1705;SA0001</NoWarn>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
 		<!-- These paths must be relative to the projects that include the property (not to this .props file). -->
 		<CodeAnalysisRuleSet>../Analyzers.ruleset</CodeAnalysisRuleSet>

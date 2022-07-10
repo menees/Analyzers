@@ -142,7 +142,7 @@
 		{
 			SyntaxTree tree = context.Tree;
 			SyntaxNode root = tree.GetRoot(context.CancellationToken);
-			if (root != null && !HasExistingRegions(context, root) && tree.TryGetText(out SourceText text))
+			if (root != null && !HasExistingRegions(context, root) && tree.TryGetText(out SourceText? text))
 			{
 				int maxLength = this.Settings.MaxUnregionedLines;
 				int fileLength = text.Lines.Count;

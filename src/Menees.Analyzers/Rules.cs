@@ -39,10 +39,10 @@
 		#region Public Methods
 
 		public static FileLinePositionSpan GetLineSpan(this SyntaxToken token)
-			=> token.SyntaxTree.GetLineSpan(token.Span);
+			=> token.SyntaxTree?.GetLineSpan(token.Span) ?? default;
 
 		public static FileLinePositionSpan GetLineSpan(this SyntaxTrivia trivia)
-			=> trivia.SyntaxTree.GetLineSpan(trivia.Span);
+			=> trivia.SyntaxTree?.GetLineSpan(trivia.Span) ?? default;
 
 		public static Tuple<string, Location> GetFileLocation(SyntaxTree tree, SourceText text, int startLine = 0, int endLine = 0)
 		{
@@ -72,7 +72,7 @@
 			Location result;
 
 			SyntaxTree tree = node.SyntaxTree;
-			if (tree.TryGetText(out SourceText text))
+			if (tree.TryGetText(out SourceText? text))
 			{
 				// If the node starts with attribute list(s), then get the start of the first child that's not an attribute list.
 				int nodeStart = node.SpanStart;
@@ -146,7 +146,7 @@
 			context.RegisterSyntaxNodeAction(
 				c =>
 				{
-					SyntaxTree tree = c.Node?.SyntaxTree;
+					SyntaxTree? tree = c.Node?.SyntaxTree;
 					if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 					{
 						action(c);

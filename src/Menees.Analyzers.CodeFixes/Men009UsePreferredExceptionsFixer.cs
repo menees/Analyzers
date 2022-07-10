@@ -44,21 +44,24 @@
 			Diagnostic diagnostic,
 			CancellationToken cancellationToken)
 		{
-			SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-
 			Document result = document;
-			SyntaxNode violatingNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
-			if (violatingNode is IdentifierNameSyntax violatingIdentifier)
-			{
-				SyntaxToken violatingToken = violatingIdentifier.Identifier;
-				string newName = Men009UsePreferredExceptions.GetPreferredTypeName(violatingToken.Text);
-				if (!string.IsNullOrEmpty(newName))
-				{
-					SyntaxToken newToken = SyntaxFactory.Identifier(violatingToken.LeadingTrivia, newName, violatingToken.TrailingTrivia);
-					IdentifierNameSyntax newIdentifier = SyntaxFactory.IdentifierName(newToken);
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(violatingIdentifier, newIdentifier);
-					result = document.WithSyntaxRoot(newSyntaxRoot);
+			SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			if (syntaxRoot != null)
+			{
+				SyntaxNode violatingNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+				if (violatingNode is IdentifierNameSyntax violatingIdentifier)
+				{
+					SyntaxToken violatingToken = violatingIdentifier.Identifier;
+					string? newName = Men009UsePreferredExceptions.GetPreferredTypeName(violatingToken.Text);
+					if (!string.IsNullOrEmpty(newName) && newName != null)
+					{
+						SyntaxToken newToken = SyntaxFactory.Identifier(violatingToken.LeadingTrivia, newName, violatingToken.TrailingTrivia);
+						IdentifierNameSyntax newIdentifier = SyntaxFactory.IdentifierName(newToken);
+
+						var newSyntaxRoot = syntaxRoot.ReplaceNode(violatingIdentifier, newIdentifier);
+						result = document.WithSyntaxRoot(newSyntaxRoot);
+					}
 				}
 			}
 

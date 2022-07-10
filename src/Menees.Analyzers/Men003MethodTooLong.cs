@@ -65,7 +65,7 @@ namespace Menees.Analyzers
 				if (supportedSyntaxKinds.Contains(blockKind))
 				{
 					SyntaxTree tree = block.SyntaxTree;
-					if (tree != null && tree.TryGetText(out SourceText treeText))
+					if (tree != null && tree.TryGetText(out SourceText? treeText))
 					{
 						SourceText blockText = treeText.GetSubText(block.Span);
 						int blockLineCount = blockText.Lines.Count;
@@ -85,7 +85,7 @@ namespace Menees.Analyzers
 
 		#region Private Methods
 
-		private static string GetBlockDescription(string blockName, SyntaxKind blockKind, string containingTypeName)
+		private static string GetBlockDescription(string blockName, SyntaxKind blockKind, string? containingTypeName)
 		{
 			string result;
 			switch (blockKind)

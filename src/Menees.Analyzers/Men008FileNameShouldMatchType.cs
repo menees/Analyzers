@@ -53,12 +53,12 @@
 
 		#region Private Methods
 
-		private static Tuple<string, SyntaxNode> Match(
+		private static Tuple<string, SyntaxNode>? Match(
 			string fileNameNoExt,
 			IEnumerable<SyntaxNode> typeNodes,
 			StringComparison comparison)
 		{
-			Tuple<string, SyntaxNode> result = null;
+			Tuple<string, SyntaxNode>? result = null;
 
 			// File names with multiple extensions (e.g., Global.asax.cs) will still have an extension here.
 			// Since a C# type name can't contain a '.', we have to do partial name matching for them.
@@ -112,7 +112,7 @@
 				{
 					// Note: This only removes the "last" extension, so Global.asax.cs will produce Global.asax.
 					string fileNameNoExt = Path.GetFileNameWithoutExtension(tree.FilePath);
-					Tuple<string, SyntaxNode> match = Match(fileNameNoExt, typeNodes, StringComparison.Ordinal);
+					Tuple<string, SyntaxNode>? match = Match(fileNameNoExt, typeNodes, StringComparison.Ordinal);
 					if (match == null)
 					{
 						// We didn't find an exact match, so see if it would match if we use culture rules and ignore case.

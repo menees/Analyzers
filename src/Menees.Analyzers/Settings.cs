@@ -78,7 +78,7 @@
 		{
 			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
 		});
-		private readonly IEnumerable<Predicate<string>> allowedNumericCallerRegexes;
+		private readonly IEnumerable<Predicate<string>>? allowedNumericCallerRegexes;
 		private readonly Dictionary<string, string> preferredTerms = DefaultPreferredTerms;
 
 		#endregion
@@ -88,6 +88,8 @@
 		private Settings()
 		{
 			// This just uses the default settings.
+			this.analyzeFileNameExclusions = DefaultAnalyzeFileNameExclusions;
+			this.typeFileNameExclusions = DefaultTypeFileNameExclusions;
 		}
 
 		private Settings(XElement xml)
@@ -149,6 +151,8 @@
 
 		#region Public Properties
 
+		public static Settings Default => DefaultSettings;
+
 		/// <summary>
 		/// Gets the tab size to use when applying diagnostic analyzers,
 		/// which don't have access to the user's workspace options.
@@ -195,11 +199,11 @@
 			// https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Using%20Additional%20Files.md
 			// Using OrdinalIgnoreCase to compare file names per MSDN:
 			// https://msdn.microsoft.com/en-us/library/dd465121.aspx#choosing_a_stringcomparison_member_for_your_method_call
-			AdditionalText additionalText = context.Options?.AdditionalFiles
+			AdditionalText? additionalText = context.Options?.AdditionalFiles
 				.FirstOrDefault(file => string.Equals(Path.GetFileName(file.Path), SettingsFileName, StringComparison.OrdinalIgnoreCase));
 
-			SourceText sourceText = additionalText?.GetText(context.CancellationToken);
-			if (sourceText == null || !context.TryGetValue(sourceText, ValueProvider, out Settings result))
+			SourceText? sourceText = additionalText?.GetText(context.CancellationToken);
+			if (sourceText == null || !context.TryGetValue(sourceText, ValueProvider, out Settings? result))
 			{
 				result = DefaultSettings;
 			}

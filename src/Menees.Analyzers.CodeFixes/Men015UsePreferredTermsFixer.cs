@@ -30,9 +30,9 @@
 		{
 			foreach (Diagnostic diagnostic in context.Diagnostics.Where(d => FixableDiagnostics.Contains(d.Id)))
 			{
-				if (diagnostic.Properties.TryGetValue(Men015UsePreferredTerms.PreferredKey, out string preferredTerm)
-					&& diagnostic.Properties.TryGetValue(Men015UsePreferredTerms.CanFixKey, out string canFixText)
-					&& bool.TryParse(canFixText, out bool canFix) && canFix)
+				if (diagnostic.Properties.TryGetValue(Men015UsePreferredTerms.PreferredKey, out string? preferredTerm)
+					&& diagnostic.Properties.TryGetValue(Men015UsePreferredTerms.CanFixKey, out string? canFixText)
+					&& bool.TryParse(canFixText, out bool canFix) && canFix && preferredTerm != null)
 				{
 					context.RegisterCodeFix(
 						CodeAction.Create(
@@ -58,20 +58,22 @@
 		{
 			// https://marcinjuraszek.com/2014/05/solution-wide-rename-from-code-fix-provider-fix-async-method-naming.html
 			Solution result = document.Project.Solution;
-			SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-
-			SyntaxToken violatingToken = syntaxRoot.FindToken(diagnostic.Location.SourceSpan.Start);
-			SyntaxNode violatingNode = violatingToken.Parent;
-			if (violatingToken.IsKind(SyntaxKind.IdentifierToken) && violatingNode != null)
+			SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			if (syntaxRoot != null)
 			{
-				SemanticModel semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-				if (semanticModel != null)
+				SyntaxToken violatingToken = syntaxRoot.FindToken(diagnostic.Location.SourceSpan.Start);
+				SyntaxNode? violatingNode = violatingToken.Parent;
+				if (violatingToken.IsKind(SyntaxKind.IdentifierToken) && violatingNode != null)
 				{
-					ISymbol symbol = semanticModel.GetDeclaredSymbol(violatingNode, cancellationToken);
-					if (symbol != null)
+					SemanticModel? semanticModel = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+					if (semanticModel != null)
 					{
-						OptionSet optionSet = result.Workspace.Options;
-						result = await Renamer.RenameSymbolAsync(result, symbol, preferredTerm, optionSet, cancellationToken);
+						ISymbol? symbol = semanticModel.GetDeclaredSymbol(violatingNode, cancellationToken);
+						if (symbol != null)
+						{
+							OptionSet optionSet = result.Workspace.Options;
+							result = await Renamer.RenameSymbolAsync(result, symbol, preferredTerm, optionSet, cancellationToken);
+						}
 					}
 				}
 			}

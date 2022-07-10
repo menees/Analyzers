@@ -63,7 +63,7 @@ namespace Menees.Analyzers
 				{
 					foreach (EnumMemberDeclarationSyntax member in enumSyntax.Members)
 					{
-						ExpressionSyntax valueExpression = member.EqualsValue?.Value;
+						ExpressionSyntax? valueExpression = member.EqualsValue?.Value;
 						if (valueExpression == null)
 						{
 							Location location = member.GetFirstLineLocation();

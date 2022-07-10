@@ -36,7 +36,7 @@ namespace Menees.Analyzers.Test
 	[GeneratedCode("VS Template", "2017")]
 	public struct DiagnosticResult
 	{
-		private DiagnosticResultLocation[] locations;
+		private DiagnosticResultLocation[]? locations;
 
 		public DiagnosticResult(DiagnosticAnalyzer analyzer)
 		{
@@ -96,6 +96,6 @@ namespace Menees.Analyzers.Test
 			}
 		}
 
-		public Dictionary<string, string> Properties { get; set; }
+		public Dictionary<string, string>? Properties { get; set; }
 	}
 }

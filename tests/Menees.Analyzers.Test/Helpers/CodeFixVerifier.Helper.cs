@@ -22,7 +22,7 @@ namespace Menees.Analyzers.Test
 		{
 			var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
 			var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-			return solution.GetDocument(document.Id);
+			return solution.GetDocument(document.Id) ?? document;
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace Menees.Analyzers.Test
 		/// <returns>The compiler diagnostics that were found in the code</returns>
 		private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
 		{
-			return document.GetSemanticModelAsync().Result.GetDiagnostics();
+			return document.GetSemanticModelAsync()?.Result?.GetDiagnostics() ?? Enumerable.Empty<Diagnostic>();
 		}
 
 		/// <summary>
@@ -73,9 +73,13 @@ namespace Menees.Analyzers.Test
 		private static string GetStringFromDocument(Document document)
 		{
 			var simplifiedDoc = Simplifier.ReduceAsync(document, Simplifier.Annotation).Result;
-			var root = simplifiedDoc.GetSyntaxRootAsync().Result;
-			root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
-			return root.GetText().ToString();
+			var root = simplifiedDoc.GetSyntaxRootAsync()?.Result;
+			if (root != null)
+			{
+				root = Formatter.Format(root, Formatter.Annotation, simplifiedDoc.Project.Solution.Workspace);
+			}
+
+			return root?.GetText().ToString() ?? string.Empty;
 		}
 	}
 }

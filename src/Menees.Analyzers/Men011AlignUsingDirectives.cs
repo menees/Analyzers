@@ -73,7 +73,7 @@ namespace Menees.Analyzers
 					defaultValidity = unknownValidity.Select(indent => indent.IndentText).Distinct().Count() == 1;
 				}
 
-				var properties = new Dictionary<string, string>() { { "Level", levelGroup.Key.ToString() } }.ToImmutableDictionary();
+				var properties = new Dictionary<string, string?>() { { "Level", levelGroup.Key.ToString() } }.ToImmutableDictionary();
 				foreach (IndentInfo indent in indentInfos.Where(i => !(i.IsValid ?? defaultValidity)))
 				{
 					context.ReportDiagnostic(Diagnostic.Create(Rule, indent.Using.GetLocation(), properties));
@@ -136,7 +136,7 @@ namespace Menees.Analyzers
 
 			public int Level { get; }
 
-			public string IndentText { get; }
+			public string? IndentText { get; }
 
 			public bool? IsValid { get; }
 

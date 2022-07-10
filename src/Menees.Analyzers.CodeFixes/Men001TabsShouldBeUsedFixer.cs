@@ -44,51 +44,57 @@
 			Diagnostic diagnostic,
 			CancellationToken cancellationToken)
 		{
-			SyntaxNode syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			Document result = document;
 
-			// For DocumentationCommentExteriorTrivia we must use findInsideTrivia: true so we don't get the entire XML comment trivia.
-			SyntaxTrivia violatingTrivia = syntaxRoot.FindTrivia(diagnostic.Location.SourceSpan.Start, findInsideTrivia: true);
-
-			string originalIndent = violatingTrivia.ToFullString();
-			int tabSize = GetTabSize(document);
-
-			// If they've mixed tabs and spaces, then we need to figure out the original indent length in spaces.
-			int startColumn = violatingTrivia.GetLineSpan().StartLinePosition.Character;
-			int originalIndentColumn = startColumn;
-			string nonWhitespaceSuffix = null;
-			for (int i = 0; i < originalIndent.Length; i++)
+			SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			if (syntaxRoot != null)
 			{
-				char ch = originalIndent[i];
-				if (ch == '\t')
+				// For DocumentationCommentExteriorTrivia we must use findInsideTrivia: true so we don't get the entire XML comment trivia.
+				SyntaxTrivia violatingTrivia = syntaxRoot.FindTrivia(diagnostic.Location.SourceSpan.Start, findInsideTrivia: true);
+
+				string originalIndent = violatingTrivia.ToFullString();
+				int tabSize = GetTabSize(document);
+
+				// If they've mixed tabs and spaces, then we need to figure out the original indent length in spaces.
+				int startColumn = violatingTrivia.GetLineSpan().StartLinePosition.Character;
+				int originalIndentColumn = startColumn;
+				string? nonWhitespaceSuffix = null;
+				for (int i = 0; i < originalIndent.Length; i++)
 				{
-					var offsetWithinTabColumn = originalIndentColumn % tabSize;
-					var spaceCount = tabSize - offsetWithinTabColumn;
-					originalIndentColumn += spaceCount;
+					char ch = originalIndent[i];
+					if (ch == '\t')
+					{
+						var offsetWithinTabColumn = originalIndentColumn % tabSize;
+						var spaceCount = tabSize - offsetWithinTabColumn;
+						originalIndentColumn += spaceCount;
+					}
+					else if (char.IsWhiteSpace(ch))
+					{
+						originalIndentColumn++;
+					}
+					else
+					{
+						// For DocumentationCommentExteriorTrivia we must keep the /// suffix.
+						nonWhitespaceSuffix = originalIndent.Substring(i);
+						break;
+					}
 				}
-				else if (char.IsWhiteSpace(ch))
-				{
-					originalIndentColumn++;
-				}
-				else
-				{
-					// For DocumentationCommentExteriorTrivia we must keep the /// suffix.
-					nonWhitespaceSuffix = originalIndent.Substring(i);
-					break;
-				}
+
+				// We know that the violating trivia was leading whitespace trivia, and we NEVER want to use
+				// spaces for indentation.  So even if the indentation size isn't a multiple of the tab size, we'll
+				// generate the new indentation string as only tabs.
+				int originalIndentSpaceLength = originalIndentColumn - startColumn;
+				int numTabs = originalIndentSpaceLength / tabSize;
+				string tabIndent = new string('\t', numTabs) + nonWhitespaceSuffix;
+
+				SyntaxTrivia newTrivia = violatingTrivia.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia)
+					? SyntaxFactory.DocumentationCommentExterior(tabIndent)
+					: SyntaxFactory.Whitespace(tabIndent);
+				var newSyntaxRoot = syntaxRoot.ReplaceTrivia(violatingTrivia, newTrivia);
+				result = document.WithSyntaxRoot(newSyntaxRoot);
 			}
 
-			// We know that the violating trivia was leading whitespace trivia, and we NEVER want to use
-			// spaces for indentation.  So even if the indentation size isn't a multiple of the tab size, we'll
-			// generate the new indentation string as only tabs.
-			int originalIndentSpaceLength = originalIndentColumn - startColumn;
-			int numTabs = originalIndentSpaceLength / tabSize;
-			string tabIndent = new string('\t', numTabs) + nonWhitespaceSuffix;
-
-			SyntaxTrivia newTrivia = violatingTrivia.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia)
-				? SyntaxFactory.DocumentationCommentExterior(tabIndent)
-				: SyntaxFactory.Whitespace(tabIndent);
-			var newSyntaxRoot = syntaxRoot.ReplaceTrivia(violatingTrivia, newTrivia);
-			return document.WithSyntaxRoot(newSyntaxRoot);
+			return result;
 		}
 
 		private static int GetTabSize(Document document)

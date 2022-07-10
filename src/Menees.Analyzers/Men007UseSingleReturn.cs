@@ -79,9 +79,9 @@ namespace Menees.Analyzers
 		}
 
 		// I originally returned (string name, bool returnsVoid) here, but that caused problems with ValueTuple not being available everywhere.
-		private static Tuple<string, bool> GetReturnContainerInfo(SyntaxNode node, IEnumerable<ReturnStatementSyntax> returns)
+		private static Tuple<string?, bool> GetReturnContainerInfo(SyntaxNode node, IEnumerable<ReturnStatementSyntax> returns)
 		{
-			string name = null;
+			string? name = null;
 			bool returnsVoid = false;
 
 			switch (node)
@@ -163,7 +163,7 @@ namespace Menees.Analyzers
 			{
 				SyntaxNode localBlockNode = localBlockGroup.Key;
 				IEnumerable<ReturnStatementSyntax> localBlockReturns = localBlockGroup;
-				string name;
+				string? name;
 				bool returnsVoid;
 				if (localBlockNode == codeBlock)
 				{

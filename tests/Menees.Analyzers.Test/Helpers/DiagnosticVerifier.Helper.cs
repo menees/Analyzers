@@ -14,7 +14,6 @@ namespace Menees.Analyzers.Test
 
 		internal static string DefaultFilePathPrefix = "Test";
 		internal static string CSharpDefaultFileExt = "cs";
-		internal static string VisualBasicDefaultExt = "vb";
 		internal static string TestProjectName = "TestProject";
 
 		#region  Get Diagnostics
@@ -51,9 +50,9 @@ namespace Menees.Analyzers.Test
 			var diagnostics = new List<Diagnostic>();
 			foreach (var project in projects)
 			{
-				var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer), options);
+				var compilationWithAnalyzers = project.GetCompilationAsync().Result?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
 
-				var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+				var diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
 				foreach (var diag in diags)
 				{
 					if (diag.Location == Location.None || diag.Location.IsInMetadata)
@@ -102,7 +101,7 @@ namespace Menees.Analyzers.Test
 		/// <returns>A Tuple containing the Documents produced from the sources and their TextSpans if relevant</returns>
 		private static Document[] GetDocuments(string[] sources, string language)
 		{
-			if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
+			if (language != LanguageNames.CSharp)
 			{
 				throw new ArgumentException("Unsupported Language");
 			}
@@ -138,7 +137,7 @@ namespace Menees.Analyzers.Test
 		private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
 		{
 			string fileNamePrefix = DefaultFilePathPrefix;
-			string fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
+			string fileExt = CSharpDefaultFileExt;
 
 			var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
@@ -159,7 +158,7 @@ namespace Menees.Analyzers.Test
 				count++;
 			}
 
-			return solution.GetProject(projectId);
+			return solution.GetProject(projectId) ?? throw new InvalidOperationException("Unable to create project.");
 		}
 		#endregion
 	}
