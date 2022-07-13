@@ -110,6 +110,7 @@
 			context.RegisterCodeBlockAction(
 				c =>
 				{
+					ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
 					SyntaxTree tree = c.CodeBlock.SyntaxTree;
 					if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 					{
@@ -128,6 +129,7 @@
 			context.RegisterSyntaxTreeAction(
 				c =>
 				{
+					ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
 					if (!c.IsGeneratedDocument(analyzer.Settings))
 					{
 						action(c);
@@ -146,6 +148,7 @@
 			context.RegisterSyntaxNodeAction(
 				c =>
 				{
+					ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
 					SyntaxTree? tree = c.Node?.SyntaxTree;
 					if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 					{
@@ -172,6 +175,14 @@
 		{
 			context.EnableConcurrentExecution();
 			context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+		}
+
+		private static void ConfigureSettings(AnalysisContext context, Analyzer analyzer, AnalyzerOptions options, CancellationToken cancellationToken)
+		{
+			if (analyzer.Settings?.IsDefault ?? true)
+			{
+				analyzer.Settings = Settings.Cache(context, options, cancellationToken);
+			}
 		}
 
 		#endregion

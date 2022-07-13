@@ -88,6 +88,7 @@
 		private Settings()
 		{
 			// This just uses the default settings.
+			this.IsDefault = true;
 			this.analyzeFileNameExclusions = DefaultAnalyzeFileNameExclusions;
 			this.typeFileNameExclusions = DefaultTypeFileNameExclusions;
 		}
@@ -153,6 +154,8 @@
 
 		public static Settings Default => DefaultSettings;
 
+		public bool IsDefault { get; }
+
 		/// <summary>
 		/// Gets the tab size to use when applying diagnostic analyzers,
 		/// which don't have access to the user's workspace options.
@@ -191,18 +194,16 @@
 
 		#region Public Methods
 
-#pragma warning disable RS1012 // Start action has no registered actions.
-		public static Settings Cache(CompilationStartAnalysisContext context)
-#pragma warning restore RS1012 // Start action has no registered actions.
+		public static Settings Cache(AnalysisContext context, AnalyzerOptions options, CancellationToken cancellationToken)
 		{
 			// See docs for using AdditionalFiles:
 			// https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Using%20Additional%20Files.md
 			// Using OrdinalIgnoreCase to compare file names per MSDN:
 			// https://msdn.microsoft.com/en-us/library/dd465121.aspx#choosing_a_stringcomparison_member_for_your_method_call
-			AdditionalText? additionalText = context.Options?.AdditionalFiles
+			AdditionalText? additionalText = options?.AdditionalFiles
 				.FirstOrDefault(file => string.Equals(Path.GetFileName(file.Path), SettingsFileName, StringComparison.OrdinalIgnoreCase));
 
-			SourceText? sourceText = additionalText?.GetText(context.CancellationToken);
+			SourceText? sourceText = additionalText?.GetText(cancellationToken);
 			if (sourceText == null || !context.TryGetValue(sourceText, ValueProvider, out Settings? result))
 			{
 				result = DefaultSettings;

@@ -16,14 +16,16 @@
 
 		public override void Initialize(AnalysisContext context)
 		{
-			context.RegisterCompilationStartAction(startContext => { this.Settings = Settings.Cache(startContext); });
+			// I tried to use context.RegisterCompilationStartAction to initialize this.Settings.
+			// Unfortunately, that start action didn't always run before other actions that need
+			// settings (e.g., SyntaxNodeActions).
 		}
 
 		#endregion
 
 		#region Internal Properties
 
-		internal Settings Settings { get; private set; }
+		internal Settings Settings { get; set; }
 
 		#endregion
 	}

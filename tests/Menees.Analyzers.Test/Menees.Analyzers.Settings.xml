@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Menees.Analyzers.Settings>
+<Menees.Analyzers.Settings
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="..\..\src\Menees.Analyzers\Menees.Analyzers.Settings.xsd">
 	<TabSize>4</TabSize>
 	<!-- Note: The rest of these values are intentionally set small for unit testing.  Production values should be larger. -->
 	<NotifyLineColumns>35</NotifyLineColumns>
@@ -9,6 +11,11 @@
 	<MaxFileLines>20</MaxFileLines>
 	<MaxUnregionedLines>20</MaxUnregionedLines>
 
+	<AnalyzeFileNameExclusions>
+		<FileName>Test21.cs</FileName>
+		<FileRegex>\..*Gen.*\.cs</FileRegex>
+	</AnalyzeFileNameExclusions>
+	
 	<TypeFileNameExclusions>
 		<FileName>Enumerations.cs</FileName>
 		<FileName>Interfaces.cs</FileName>
