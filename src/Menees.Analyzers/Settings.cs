@@ -103,6 +103,7 @@
 			this.MaxFileLines = GetSetting(xml, nameof(this.MaxFileLines), this.MaxFileLines);
 			this.MaxUnregionedLines = GetSetting(xml, nameof(this.MaxUnregionedLines), this.MaxUnregionedLines);
 			this.AllowLongUriLines = GetSetting(xml, nameof(this.AllowLongUriLines), this.AllowLongUriLines);
+			this.AllowLongFourSlashCommentLines = GetSetting(xml, nameof(this.AllowLongFourSlashCommentLines), this.AllowLongFourSlashCommentLines);
 
 			this.analyzeFileNameExclusions = GetFileNameExclusions(xml, "AnalyzeFileNameExclusions", DefaultAnalyzeFileNameExclusions);
 			this.typeFileNameExclusions = GetFileNameExclusions(xml, "TypeFileNameExclusions", DefaultTypeFileNameExclusions);
@@ -189,6 +190,8 @@
 		public bool HasPreferredTerms => this.preferredTerms.Count > 0;
 
 		public bool AllowLongUriLines { get; } = true;
+
+		public bool AllowLongFourSlashCommentLines { get; }
 
 		#endregion
 

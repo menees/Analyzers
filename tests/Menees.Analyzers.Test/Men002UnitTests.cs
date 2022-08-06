@@ -27,6 +27,7 @@ namespace Test
 		public Testing()
 		{
 			// LongUriLines=true
+			//// This is a long line preceded by four slashes. Setting AllowLongFourSlashCommentLines=true makes it valid.
 			// https://www.amazon.com/Brain-Games%C2%AE-Large-Print-Searches/dp/1640304606/ref=sr_1_2?crid=3KP7CV3HBJADN&keywords=big+long+search+text&qid=1645375366&sprefix=big+long+search+text%2Caps%2C72&sr=8-2
 			/// https://www.amazon.com/Brain-Games%C2%AE-Large-Print-Searches/dp/1640304606/ref=sr_1_2?crid=3KP7CV3HBJADN&keywords=big+long+search+text&qid=1645375366&sprefix=big+long+search+text%2Caps%2C72&sr=8-2
 			//// https://www.amazon.com/Brain-Games%C2%AE-Large-Print-Searches/dp/1640304606/ref=sr_1_2?crid=3KP7CV3HBJADN&keywords=big+long+search+text&qid=1645375366&sprefix=big+long+search+text%2Caps%2C72&sr=8-2

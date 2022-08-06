@@ -143,10 +143,13 @@
 			int thresholdIndex)
 		{
 			bool report = true;
-			if (this.Settings.AllowLongUriLines)
+
+			string? trimmed = null;
+			if (report && this.Settings.AllowLongUriLines)
 			{
 				// Ignore if the whole line minus comment delimiters passes Uri.TryCreate(absolute) (e.g., for http or UNC URLs).
-				string scrubbed = lineText.Trim();
+				trimmed ??= lineText.Trim();
+				string scrubbed = trimmed;
 				if (scrubbed.StartsWith("//"))
 				{
 					// Ignore multiple leading '/' in case the URL is inside a doc comment.
@@ -159,6 +162,12 @@
 				}
 
 				report = !Uri.TryCreate(scrubbed, UriKind.Absolute, out _);
+			}
+
+			if (report && this.Settings.AllowLongFourSlashCommentLines)
+			{
+				trimmed ??= lineText.Trim();
+				report = !trimmed.StartsWith("////");
 			}
 
 			if (report)

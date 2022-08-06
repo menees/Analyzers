@@ -10,6 +10,7 @@
 	<MaxPropertyAccessorLines>5</MaxPropertyAccessorLines>
 	<MaxFileLines>20</MaxFileLines>
 	<MaxUnregionedLines>20</MaxUnregionedLines>
+	<AllowLongFourSlashCommentLines>true</AllowLongFourSlashCommentLines>
 
 	<AnalyzeFileNameExclusions>
 		<FileName>Test21.cs</FileName>
