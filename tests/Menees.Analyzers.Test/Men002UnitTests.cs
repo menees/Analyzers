@@ -24,6 +24,10 @@ namespace Test
 	class Testing
 	{
 		/// <summary>Test</summary>
+		/// <see href=""https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d314-see"" />
+		/// <seealso  href=""https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d314-see""  />
+		/// <see href='https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d314-see' />
+		/// <seealso  href='https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d314-see'  />
 		public Testing()
 		{
 			// LongUriLines=true
@@ -64,6 +68,7 @@ namespace ConsoleApplication1
 		/// <summary>
 		/// Constructor
 		/// </summary>
+		/// <seealso      cref='System.Text.RegularExpressions.Regex'  />
 		public TypeName() // This line is also much too long.
 		{
 			// AllowLongUriLines=true
@@ -81,8 +86,13 @@ namespace ConsoleApplication1
 				},
 				new DiagnosticResult(analyzer)
 				{
-					Message = "Line must be no longer than 40 characters (now 61).",
+					Message = "Line must be no longer than 40 characters (now 73).",
 					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 35) }
+				},
+				new DiagnosticResult(analyzer)
+				{
+					Message = "Line must be no longer than 40 characters (now 61).",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 13, 35) }
 				},
 #if DEBUG // MEN002A is disabled by default, so it won't run in release build unit tests.
 				new DiagnosticResult(analyzer)
@@ -90,13 +100,13 @@ namespace ConsoleApplication1
 					Id = Men002LineTooLong.DiagnosticIdNotify,
 					Severity = DiagnosticSeverity.Info,
 					Message = "Line is over 35 characters (now 37).",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 27) },
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 15, 27) },
 				},
 #endif
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Line must be no longer than 40 characters (now 149).",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 15, 32) }
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 16, 32) }
 				},
 			};
 

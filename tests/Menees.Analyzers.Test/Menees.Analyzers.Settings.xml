@@ -16,7 +16,7 @@
 		<FileName>Test21.cs</FileName>
 		<FileRegex>\..*Gen.*\.cs</FileRegex>
 	</AnalyzeFileNameExclusions>
-	
+
 	<TypeFileNameExclusions>
 		<FileName>Enumerations.cs</FileName>
 		<FileName>Interfaces.cs</FileName>

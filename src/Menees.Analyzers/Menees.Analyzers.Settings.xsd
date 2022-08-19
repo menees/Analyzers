@@ -27,7 +27,7 @@
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
-				
+
 				<xs:element name="TypeFileNameExclusions" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:choice minOccurs="1" maxOccurs="unbounded">
@@ -55,7 +55,7 @@
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
-				
+
 				<xs:element name="PreferredTerms" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:choice minOccurs="1" maxOccurs="unbounded">

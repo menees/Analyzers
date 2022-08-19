@@ -1,5 +1,11 @@
 ﻿namespace Menees.Analyzers
 {
+	#region Using Directives
+
+	using System.Text.RegularExpressions;
+
+	#endregion
+
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public sealed class Men002LineTooLong : Analyzer
 	{
@@ -13,6 +19,12 @@
 		#endregion
 
 		#region Private Data Members
+
+		// See "C# XML Comment Refs.rgxp" in https://github.com/menees/RegExponent/tree/master/tests/Files/.
+		private const string XmlCommentTagWithUrlPattern = @"(?nx-i)^<see(also)?\s+href=( # Begin tag and href="
+			+ "\n" + @"(""(?<url>[^""\n]+)"") # Double-quoted URL"
+			+ "\n" + @"|('(?<url>[^'\n]+)') # Single-quoted URL"
+			+ "\n" + @")\s*/>$ # End tag";
 
 		private static readonly LocalizableString Title =
 			new LocalizableResourceString(nameof(Resources.Men002Title), Resources.ResourceManager, typeof(Resources));
@@ -34,6 +46,8 @@
 
 		private static readonly DiagnosticDescriptor RuleNotify =
 			new(DiagnosticIdNotify, TitleNotify, MessageFormatNotify, Rules.Layout, DiagnosticSeverity.Info, Rules.DisabledByDefault, Description);
+
+		private static readonly Regex XmlCommentTagWithUrl = new(XmlCommentTagWithUrlPattern, RegexOptions.Compiled);
 
 		#endregion
 
@@ -159,6 +173,16 @@
 				{
 					// Ignore extra '*' in case the comment is like /** URL **/
 					scrubbed = scrubbed.Substring(2, scrubbed.Length - 4).Trim('*').Trim();
+				}
+
+				// Ignore XML <see> and <seealso> elements with href attributes using long URLs.
+				// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags#href-attribute
+				// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments#d314-see
+				Match match = XmlCommentTagWithUrl.Match(scrubbed);
+				if (match.Success && match.Groups.Count == 2)
+				{
+					// Get the content of the matched "url" group.
+					scrubbed = match.Groups[1].Value;
 				}
 
 				report = !Uri.TryCreate(scrubbed, UriKind.Absolute, out _);
