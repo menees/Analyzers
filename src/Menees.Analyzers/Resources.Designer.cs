@@ -500,5 +500,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men015Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Top-level statements should be avoided in long-term code for consistency and maintainability with other object-oriented modules..
+        /// </summary>
+        internal static string Men016Description {
+            get {
+                return ResourceManager.GetString("Men016Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use object-oriented methods instead of top-level statements..
+        /// </summary>
+        internal static string Men016MessageFormat {
+            get {
+                return ResourceManager.GetString("Men016MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid top-level statements.
+        /// </summary>
+        internal static string Men016Title {
+            get {
+                return ResourceManager.GetString("Men016Title", resourceCulture);
+            }
+        }
     }
 }
