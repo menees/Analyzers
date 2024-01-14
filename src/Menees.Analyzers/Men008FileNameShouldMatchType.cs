@@ -23,15 +23,15 @@
 		private static readonly DiagnosticDescriptor Rule =
 			new(DiagnosticId, Title, MessageFormat, Rules.Naming, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new()
-		{
+		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds =
+		[
 			SyntaxKind.ClassDeclaration,
 			SyntaxKind.StructDeclaration,
 			SyntaxKind.InterfaceDeclaration,
 			SyntaxKind.EnumDeclaration,
 			SyntaxKind.DelegateDeclaration,
 			SyntaxKind.RecordDeclaration,
-		};
+		];
 
 		#endregion
 

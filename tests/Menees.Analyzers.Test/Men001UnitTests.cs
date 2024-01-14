@@ -64,14 +64,14 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 1, 1) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 5, 1) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 1) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 1) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 13, 1) } },
-			};
+			DiagnosticResult[] expected =
+			[
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 10, 1)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 12, 1)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 13, 1)] },
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 

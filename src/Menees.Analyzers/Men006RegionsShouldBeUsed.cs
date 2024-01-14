@@ -23,8 +23,8 @@
 		private static readonly DiagnosticDescriptor Rule =
 			new(DiagnosticId, Title, MessageFormat, Rules.Layout, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds = new()
-		{
+		private static readonly HashSet<SyntaxKind> SupportedTypeDeclarationKinds =
+		[
 			SyntaxKind.ClassDeclaration,
 			SyntaxKind.StructDeclaration,
 			SyntaxKind.InterfaceDeclaration,
@@ -32,15 +32,15 @@
 			SyntaxKind.RecordDeclaration,
 
 			// Note: We don't care about SyntaxKind.DelegateDeclaration because those will usually be one-liners.
-		};
+		];
 
-		private static readonly HashSet<string> DesignerGeneratedRegions = new()
-		{
+		private static readonly HashSet<string> DesignerGeneratedRegions =
+		[
 			// VS 2002/3 put the designer-generated code in the main file (since partial classes didn't exist until VS 2005).
 			// We'll ignore those designer-generated regions.
 			"Windows Form Designer generated code",
 			"Component Designer generated code",
-		};
+		];
 
 		#endregion
 

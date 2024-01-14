@@ -23,14 +23,14 @@ namespace Menees.Analyzers
 		private static readonly DiagnosticDescriptor Rule =
 			new(DiagnosticId, Title, MessageFormat, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SupportedSyntaxKinds = new()
-		{
+		private static readonly HashSet<SyntaxKind> SupportedSyntaxKinds =
+		[
 			SyntaxKind.MethodDeclaration,
 			SyntaxKind.ConstructorDeclaration,
 			SyntaxKind.DestructorDeclaration,
 			SyntaxKind.ConversionOperatorDeclaration,
 			SyntaxKind.OperatorDeclaration,
-		};
+		];
 
 		#endregion
 

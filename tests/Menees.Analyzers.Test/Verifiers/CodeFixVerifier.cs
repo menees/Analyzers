@@ -9,16 +9,11 @@ namespace Menees.Analyzers.Test
 	/// </summary>
 	public abstract partial class CodeFixVerifier : DiagnosticVerifier
 	{
-		protected virtual CodeFixProvider? CSharpCodeFixProvider => null;
-
 		/// <summary>
 		/// Returns the codefix being tested (C#) - to be implemented in non-abstract class
 		/// </summary>
 		/// <returns>The CodeFixProvider to be used for CSharp code</returns>
-		protected virtual CodeFixProvider? GetCSharpCodeFixProvider()
-		{
-			return this.CSharpCodeFixProvider;
-		}
+		protected virtual CodeFixProvider? CSharpCodeFixProvider => null;
 
 		/// <summary>
 		/// Called to test a C# codefix when applied on the inputted string as a source
@@ -29,7 +24,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
 		protected void VerifyCSharpFix(string oldSource, string newSource, int? codeFixIndex = null, bool allowNewCompilerDiagnostics = false)
 		{
-			VerifyFix(LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), GetCSharpCodeFixProvider(), oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
+			VerifyFix(LanguageNames.CSharp, this.CSharpDiagnosticAnalyzer, this.CSharpCodeFixProvider, oldSource, newSource, codeFixIndex, allowNewCompilerDiagnostics);
 		}
 
 		/// <summary>
@@ -45,12 +40,12 @@ namespace Menees.Analyzers.Test
 		/// <param name="newSource">A class in the form of a string after the CodeFix was applied to it</param>
 		/// <param name="codeFixIndex">Index determining which codefix to apply if there are multiple</param>
 		/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
-		private void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider? codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
+		private static void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider? codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
 		{
 			if (IsEnabled(analyzer) && codeFixProvider != null)
 			{
 				var document = CreateDocument(oldSource, language);
-				var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
+				var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
 				var compilerDiagnostics = GetCompilerDiagnostics(document);
 				var attempts = analyzerDiagnostics.Length;
 
@@ -60,7 +55,7 @@ namespace Menees.Analyzers.Test
 					var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
 					codeFixProvider.RegisterCodeFixesAsync(context).Wait();
 
-					if (!actions.Any())
+					if (actions.Count == 0)
 					{
 						break;
 					}
@@ -72,7 +67,7 @@ namespace Menees.Analyzers.Test
 					}
 
 					document = ApplyFix(document, actions.ElementAt(0));
-					analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
+					analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
 
 					var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
@@ -95,7 +90,7 @@ namespace Menees.Analyzers.Test
 					}
 
 					//check if there are analyzer diagnostics left after the code fix
-					if (!analyzerDiagnostics.Any())
+					if (analyzerDiagnostics.Length == 0)
 					{
 						break;
 					}

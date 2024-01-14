@@ -58,33 +58,33 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 23) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 23)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 23) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 7, 23)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 9, 20) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 9, 20)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 20) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 20)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 
@@ -123,33 +123,33 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 16) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 7, 16)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 16) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 8, 16)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 13) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 13)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 13) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 11, 13)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 
@@ -193,45 +193,45 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 7) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 7, 7)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 7) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 8, 7)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "False" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 4) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 4)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow instead of Now.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 12) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 11, 12)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "True" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 13, 4) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 13, 4)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "False" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use UtcNow.Date instead of Today.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 8) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 14, 8)],
 					Properties = new Dictionary<string, string>() { { "CanFix", "False" } }
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(diagnosticsTest, expected);
 

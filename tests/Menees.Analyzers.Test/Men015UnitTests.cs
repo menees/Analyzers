@@ -59,45 +59,45 @@ namespace TestID.Kustom
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use TestId instead of TestID.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 2, 11) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 2, 11)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Id" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use Custom instead of Kustom.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 2, 18) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 2, 18)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use Canceled instead of Cancelled.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 8) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 8)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Canceled" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use colorId instead of colourID.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 15) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 15)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "color" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use Custom instead of Kustom.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 12, 14) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 12, 14)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use GetIndexes instead of GetIndices.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 14, 15) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 14, 15)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -155,21 +155,21 @@ class Derived : Base
 ";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use Color instead of Colour.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 5, 21) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 5, 21)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Color" } }
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use GetIndexes instead of GetIndices.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 21) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 21)],
 					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Indexes" } }
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

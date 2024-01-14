@@ -61,14 +61,14 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "File Test0.cs must be no longer than 20 lines (now 21).",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 21, 1) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 21, 1)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

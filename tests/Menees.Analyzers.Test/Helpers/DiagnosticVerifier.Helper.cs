@@ -125,7 +125,7 @@ namespace Menees.Analyzers.Test
 		/// <returns>A Document created from the source string</returns>
 		protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
 		{
-			return CreateProject(new[] { source }, language).Documents.First();
+			return CreateProject([source], language).Documents.First();
 		}
 
 		/// <summary>

@@ -68,14 +68,14 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use test.TryGetValue(\"a\", out var value) instead of test.ContainsKey(\"a\") and test[\"a\"].",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 9, 12) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 9, 12)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -100,14 +100,14 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 12) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -133,14 +133,14 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 21) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 21)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -165,14 +165,14 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 10, 12) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

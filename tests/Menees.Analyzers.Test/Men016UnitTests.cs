@@ -64,14 +64,14 @@ Console.WriteLine(""Test"");
 ";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = ExpectedMessage,
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 3, 1) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 3, 1)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -96,19 +96,19 @@ public class MyClass
 ";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = ExpectedMessage,
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 5, 1) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)],
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = ExpectedMessage,
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 1) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 1)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -133,14 +133,14 @@ namespace MyNamespace
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = ExpectedMessage,
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 1) },
+					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 1)],
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

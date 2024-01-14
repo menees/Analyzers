@@ -27,8 +27,8 @@
 		private static readonly DiagnosticDescriptor Rule =
 			new(DiagnosticId, Title, MessageFormat, Rules.Naming, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<SyntaxKind> SimpleIdentifierDeclarationKinds = new()
-		{
+		private static readonly HashSet<SyntaxKind> SimpleIdentifierDeclarationKinds =
+		[
 			SyntaxKind.ClassDeclaration,
 			SyntaxKind.StructDeclaration,
 			SyntaxKind.InterfaceDeclaration,
@@ -43,13 +43,13 @@
 			SyntaxKind.TypeParameter,
 			SyntaxKind.ForEachStatement,
 			SyntaxKind.EnumMemberDeclaration,
-		};
+		];
 
-		private static readonly HashSet<SyntaxKind> OverrideIdentifierDeclarationKinds = new()
-		{
+		private static readonly HashSet<SyntaxKind> OverrideIdentifierDeclarationKinds =
+		[
 			SyntaxKind.MethodDeclaration,
 			SyntaxKind.PropertyDeclaration,
-		};
+		];
 
 		#endregion
 

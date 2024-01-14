@@ -6,15 +6,11 @@ namespace Menees.Analyzers.Test
 	public abstract partial class DiagnosticVerifier
 	{
 		#region To be implemented by Test classes
-		protected abstract DiagnosticAnalyzer CSharpDiagnosticAnalyzer { get; }
 
 		/// <summary>
 		/// Get the CSharp analyzer being tested - to be implemented in non-abstract class
 		/// </summary>
-		protected virtual DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
-		{
-			return this.CSharpDiagnosticAnalyzer;
-		}
+		protected abstract DiagnosticAnalyzer CSharpDiagnosticAnalyzer { get; }
 
 		#endregion
 
@@ -33,7 +29,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
 		protected void VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
 		{
-			VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+			VerifyDiagnostics([source], LanguageNames.CSharp, this.CSharpDiagnosticAnalyzer, expected);
 		}
 
 		/// <summary>
@@ -44,7 +40,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
 		protected void VerifyCSharpDiagnostic(string[] sources, params DiagnosticResult[] expected)
 		{
-			VerifyDiagnostics(sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+			VerifyDiagnostics(sources, LanguageNames.CSharp, this.CSharpDiagnosticAnalyzer, expected);
 		}
 
 		/// <summary>
@@ -55,7 +51,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="language">The language of the classes represented by the source strings</param>
 		/// <param name="analyzer">The analyzer to be run on the source code</param>
 		/// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-		private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
+		private static void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
 		{
 			if (IsEnabled(analyzer))
 			{
@@ -77,7 +73,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="expectedResults">Diagnostic Results that should have appeared in the code</param>
 		private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
 		{
-			int expectedCount = expectedResults.Count();
+			int expectedCount = expectedResults.Length;
 			int actualCount = actualResults.Count();
 
 			if (expectedCount != actualCount)
@@ -217,11 +213,9 @@ namespace Menees.Analyzers.Test
 							Assert.IsTrue(location.IsInSource,
 								$"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
 
-							string resultMethodName = "GetCSharpResultAt";
 							var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
-							builder.AppendFormat("{0}({1}, {2}, {3}.{4})",
-								resultMethodName,
+							builder.AppendFormat("GetCSharpResultAt({0}, {1}, {2}.{3})",
 								linePosition.Line + 1,
 								linePosition.Character + 1,
 								analyzerType.Name,

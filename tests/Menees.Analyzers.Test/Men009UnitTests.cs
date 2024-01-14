@@ -81,44 +81,44 @@ class Testing
 }";
 
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 11, 13) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 11, 13)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 19, 6) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 19, 6)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 22, 20) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 22, 20)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 25, 38) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 25, 38)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 25, 88) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 25, 88)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 27, 40) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 27, 40)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 27, 90) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 27, 90)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 

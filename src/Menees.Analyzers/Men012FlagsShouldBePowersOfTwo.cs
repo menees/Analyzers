@@ -29,7 +29,7 @@ namespace Menees.Analyzers
 		private static readonly DiagnosticDescriptor RuleNoValue =
 			new(DiagnosticId, Title, MessageFormatNoValue, Rules.Layout, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
 
-		private static readonly HashSet<string> FlagsAttributeNames = new() { "Flags", "FlagsAttribute" };
+		private static readonly HashSet<string> FlagsAttributeNames = ["Flags", "FlagsAttribute"];
 
 		#endregion
 

@@ -12,14 +12,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1
-      
+
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
 
     - name: Build everything
       run: |

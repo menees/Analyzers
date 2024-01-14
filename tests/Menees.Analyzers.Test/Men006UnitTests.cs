@@ -107,14 +107,14 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used because Test0.cs is longer than 20 lines (now 21).",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 1, 1) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -142,14 +142,14 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used because Test0.cs contains multiple type declarations.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 1, 1) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -185,24 +185,24 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used around using directives.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used around all members in Type1.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used around all members in Type2.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 19, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 19, 2)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
@@ -229,19 +229,19 @@ namespace ConsoleApplication1
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used around using directives.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
 				},
 				new DiagnosticResult(analyzer)
 				{
 					Message = "#regions should be used around all members in Type1.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}

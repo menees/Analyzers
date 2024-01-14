@@ -74,13 +74,13 @@ using System.Collections;
 	}
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 2, 2) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 9, 1) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 15, 5) } },
-				new DiagnosticResult(analyzer) { Locations = new[] { new DiagnosticResultLocation("Test0.cs", 16, 9) } },
-			};
+			DiagnosticResult[] expected =
+			[
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 2, 2)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 9, 1)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 15, 5)] },
+				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 16, 9)] },
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 

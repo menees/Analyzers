@@ -67,14 +67,14 @@ namespace ValidCode
 			{
 				string test = @"namespace Testing {" + declarationType + " Invalid { } }";
 				var analyzer = this.CSharpDiagnosticAnalyzer;
-				DiagnosticResult[] expected = new[]
-				{
+				DiagnosticResult[] expected =
+				[
 					new DiagnosticResult(analyzer)
 					{
 						Message = "File name Test0.cs doesn't match the name of a contained type.",
-						Locations = new[] { new DiagnosticResultLocation("Test0.cs", 1, 20) }
+						Locations = [new DiagnosticResultLocation("Test0.cs", 1, 20)]
 					},
-				};
+				];
 
 				this.VerifyCSharpDiagnostic(test, expected);
 			}
@@ -88,20 +88,20 @@ namespace ValidCode
 		public void InvalidCodeTestPartialType()
 		{
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "File name Test1.cs doesn't match the name of a contained type.",
-					Locations = new[] { new DiagnosticResultLocation("Test1.cs", 2, 1) }
+					Locations = [new DiagnosticResultLocation("Test1.cs", 2, 1)]
 				},
-			};
+			];
 
-			string[] test = new[]
-			{
+			string[] test =
+			[
 				"partial class Test0 { }", // Test0.cs
 				"//Line1\r\npartial class Test0 { }" // Test1.cs
-			};
+			];
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
 
@@ -118,14 +118,14 @@ namespace Testing
 	class test0 { }
 }";
 			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected = new[]
-			{
+			DiagnosticResult[] expected =
+			[
 				new DiagnosticResult(analyzer)
 				{
 					Message = "File name Test0.cs doesn't exactly match type test0.",
-					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 4, 2) }
+					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
 				},
-			};
+			];
 
 			this.VerifyCSharpDiagnostic(test, expected);
 		}
