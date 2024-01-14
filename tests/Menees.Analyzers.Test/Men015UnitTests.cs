@@ -137,6 +137,43 @@ class Canceled
 			this.VerifyCSharpFix(test, fixtest);
 		}
 
+		[TestMethod]
+		public void InvalidCodeIgnoreOverrideTest()
+		{
+			const string test = @"
+namespace Testing;
+class Base
+{
+	public virtual int Colour => 1;
+	public virtual int GetIndices() => 1;
+}
+class Derived : Base
+{
+	public override int Colour => 2;
+	public override int GetIndices() => 2;
+}
+";
+
+			var analyzer = this.CSharpDiagnosticAnalyzer;
+			DiagnosticResult[] expected = new[]
+			{
+				new DiagnosticResult(analyzer)
+				{
+					Message = "Use Color instead of Colour.",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 5, 21) },
+					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Color" } }
+				},
+				new DiagnosticResult(analyzer)
+				{
+					Message = "Use GetIndexes instead of GetIndices.",
+					Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 21) },
+					Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Indexes" } }
+				},
+			};
+
+			this.VerifyCSharpDiagnostic(test, expected);
+		}
+
 		#endregion
 
 		#region SplitIntoTerms Tests

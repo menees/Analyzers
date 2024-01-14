@@ -45,6 +45,12 @@
 			SyntaxKind.EnumMemberDeclaration,
 		};
 
+		private static readonly HashSet<SyntaxKind> OverrideIdentifierDeclarationKinds = new()
+		{
+			SyntaxKind.MethodDeclaration,
+			SyntaxKind.PropertyDeclaration,
+		};
+
 		#endregion
 
 		#region Public Properties
@@ -191,11 +197,20 @@
 			SyntaxKind kind = declaration.Kind();
 			bool result = SimpleIdentifierDeclarationKinds.Contains(kind)
 				|| (kind == SyntaxKind.IdentifierName
-					&& declaration?.Parent?.Kind() == SyntaxKind.QualifiedName
-					&& declaration?.Parent?.Parent?.Kind() == SyntaxKind.NamespaceDeclaration)
+					&& declaration.Parent?.Kind() == SyntaxKind.QualifiedName
+					&& declaration.Parent?.Parent?.Kind() == SyntaxKind.NamespaceDeclaration)
 				|| (kind == SyntaxKind.IdentifierName
-					&& declaration?.Parent?.Kind() == SyntaxKind.NameEquals
-					&& declaration?.Parent?.Parent?.Kind() == SyntaxKind.UsingDirective);
+					&& declaration.Parent?.Kind() == SyntaxKind.NameEquals
+					&& declaration.Parent?.Parent?.Kind() == SyntaxKind.UsingDirective);
+
+			// If the current identifier is an override, then ignore it because the problem is inherited.
+			if (result
+				&& OverrideIdentifierDeclarationKinds.Contains(kind)
+				&& declaration.ChildTokens().Any(token => token.Kind() == SyntaxKind.OverrideKeyword))
+			{
+				result = false;
+			}
+
 			return result;
 		}
 
