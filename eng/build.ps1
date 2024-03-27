@@ -56,6 +56,16 @@ if ($publish)
 	$published = $false
 	if ($version)
 	{
+		$vsixPath = "$repoPath\src\Menees.Analyzers.Vsix\source.extension.vsixmanifest"
+		if (Test-Path $vsixPath)
+		{
+			$pattern = [Text.RegularExpressions.Regex]::Escape("Id=`"Menees.Analyzers.Vsix`" Version=`"$version`"")
+			if (!(Get-Content $vsixPath | Select-String $pattern))
+			{
+				throw "Unable to find Version=`"$version`" in the .vsix manifest. The manifest and Directory.Build.props are out of sync."
+			}
+		}
+
 		$artifactsPath = "$repoPath\artifacts"
 		if (Test-Path $artifactsPath)
 		{
