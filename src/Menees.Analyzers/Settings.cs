@@ -17,14 +17,14 @@
 
 		private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
 
-		private static readonly IEnumerable<Predicate<string>> DefaultAnalyzeFileNameExclusions = new[]
-		{
+		private static readonly IEnumerable<Predicate<string>> DefaultAnalyzeFileNameExclusions =
+		[
 			CreateFileNamePredicate("GeneratedCode.cs"),
 			CreateFileRegexPredicate(@"\.(designer|generated|codegen)\.cs$"),
-		};
+		];
 
-		private static readonly IEnumerable<Predicate<string>> DefaultTypeFileNameExclusions = new[]
-		{
+		private static readonly IEnumerable<Predicate<string>> DefaultTypeFileNameExclusions =
+		[
 			CreateFileNamePredicate("Enumerations.cs"),
 			CreateFileRegexPredicate(@"^Enumerations\..*\.cs$"),
 			CreateFileNamePredicate("Interfaces.cs"),
@@ -38,10 +38,10 @@
 			// Note: We don't need to do the following because these files shouldn't contain types (just assembly attributes):
 			// CreateFileRegexPredicate(".*AssemblyInfo\.cs$"),
 			// CreateFileNamePredicate("GlobalSuppressions.cs"),
-		};
+		];
 
 		// Note: The UL compound suffix is handled in a loop through these suffixes.
-		private static readonly HashSet<char> CSharpNumericSuffixes = new(new[] { 'L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm', });
+		private static readonly HashSet<char> CSharpNumericSuffixes = new(['L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm',]);
 
 		private static readonly Dictionary<string, string> DefaultPreferredTerms = new()
 		{
@@ -73,11 +73,11 @@
 
 		private readonly IEnumerable<Predicate<string>> analyzeFileNameExclusions;
 		private readonly IEnumerable<Predicate<string>> typeFileNameExclusions;
-		private readonly HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
-		private readonly HashSet<string> allowedNumericCallerNames = new(new[]
-		{
+		private readonly HashSet<string> allowedNumericLiterals = new(["0", "1", "2", "100"]);
+		private readonly HashSet<string> allowedNumericCallerNames = new(
+		[
 			"FromDays", "FromHours", "FromMicroseconds", "FromMilliseconds", "FromMinutes", "FromSeconds", "FromTicks", "MaxLength"
-		});
+		]);
 		private readonly IEnumerable<Predicate<string>>? allowedNumericCallerRegexes;
 		private readonly Dictionary<string, string> preferredTerms = DefaultPreferredTerms;
 
@@ -183,9 +183,9 @@
 		public int MaxUnregionedLines { get; } = 100;
 
 		// These attributes cover MSTest, NUnit, and xUnit.
-		public HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(new[] { "TestMethod", "Test", "Fact" });
+		public HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(["TestMethod", "Test", "Fact"]);
 
-		public HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(new[] { "TestClass", "TestFixture" });
+		public HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(["TestClass", "TestFixture"]);
 
 		public bool HasPreferredTerms => this.preferredTerms.Count > 0;
 

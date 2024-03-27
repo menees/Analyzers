@@ -1,21 +1,12 @@
 namespace Menees.Analyzers.Test
 {
-	// This code came from StyleCopAnalyzers-master\StyleCop.Analyzers\StyleCop.Analyzers.Test\Settings\SettingsUnitTests.cs
-	internal sealed class AdditionalTextHelper : AdditionalText
+	// This code started from StyleCopAnalyzers-master\StyleCop.Analyzers\StyleCop.Analyzers.Test\Settings\SettingsUnitTests.cs
+	internal sealed class AdditionalTextHelper(string path, string text) : AdditionalText
 	{
-		private readonly SourceText sourceText;
+		private readonly SourceText sourceText = SourceText.From(text);
 
-		public AdditionalTextHelper(string path, string text)
-		{
-			this.Path = path;
-			this.sourceText = SourceText.From(text);
-		}
+		public override string Path { get; } = path;
 
-		public override string Path { get; }
-
-		public override SourceText GetText(CancellationToken cancellationToken = default)
-		{
-			return this.sourceText;
-		}
+		public override SourceText GetText(CancellationToken cancellationToken = default) => this.sourceText;
 	}
 }

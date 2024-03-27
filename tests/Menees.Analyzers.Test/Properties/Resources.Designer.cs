@@ -19,7 +19,7 @@ namespace Menees.Analyzers.Test.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -62,18 +62,15 @@ namespace Menees.Analyzers.Test.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;Menees.Analyzers.Settings&gt;
+        ///&lt;Menees.Analyzers.Settings
+        ///	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        ///	xsi:noNamespaceSchemaLocation=&quot;..\..\src\Menees.Analyzers\Menees.Analyzers.Settings.xsd&quot;&gt;
         ///	&lt;TabSize&gt;4&lt;/TabSize&gt;
         ///	&lt;!-- Note: The rest of these values are intentionally set small for unit testing.  Production values should be larger. --&gt;
+        ///	&lt;NotifyLineColumns&gt;35&lt;/NotifyLineColumns&gt;
         ///	&lt;MaxLineColumns&gt;40&lt;/MaxLineColumns&gt;
         ///	&lt;MaxMethodLines&gt;5&lt;/MaxMethodLines&gt;
-        ///	&lt;MaxPropertyAccessorLines&gt;5&lt;/MaxPropertyAccessorLines&gt;
-        ///	&lt;MaxFileLines&gt;20&lt;/MaxFileLines&gt;
-        ///	&lt;MaxUnregionedLines&gt;20&lt;/MaxUnregionedLines&gt;
-        ///
-        ///	&lt;TypeFileNameExclusions&gt;
-        ///		&lt;FileName&gt;Enumerations.cs&lt;/FileName&gt;
-        ///		&lt;FileName&gt;I [rest of string was truncated]&quot;;.
+        ///	&lt;MaxPropertyAccessorLines&gt;5 [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Menees_Analyzers_Settings_Xml {
             get {

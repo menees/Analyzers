@@ -46,11 +46,13 @@ namespace Menees.Analyzers.Test
 			}
 
 			AdditionalText additionalText = new AdditionalTextHelper("Menees.Analyzers.Settings.xml", Properties.Resources.Menees_Analyzers_Settings_Xml);
+#pragma warning disable IDE0303 // Simplify collection initialization. NET Framework 4.8 doesn't support collection expressions for ImmutableArray.Create.
 			var options = new AnalyzerOptions(ImmutableArray.Create(additionalText));
 			var diagnostics = new List<Diagnostic>();
 			foreach (var project in projects)
 			{
 				var compilationWithAnalyzers = project.GetCompilationAsync().Result?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
+#pragma warning restore IDE0303 // Simplify collection initialization
 
 				var diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
 				foreach (var diag in diags)
@@ -85,9 +87,7 @@ namespace Menees.Analyzers.Test
 		/// <param name="diagnostics">The list of Diagnostics to be sorted</param>
 		/// <returns>An IEnumerable containing the Diagnostics in order of Location</returns>
 		private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
-		{
-			return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
-		}
+			=> [.. diagnostics.OrderBy(d => d.Location.SourceSpan.Start)];
 
 		#endregion
 

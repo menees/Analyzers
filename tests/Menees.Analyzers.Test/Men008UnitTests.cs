@@ -39,6 +39,7 @@ namespace ValidCode
 			this.VerifyCSharpDiagnostic("struct Outer { struct Test0 { } }");
 
 			// These will use file names Test0.cs and Test1.cs.
+#pragma warning disable CA1861 // Avoid constant arrays as arguments. This is ok in a unit test.
 			this.VerifyCSharpDiagnostic(new[] { @"partial class Test { }", @"partial class Test { }" });
 			this.VerifyCSharpDiagnostic(new[] { @"partial struct Test { }", @"partial struct Test { }" });
 			this.VerifyCSharpDiagnostic(new[] { @"partial interface Test { }", @"partial interface Test { }" });
@@ -49,6 +50,7 @@ namespace ValidCode
 			try
 			{
 				this.VerifyCSharpDiagnostic(new[] { @"class Test { }" });
+#pragma warning restore CA1861 // Avoid constant arrays as arguments
 			}
 			finally
 			{
