@@ -73,6 +73,9 @@ class MagicNumbers
 				return FridayValue;
 		}
 
+		DataColumn col = new(""Test"", typeof(string));
+		col.MaxLength = 20;
+
 		const int DefaultValue = 17;
 		return DefaultValue;
 	}

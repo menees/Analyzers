@@ -76,7 +76,7 @@
 		private readonly HashSet<string> allowedNumericLiterals = new(new[] { "0", "1", "2", "100" });
 		private readonly HashSet<string> allowedNumericCallerNames = new(new[]
 		{
-			"FromDays", "FromHours", "FromMilliseconds", "FromSeconds", "FromTicks"
+			"FromDays", "FromHours", "FromMicroseconds", "FromMilliseconds", "FromMinutes", "FromSeconds", "FromTicks", "MaxLength"
 		});
 		private readonly IEnumerable<Predicate<string>>? allowedNumericCallerRegexes;
 		private readonly Dictionary<string, string> preferredTerms = DefaultPreferredTerms;

@@ -30,6 +30,7 @@
 		<Literal>1</Literal>
 		<Literal>2</Literal>
 		<CallerName>FromDays</CallerName>
+		<CallerName>MaxLength</CallerName>
 		<CallerRegex>^From(Hours|Minutes)$</CallerRegex>
 	</AllowedNumericLiterals>
 

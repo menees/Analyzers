@@ -111,6 +111,12 @@
 							case SyntaxKind.RangeExpression:
 								allowed = literalExpression.Parent == ancestor;
 								break;
+
+							case SyntaxKind.SimpleAssignmentExpression:
+								allowed = ancestor is AssignmentExpressionSyntax assignment
+									&& assignment.Left is MemberAccessExpressionSyntax member
+									&& settings.IsAllowedNumericLiteralCaller(member.Name.Identifier.Text);
+								break;
 						}
 
 						return allowed;
