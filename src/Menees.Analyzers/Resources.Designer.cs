@@ -527,5 +527,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men016Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A private set accessor is not needed when an auto property is only initialized by the constructor..
+        /// </summary>
+        internal static string Men017Description {
+            get {
+                return ResourceManager.GetString("Men017Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove the unused private set accessor from the {0} auto property..
+        /// </summary>
+        internal static string Men017MessageFormat {
+            get {
+                return ResourceManager.GetString("Men017MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove unused private setter.
+        /// </summary>
+        internal static string Men017Title {
+            get {
+                return ResourceManager.GetString("Men017Title", resourceCulture);
+            }
+        }
     }
 }

@@ -276,4 +276,13 @@
   <data name="Men016Title" xml:space="preserve">
     <value>Avoid top-level statements</value>
   </data>
+  <data name="Men017Description" xml:space="preserve">
+    <value>A private set accessor is not needed when an auto property is only initialized by the constructor.</value>
+  </data>
+  <data name="Men017MessageFormat" xml:space="preserve">
+    <value>Remove the unused private set accessor from the {0} auto property.</value>
+  </data>
+  <data name="Men017Title" xml:space="preserve">
+    <value>Remove unused private setter</value>
+  </data>
 </root>
