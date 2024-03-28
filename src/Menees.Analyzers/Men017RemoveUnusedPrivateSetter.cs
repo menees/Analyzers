@@ -61,11 +61,12 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 	private static void HandleSetter(SyntaxNodeAnalysisContext context)
 	{
 		if (context.Node is AccessorDeclarationSyntax accessorDeclaration
-			&& accessorDeclaration.Parent is PropertyDeclarationSyntax propertyDeclaration)
+			&& accessorDeclaration.Parent is AccessorListSyntax accessorList
+			&& accessorList.Parent is PropertyDeclarationSyntax propertyDeclaration)
 		{
+			// https://stackoverflow.com/questions/33492992/when-to-use-semanticmodel-getsymbolinfo-and-when-semanticmodel-getdeclaredsymbol#comment54798428_33493739
 			SemanticModel model = context.SemanticModel;
-			SymbolInfo propertyInfo = model.GetSymbolInfo(propertyDeclaration, context.CancellationToken);
-			if (propertyInfo.Symbol is IPropertySymbol propertyDeclarationSymbol
+			if (model.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken) is IPropertySymbol propertyDeclarationSymbol
 				&& !propertyDeclarationSymbol.IsReadOnly
 				&& propertyDeclarationSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty
 				&& propertyDeclarationSymbol.SetMethod is IMethodSymbol setMethod
@@ -80,7 +81,8 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 				foreach (SyntaxReference typeReference in namedType.DeclaringSyntaxReferences)
 				{
 					SyntaxNode typeNode = typeReference.GetSyntax(context.CancellationToken);
-					foreach (SyntaxNode identifierNode in typeNode.DescendantNodes(node => node.IsKind(SyntaxKind.IdentifierName)))
+					IEnumerable<SyntaxNode> identifierNodes = typeNode.DescendantNodes().Where(node => node.IsKind(SyntaxKind.IdentifierName));
+					foreach (SyntaxNode identifierNode in identifierNodes)
 					{
 						if (model.GetSymbolInfo(identifierNode, context.CancellationToken).Symbol is IPropertySymbol propertyReference
 							&& SymbolEqualityComparer.Default.Equals(propertyReference, propertyDeclarationSymbol)

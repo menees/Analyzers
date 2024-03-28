@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 
+// This was inspired by Dustin Campbell's UseGetterOnlyAutoPropertyCodeFix, which was abandoned in 2015.
+// https://github.com/DustinCampbell/CSharpEssentials/blob/master/Source/CSharpEssentials/GetterOnlyAutoProperty/UseGetterOnlyAutoPropertyCodeFix.cs
 [Shared]
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(Men017RemoveUnusedPrivateSetterFixer))]
 public sealed class Men017RemoveUnusedPrivateSetterFixer : CodeFixProvider
@@ -62,8 +64,15 @@ public sealed class Men017RemoveUnusedPrivateSetterFixer : CodeFixProvider
 
 			if (accessorList != null && accessorDeclaration != null)
 			{
+				// Use NormalizeWhitespace so:
+				// {
+				//    get;
+				//    private set;
+				// }
+				// is transformed into: { get; }
 				AccessorListSyntax? newAccessorList = accessorList
 					.RemoveNode(accessorDeclaration, SyntaxRemoveOptions.KeepExteriorTrivia)?
+					.NormalizeWhitespace()
 					.WithAdditionalAnnotations(Formatter.Annotation);
 				if (newAccessorList != null)
 				{

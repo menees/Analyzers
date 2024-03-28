@@ -20,9 +20,8 @@
 		<CodeAnalysisRuleSet>../Analyzers.ruleset</CodeAnalysisRuleSet>
 		<AssemblyOriginatorKeyFile>../Analyzers.snk</AssemblyOriginatorKeyFile>
 
-		<!-- Make the assembly, file, and NuGet package versions the same. -->
 		<!-- NOTE: Change the version in Vsix\source.extension.vsixmanifest to match this! -->
-		<Version>3.0.13</Version>
+		<Version>3.1.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">

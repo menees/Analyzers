@@ -529,7 +529,7 @@ namespace Menees.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A private set accessor is not needed when an auto property is only initialized by the constructor..
+        ///   Looks up a localized string similar to A private set accessor is not needed when an auto property is only assigned in the constructor..
         /// </summary>
         internal static string Men017Description {
             get {
