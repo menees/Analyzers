@@ -313,6 +313,23 @@ public class Men017UnitTests : CodeFixVerifier
 		this.VerifyCSharpDiagnostic(Code);
 	}
 
+	[TestMethod]
+	public void HasAttribute()
+	{
+		const string Code = """
+			class C
+			{
+				[System.ComponentModel.Browsable(true)]
+			    public bool Property { get; private set; }
+			    public C(bool f)
+			    {
+			        Property = f;
+			    }
+			}
+			""";
+		this.VerifyCSharpDiagnostic(Code);
+	}
+
 	#endregion
 
 	#region Invalid Code Tests
@@ -433,6 +450,19 @@ public class Men017UnitTests : CodeFixVerifier
 			""";
 
 		RequireDiagnostic(Code);
+	}
+
+	[TestMethod]
+	public void PrimaryConstructor()
+	{
+		const string Code = """
+			class C(bool f)
+			{
+			    public bool Property { get; [|private set;|] } = f;
+			}
+			""";
+
+		this.RequireDiagnostic(Code);
 	}
 
 	#endregion

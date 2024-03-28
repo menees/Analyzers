@@ -64,14 +64,21 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 			&& accessorDeclaration.Parent is AccessorListSyntax accessorList
 			&& accessorList.Parent is PropertyDeclarationSyntax propertyDeclaration)
 		{
+			// We have to use GetDeclaredSymbol (not GetSymbolInfo) since we're looking for DeclarationSyntax-related symbols.
 			// https://stackoverflow.com/questions/33492992/when-to-use-semanticmodel-getsymbolinfo-and-when-semanticmodel-getdeclaredsymbol#comment54798428_33493739
+			//
+			// We'll ignore properties that have attributes because those imply reflection usage.
+			// Specifically, there are a lot of attributes related to serialization that might mean
+			// a setter is needed (even if it's private since reflection can ignore that). For example,
+			// WCF's [DataMember] or ProtoBuf-Net's [ProtoMember].
 			SemanticModel model = context.SemanticModel;
 			if (model.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken) is IPropertySymbol propertyDeclarationSymbol
 				&& !propertyDeclarationSymbol.IsReadOnly
-				&& propertyDeclarationSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty
+				&& propertyDeclarationSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty // Can't change interfaces
 				&& propertyDeclarationSymbol.SetMethod is IMethodSymbol setMethod
 				&& setMethod.DeclaredAccessibility == Accessibility.Private
-				&& accessorDeclaration.Body is null)
+				&& accessorDeclaration.Body is null // Auto-property accessors have no body.
+				&& propertyDeclarationSymbol.GetAttributes().Length == 0 /* See Reflection note above*/)
 			{
 				bool canRemove = true;
 
@@ -84,9 +91,15 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 					IEnumerable<SyntaxNode> identifierNodes = typeNode.DescendantNodes().Where(node => node.IsKind(SyntaxKind.IdentifierName));
 					foreach (SyntaxNode identifierNode in identifierNodes)
 					{
-						if (model.GetSymbolInfo(identifierNode, context.CancellationToken).Symbol is IPropertySymbol propertyReference
-							&& SymbolEqualityComparer.Default.Equals(propertyReference, propertyDeclarationSymbol)
-							&& IsAssignedOutsideConstructor(identifierNode, propertyReference, model, context.CancellationToken))
+						// Is this identifier for the property declaration we're checking?
+						// Is the identifier used on the left-hand side of an assignment statement?
+						// Is this assignment being done outside of a constructor?
+						if (model.GetSymbolInfo(identifierNode, context.CancellationToken).Symbol is IPropertySymbol property
+							&& SymbolEqualityComparer.Default.Equals(property, propertyDeclarationSymbol)
+							&& TryGetAssignmentExpression(identifierNode) is SyntaxNode assignmentExpression
+							&& model.GetSymbolInfo(assignmentExpression, context.CancellationToken).Symbol is ISymbol assignedSymbol
+							&& SymbolEqualityComparer.Default.Equals(assignedSymbol, property)
+							&& !IsInConstructor(assignmentExpression, property.ContainingType, property.IsStatic, model, context.CancellationToken))
 						{
 							canRemove = false;
 							break;
@@ -108,29 +121,6 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 				}
 			}
 		}
-	}
-
-	private static bool IsAssignedOutsideConstructor(
-		SyntaxNode identifierNode,
-		IPropertySymbol property,
-		SemanticModel model,
-		CancellationToken cancellation)
-	{
-		bool result = false;
-
-		// Is the identifier used on the left-hand side of an assignment statement?
-		SyntaxNode? assignmentExpression = TryGetAssignmentExpression(identifierNode);
-		if (assignmentExpression != null)
-		{
-			// Is this assignment being done outside of a constructor?
-			ISymbol? assignedSymbol = model.GetSymbolInfo(assignmentExpression, cancellation).Symbol;
-			if (SymbolEqualityComparer.Default.Equals(assignedSymbol, property))
-			{
-				result = !IsWithinConstructorOf(assignmentExpression, property.ContainingType, property.IsStatic, model, cancellation);
-			}
-		}
-
-		return result;
 	}
 
 	private static SyntaxNode? TryGetAssignmentExpression(SyntaxNode identifierNode)
@@ -183,10 +173,10 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 		return result;
 	}
 
-	private static bool IsWithinConstructorOf(
+	private static bool IsInConstructor(
 		SyntaxNode assignmentNode,
 		INamedTypeSymbol type,
-		bool isIdentifierStatic,
+		bool isPropertyStatic,
 		SemanticModel model,
 		CancellationToken cancellation)
 	{
@@ -202,7 +192,7 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 					ISymbol? constructorSymbol = model.GetDeclaredSymbol(node, cancellation);
 					result = constructorSymbol != null
 						&& SymbolEqualityComparer.Default.Equals(constructorSymbol.ContainingType, type)
-						&& isIdentifierStatic == constructorSymbol.IsStatic;
+						&& isPropertyStatic == constructorSymbol.IsStatic;
 					break;
 
 				// If it's in a lambda or local function, the compiler considers it a non-constructor use.
