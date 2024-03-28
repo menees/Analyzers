@@ -19,7 +19,7 @@ namespace Menees.Analyzers.CodeFixes {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -102,6 +102,15 @@ namespace Menees.Analyzers.CodeFixes {
         internal static string Men015CodeFix {
             get {
                 return ResourceManager.GetString("Men015CodeFix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove unused private setter.
+        /// </summary>
+        internal static string Men017CodeFix {
+            get {
+                return ResourceManager.GetString("Men017CodeFix", resourceCulture);
             }
         }
     }

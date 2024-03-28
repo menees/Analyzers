@@ -133,4 +133,7 @@
   <data name="Men015CodeFix" xml:space="preserve">
     <value>Replace with preferred term</value>
   </data>
+  <data name="Men017CodeFix" xml:space="preserve">
+    <value>Remove unused private setter</value>
+  </data>
 </root>

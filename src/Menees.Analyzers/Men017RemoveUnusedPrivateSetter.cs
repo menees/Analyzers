@@ -101,7 +101,7 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 				// because it will use property initializer syntax.
 				if (canRemove)
 				{
-					Diagnostic diagnostic = Diagnostic.Create(Rule, accessorDeclaration.GetLocation());
+					Diagnostic diagnostic = Diagnostic.Create(Rule, accessorDeclaration.GetLocation(), propertyDeclaration.Identifier);
 					context.ReportDiagnostic(diagnostic);
 				}
 			}

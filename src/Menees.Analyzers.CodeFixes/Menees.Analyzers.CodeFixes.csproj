@@ -36,5 +36,5 @@
 		<Using Include="Microsoft.CodeAnalysis.CodeFixes" />
 		<Using Include="Microsoft.CodeAnalysis.Formatting" />
 		<Using Include="Microsoft.CodeAnalysis.Options" />
-	</ItemGroup>	
+	</ItemGroup>
 </Project>
