@@ -525,12 +525,15 @@ public class Men017UnitTests : CodeFixVerifier
 			}
 			""";
 
-		// The call to NormalizeWhitespace will remove the blank line and reformat the accessor list.
+		// We have to jump through some hoops to remove the blank line without
+		// messing up the whitespace inside or after the accessor list.
 		const string Fixed = """
 			class C
 			{
 			    public bool P1
-			    { get; }
+			    {
+			        get;
+			    }
 			}
 			"""
 		;

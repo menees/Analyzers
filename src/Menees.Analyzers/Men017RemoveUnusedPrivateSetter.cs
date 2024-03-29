@@ -30,7 +30,8 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 		new LocalizableResourceString(nameof(Resources.Men017Description), Resources.ResourceManager, typeof(Resources));
 
 	private static readonly DiagnosticDescriptor Rule =
-		new(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
+		new(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description,
+			customTags: [WellKnownDiagnosticTags.Unnecessary]); // VS shows unnecessary tokens as faded.
 
 	#endregion
 

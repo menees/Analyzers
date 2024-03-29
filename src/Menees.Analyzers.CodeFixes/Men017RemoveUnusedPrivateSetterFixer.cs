@@ -64,18 +64,23 @@ public sealed class Men017RemoveUnusedPrivateSetterFixer : CodeFixProvider
 
 			if (accessorList != null && accessorDeclaration != null)
 			{
-				// Use NormalizeWhitespace so:
-				// {
-				//    get;
-				//    private set;
-				// }
-				// is transformed into: { get; }
 				AccessorListSyntax? newAccessorList = accessorList
 					.RemoveNode(accessorDeclaration, SyntaxRemoveOptions.KeepExteriorTrivia)?
-					.NormalizeWhitespace()
 					.WithAdditionalAnnotations(Formatter.Annotation);
+
 				if (newAccessorList != null)
 				{
+					// If "private set;" was on a line by itself, then we have to jump
+					// through some hoops to remove the remaining blank line without
+					// messing up the whitespace inside or after the accessor list.
+					if (accessorDeclaration.GetLeadingTrivia().All(trivia => string.IsNullOrWhiteSpace(trivia.ToFullString()))
+						&& accessorDeclaration.GetTrailingTrivia().All(trivia => string.IsNullOrWhiteSpace(trivia.ToFullString()))
+						&& accessorDeclaration.GetTrailingTrivia().Any(trivia => trivia.ToFullString().Contains('\n')))
+					{
+						AccessorDeclarationSyntax lastAccessor = newAccessorList.Accessors.Last();
+						newAccessorList = newAccessorList.ReplaceNode(lastAccessor, lastAccessor.NormalizeWhitespace());
+					}
+
 					SyntaxNode newRoot = root.ReplaceNode(accessorList, newAccessorList);
 					result = document.WithSyntaxRoot(newRoot);
 				}
