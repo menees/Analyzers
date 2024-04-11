@@ -78,7 +78,8 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 				&& propertyDeclarationSymbol.ExplicitInterfaceImplementations.IsDefaultOrEmpty // Can't change interfaces
 				&& propertyDeclarationSymbol.SetMethod is IMethodSymbol setMethod
 				&& setMethod.DeclaredAccessibility == Accessibility.Private
-				&& accessorDeclaration.Body is null // Auto-property accessors have no body.
+				&& accessorDeclaration.Body is null // Auto-property accessors have no block body.
+				&& accessorDeclaration.ExpressionBody is null // Auto-property accessors have no expression body either.
 				&& propertyDeclarationSymbol.GetAttributes().Length == 0 /* See Reflection note above*/)
 			{
 				bool canRemove = true;

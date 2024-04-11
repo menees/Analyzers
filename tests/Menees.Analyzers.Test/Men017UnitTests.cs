@@ -330,6 +330,35 @@ public class Men017UnitTests : CodeFixVerifier
 		this.VerifyCSharpDiagnostic(Code);
 	}
 
+	[TestMethod]
+	public void PrimaryConstructorWithCustomSetter()
+	{
+		// https://github.com/menees/Analyzers/issues/12
+		const string Code = """
+			public sealed class MyClass
+			{
+			    private readonly Dictionary<string, object?> myMap = new();
+
+			    public MyClass(string myString) => this.MyString = myString;
+
+			    public string MyString
+			    {
+			        get => this.Read<string>()!;
+			        private set => this.Write(value);
+			    }
+
+			    [return: MaybeNull]
+			    private TValue Read<TValue>([CallerMemberName] string propertyName = "") =>
+			        this.myMap.TryGetValue(propertyName, out var value) ? (TValue)value! : default;
+
+			    private void Write<TValue>([AllowNull] TValue value, [CallerMemberName] string propertyName = "") =>
+			        this.myMap[propertyName] = value;
+			}
+			""";
+
+		this.VerifyCSharpDiagnostic(Code);
+	}
+
 	#endregion
 
 	#region Invalid Code Tests
