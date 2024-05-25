@@ -9,13 +9,15 @@
 		<NoWarn>1701;1702;1705;SA0001;SA1413</NoWarn>
 		<AssemblyOriginatorKeyFile/>
 		<CodeAnalysisRuleSet>..\..\src\Analyzers.ruleset</CodeAnalysisRuleSet>
+
+		<!-- https://devblogs.microsoft.com/dotnet/introducing-ms-test-runner/ -->
+		<EnableMSTestRunner>true</EnableMSTestRunner>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="MSTest" Version="3.4.0" />
 		<PackageReference Include="Shouldly" Version="4.2.1" />
 	</ItemGroup>
 
