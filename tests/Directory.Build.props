@@ -10,9 +10,9 @@
 		<AssemblyOriginatorKeyFile/>
 		<CodeAnalysisRuleSet>..\..\src\Analyzers.ruleset</CodeAnalysisRuleSet>
 
-		<!-- https://devblogs.microsoft.com/dotnet/introducing-ms-test-runner/ -->
-		<EnableMSTestRunner>true</EnableMSTestRunner>
-		<OutputType>Exe</OutputType>
+		<!--We can't use MSTest Runner until our build.ps1 is updated to use the .exe outputs.
+		https://devblogs.microsoft.com/dotnet/introducing-ms-test-runner/ -->
+		<EnableMSTestRunner>false</EnableMSTestRunner>
 	</PropertyGroup>
 
 	<ItemGroup>
