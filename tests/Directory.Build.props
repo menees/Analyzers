@@ -3,7 +3,7 @@
 		<!--Include all src folder build props first. From https://stackoverflow.com/a/45976205/1882616 -->
 		<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\src'))" />
 	</ImportGroup>
-	
+
 	<PropertyGroup>
 		<IsPackable>false</IsPackable>
 		<NoWarn>1701;1702;1705;SA0001;SA1413</NoWarn>
@@ -16,11 +16,13 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="Shouldly" Version="4.2.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Using Include="System.CodeDom.Compiler" />
 		<Using Include="Microsoft.CodeAnalysis.CodeFixes"/>
 		<Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+		<Using Include="Shouldly" />
 	</ItemGroup>
 </Project>

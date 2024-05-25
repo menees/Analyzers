@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 #endregion
 
-internal sealed class Settings
+internal sealed partial class Settings
 {
 	#region Private Data Members
 
@@ -39,9 +39,6 @@ internal sealed class Settings
 		// CreateFileRegexPredicate(".*AssemblyInfo\.cs$"),
 		// CreateFileNamePredicate("GlobalSuppressions.cs"),
 	];
-
-	// Note: The UL compound suffix is handled in a loop through these suffixes.
-	private static readonly HashSet<char> CSharpNumericSuffixes = new(['L', 'D', 'F', 'U', 'M', 'l', 'd', 'f', 'u', 'm',]);
 
 	private static readonly Dictionary<string, string> DefaultPreferredTerms = new()
 	{
@@ -140,17 +137,6 @@ internal sealed class Settings
 
 	#endregion
 
-	#region Private Enums
-
-	private enum NumberBase
-	{
-		Decimal,
-		Hexadecimal,
-		Binary,
-	}
-
-	#endregion
-
 	#region Public Properties
 
 	public static Settings Default => DefaultSettings;
@@ -217,19 +203,19 @@ internal sealed class Settings
 
 	public static bool TryParseIntegerLiteral(string text, out ulong value)
 	{
-		Tuple<string, NumberBase> split = SplitNumericLiteral(text);
+		(string scrubbed, NumericBase numericBase) = SplitNumericLiteral(text);
 		bool result;
-		switch (split.Item2)
+		switch (numericBase)
 		{
-			case NumberBase.Hexadecimal:
-				result = ulong.TryParse(split.Item1, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
+			case NumericBase.Hexadecimal:
+				result = ulong.TryParse(scrubbed, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
 				break;
-			case NumberBase.Binary:
+			case NumericBase.Binary:
 				try
 				{
 					// They began the literal with a "0b" prefix, so this should always succeed unless
 					// they've typed an invalid binary literal (e.g., too long or with non-0|1 chars.
-					value = Convert.ToUInt64(split.Item1, 2);
+					value = Convert.ToUInt64(scrubbed, 2);
 					result = true;
 				}
 				catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is OverflowException)
@@ -240,7 +226,7 @@ internal sealed class Settings
 
 				break;
 			default:
-				result = ulong.TryParse(split.Item1, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+				result = ulong.TryParse(scrubbed, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
 				break;
 		}
 
@@ -268,8 +254,8 @@ internal sealed class Settings
 		{
 			// Ignore any type suffix (e.g., m, L), base prefix (e.g., 0x or 0b), leading zeros,
 			// or trailing fractional zeros (e.g., .0 on 1.0).
-			Tuple<string, NumberBase> split = SplitNumericLiteral(text);
-			result = this.allowedNumericLiterals.Contains(split.Item1);
+			(string scrubbed, _) = SplitNumericLiteral(text);
+			result = this.allowedNumericLiterals.Contains(scrubbed);
 		}
 
 		return result;
@@ -387,62 +373,40 @@ internal sealed class Settings
 		return result;
 	}
 
-	private static Tuple<string, NumberBase> SplitNumericLiteral(string text)
+	private static (string Scrubbed, NumericBase Base) SplitNumericLiteral(string text)
 	{
-		// Remove digit separators first so we can shrink the text correctly (e.g., trim leading zeros).
-		text = text.Replace("_", string.Empty);
+		NumericBase numericBase = NumericBase.Decimal;
+		if (NumericLiteral.TryParse(text, out NumericLiteral? literal) && literal != null)
+		{
+			numericBase = literal.Base;
 
-		// Skip numeric suffixes including compound ones like UL and LU.
-		int substringLength = text.Length;
-		while (substringLength >= 1 && CSharpNumericSuffixes.Contains(text[substringLength - 1]))
-		{
-			substringLength--;
-		}
+			// Remove digit separators first so we can shrink the text correctly (e.g., trim leading zeros).
+			text = literal.ScrubbedDigits;
+			int substringLength = text.Length;
 
-		// Skip a fractional zero, which can be used to make a double without using a suffix.
-		const string FractionalZero = ".0";
-		if (substringLength > FractionalZero.Length
-			&& string.CompareOrdinal(text, substringLength - FractionalZero.Length, FractionalZero, 0, FractionalZero.Length) == 0)
-		{
-			substringLength -= FractionalZero.Length;
-		}
+			// Skip a fractional zero, which can be used to make a double without using a suffix.
+			const string FractionalZero = ".0";
+			if (substringLength > FractionalZero.Length
+				&& string.CompareOrdinal(text, substringLength - FractionalZero.Length, FractionalZero, 0, FractionalZero.Length) == 0)
+			{
+				substringLength -= FractionalZero.Length;
+			}
 
-		// Skip hex or binary specifiers.  This allows 0x1 or 0b1 to match 1, for example.
-		int startIndex = 0;
-		const string HexPrefix = "0x";
-		const string BinaryPrefix = "0b";
-		NumberBase numberBase = NumberBase.Decimal;
-		if (text.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase))
-		{
-			startIndex += HexPrefix.Length;
-			substringLength -= HexPrefix.Length;
-			numberBase = NumberBase.Hexadecimal;
-		}
-		else if (text.StartsWith(BinaryPrefix, StringComparison.OrdinalIgnoreCase))
-		{
-			startIndex += BinaryPrefix.Length;
-			substringLength -= BinaryPrefix.Length;
-			numberBase = NumberBase.Binary;
+			// Skip leading zeros but not the final zero.  This allows 00 to match 0, for example.
+			int startIndex = 0;
+			while (startIndex < text.Length && substringLength > 1 && text[startIndex] == '0')
+			{
+				startIndex++;
+				substringLength--;
+			}
+
+			if ((startIndex + substringLength) <= text.Length && (startIndex > 0 || substringLength < text.Length))
+			{
+				text = text.Substring(startIndex, substringLength);
+			}
 		}
 
-		// Skip leading zeros but not the final zero.  This allows 00 to match 0, for example.
-		while (startIndex < text.Length && substringLength > 1 && text[startIndex] == '0')
-		{
-			startIndex++;
-			substringLength--;
-		}
-
-		string result;
-		if ((startIndex + substringLength) <= text.Length && (startIndex > 0 || substringLength < text.Length))
-		{
-			result = text.Substring(startIndex, substringLength);
-		}
-		else
-		{
-			result = text;
-		}
-
-		return Tuple.Create(result, numberBase);
+		return (text, numericBase);
 	}
 
 	#endregion
