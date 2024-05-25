@@ -10,6 +10,7 @@
 
 	<ItemGroup>
 		<None Include="..\Directory.Build.props" Link="Directory.Build.props" />
+		<None Include="..\Directory.runsettings" Link="Directory.runsettings" />
 	</ItemGroup>
 
 	<ItemGroup>

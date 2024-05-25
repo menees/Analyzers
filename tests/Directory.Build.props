@@ -9,6 +9,7 @@
 		<NoWarn>1701;1702;1705;SA0001;SA1413</NoWarn>
 		<AssemblyOriginatorKeyFile/>
 		<CodeAnalysisRuleSet>..\..\src\Analyzers.ruleset</CodeAnalysisRuleSet>
+		<RunSettingsFilePath>$(MSBuildThisFileDirectory)Directory.runsettings</RunSettingsFilePath>
 
 		<!--We can't use MSTest Runner until our build.ps1 is updated to use the .exe outputs.
 		https://devblogs.microsoft.com/dotnet/introducing-ms-test-runner/ -->
