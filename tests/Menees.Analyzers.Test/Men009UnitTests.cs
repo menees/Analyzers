@@ -1,24 +1,24 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public class Men009UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public class Men009UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override CodeFixProvider CSharpCodeFixProvider => new Men009UsePreferredExceptionsFixer();
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men009UsePreferredExceptions();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override CodeFixProvider CSharpCodeFixProvider => new Men009UsePreferredExceptionsFixer();
-
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men009UsePreferredExceptions();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 class Testing
 {
 	public Testing()
@@ -41,17 +41,17 @@ class Testing
 		throw new System.NotSupportedException();
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 class Testing
 {
 	public Testing()
@@ -80,49 +80,49 @@ class Testing
 	public string Key2 { get => throw new NotImplementedException(""get2""); set => throw new NotImplementedException(""set2""); }
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 11, 13)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 19, 6)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 22, 20)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 25, 38)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 25, 88)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 27, 40)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use NotSupportedException instead of NotImplementedException.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 27, 90)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 13)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 19, 6)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 22, 20)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 38)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 88)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 40)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 90)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(test, expected);
 
-			const string fixtest = @"
+		const string fixtest = @"
 class Testing
 {
 	public Testing()
@@ -150,9 +150,8 @@ class Testing
 
 	public string Key2 { get => throw new NotSupportedException(""get2""); set => throw new NotSupportedException(""set2""); }
 }";
-			this.VerifyCSharpFix(test, fixtest);
-		}
-
-		#endregion
+		this.VerifyCSharpFix(test, fixtest);
 	}
+
+	#endregion
 }

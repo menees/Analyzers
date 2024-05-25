@@ -1,25 +1,25 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men011UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men011UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override CodeFixProvider CSharpCodeFixProvider => new Men011AlignUsingDirectivesFixer();
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men011AlignUsingDirectives();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override CodeFixProvider CSharpCodeFixProvider => new Men011AlignUsingDirectivesFixer();
-
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men011AlignUsingDirectives();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string SpaceTab = "    ";
-			const string test = @"
+		const string SpaceTab = "    ";
+		const string test = @"
 using System; // Comment after.
 using System.Text;
 
@@ -40,18 +40,18 @@ namespace Test
 		}
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string SpaceTab = "    ";
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string SpaceTab = "    ";
+		const string test = @"
 	using System; // Comment after.
 using System.Text;
 
@@ -73,20 +73,20 @@ using System.Collections;
 		}
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 2, 2)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 9, 1)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 15, 5)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 16, 9)] },
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 2, 2)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 9, 1)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 15, 5)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 16, 9)] },
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(test, expected);
 
-			// Note: The default workspace options use 4 spaces instead of tabs,
-			// so any inconsistent indentations will be fixed with 4 space indents.
-			const string fixtest = @"
+		// Note: The default workspace options use 4 spaces instead of tabs,
+		// so any inconsistent indentations will be fixed with 4 space indents.
+		const string fixtest = @"
 using System; // Comment after.
 using System.Text;
 
@@ -109,9 +109,8 @@ namespace Test
 	}
 }";
 
-			this.VerifyCSharpFix(test, fixtest);
-		}
-
-		#endregion
+		this.VerifyCSharpFix(test, fixtest);
 	}
+
+	#endregion
 }

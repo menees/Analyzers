@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public class Men004UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public class Men004UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men004PropertyAccessorTooLong();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men004PropertyAccessorTooLong();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 class Testing
 {
 	/// <summary>Test</summary>
@@ -56,17 +56,17 @@ class Testing
 		return new Testing();
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 class Testing
 {
 	public DateTime Now
@@ -137,39 +137,38 @@ class Testing
 		return new Testing();
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Property Now get accessor must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Property Now set accessor must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 15, 3)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Event Changed add accessor must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 26, 3)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Event Changed remove accessor must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 34, 3)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Property Item get accessor must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 45, 3)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Property Now get accessor must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Property Now set accessor must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 3)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Event Changed add accessor must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 3)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Event Changed remove accessor must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 34, 3)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Property Item get accessor must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 3)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

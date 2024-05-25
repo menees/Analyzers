@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public class Men014UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public class Men014UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men014PreferTryGetValue();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men014PreferTryGetValue();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
@@ -42,17 +42,17 @@ class Testing
 
 	public bool ContainsKey(string key) => _entries.ContainsKey(key);
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTests
+	#region InvalidCodeTests
 
-		[TestMethod]
-		public void InvalidCodeLiteralKeyTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeLiteralKeyTest()
+	{
+		const string test = @"
 using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
@@ -67,23 +67,23 @@ class Testing
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use test.TryGetValue(\"a\", out var value) instead of test.ContainsKey(\"a\") and test[\"a\"].",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 9, 12)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use test.TryGetValue(\"a\", out var value) instead of test.ContainsKey(\"a\") and test[\"a\"].",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 12)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeVariableKeyTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeVariableKeyTest()
+	{
+		const string test = @"
 using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
@@ -99,23 +99,23 @@ class Testing
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeExpandedScopeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeExpandedScopeTest()
+	{
+		const string test = @"
 using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
@@ -132,23 +132,23 @@ class Testing
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 21)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 21)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeConcurrentTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeConcurrentTest()
+	{
+		const string test = @"
 using System.Collections.Concurrent;
 using System.Diagnostics;
 class Testing
@@ -164,20 +164,19 @@ class Testing
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+
+	#endregion
 }

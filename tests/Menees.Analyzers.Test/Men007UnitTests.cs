@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public class Men007UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public class Men007UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men007UseSingleReturn();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men007UseSingleReturn();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 class Testing
 {
 	/// <summary>Test</summary>
@@ -74,17 +74,17 @@ class Testing
 		return result;
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 class Testing
 {
 	public DateTime Now
@@ -163,91 +163,90 @@ class Testing
 		test2();
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Multiple return statements (2) are used in get_Now.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 6, 3),
-						new DiagnosticResultLocation("Test0.cs", 10, 5),
-						new DiagnosticResultLocation("Test0.cs", 13, 4),
-					],
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Multiple return statements (2) are used in get_Item.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 19, 3),
-						new DiagnosticResultLocation("Test0.cs", 23, 5),
-						new DiagnosticResultLocation("Test0.cs", 26, 4),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Multiple return statements (2) are used in Create.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 30, 2),
-						new DiagnosticResultLocation("Test0.cs", 38, 4),
-						new DiagnosticResultLocation("Test0.cs", 41, 3),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "A return statement is used in Check, which returns void.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 44, 2),
-						new DiagnosticResultLocation("Test0.cs", 48, 4),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "A return statement is used in DoOp, which returns void.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 56, 3),
-						new DiagnosticResultLocation("Test0.cs", 59, 4),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Multiple return statements (2) are used in DoOp2.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 62, 3),
-						new DiagnosticResultLocation("Test0.cs", 65, 5),
-						new DiagnosticResultLocation("Test0.cs", 67, 5),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Multiple return statements (2) are used in <ParenthesizedLambdaExpression>.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 73, 21),
-						new DiagnosticResultLocation("Test0.cs", 73, 55),
-						new DiagnosticResultLocation("Test0.cs", 73, 74),
-					]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "A return statement is used in <SimpleLambdaExpression>, which returns void.",
-					Locations =
-					[
-						new DiagnosticResultLocation("Test0.cs", 76, 24),
-						new DiagnosticResultLocation("Test0.cs", 76, 45),
-					]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Multiple return statements (2) are used in get_Now.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 6, 3),
+					new DiagnosticResultLocation("Test0.cs", 10, 5),
+					new DiagnosticResultLocation("Test0.cs", 13, 4),
+				],
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Multiple return statements (2) are used in get_Item.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 19, 3),
+					new DiagnosticResultLocation("Test0.cs", 23, 5),
+					new DiagnosticResultLocation("Test0.cs", 26, 4),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Multiple return statements (2) are used in Create.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 30, 2),
+					new DiagnosticResultLocation("Test0.cs", 38, 4),
+					new DiagnosticResultLocation("Test0.cs", 41, 3),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "A return statement is used in Check, which returns void.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 44, 2),
+					new DiagnosticResultLocation("Test0.cs", 48, 4),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "A return statement is used in DoOp, which returns void.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 56, 3),
+					new DiagnosticResultLocation("Test0.cs", 59, 4),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Multiple return statements (2) are used in DoOp2.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 62, 3),
+					new DiagnosticResultLocation("Test0.cs", 65, 5),
+					new DiagnosticResultLocation("Test0.cs", 67, 5),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Multiple return statements (2) are used in <ParenthesizedLambdaExpression>.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 73, 21),
+					new DiagnosticResultLocation("Test0.cs", 73, 55),
+					new DiagnosticResultLocation("Test0.cs", 73, 74),
+				]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "A return statement is used in <SimpleLambdaExpression>, which returns void.",
+				Locations =
+				[
+					new DiagnosticResultLocation("Test0.cs", 76, 24),
+					new DiagnosticResultLocation("Test0.cs", 76, 45),
+				]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

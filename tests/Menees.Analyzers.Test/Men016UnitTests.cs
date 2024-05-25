@@ -1,28 +1,28 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public class Men016UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public class Men016UnitTests : CodeFixVerifier
+	#region Private Data Members
+
+	private const string ExpectedMessage = "Use object-oriented methods instead of top-level statements.";
+
+	#endregion
+
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men016AvoidTopLevelStatements();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Private Data Members
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		private const string ExpectedMessage = "Use object-oriented methods instead of top-level statements.";
-
-		#endregion
-
-		#region Protected Properties
-
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men016AvoidTopLevelStatements();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 using System.Collections.Generic;
 using System.Diagnostics;
 class Testing
@@ -48,38 +48,38 @@ class Testing
 
 	public bool ContainsKey(string key) => _entries.ContainsKey(key);
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTests
+	#region InvalidCodeTests
 
-		[TestMethod]
-		public void InvalidCodeSimpleTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeSimpleTest()
+	{
+		const string test = @"
 using System;
 Console.WriteLine(""Test"");
 ";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = ExpectedMessage,
-					Locations = [new DiagnosticResultLocation("Test0.cs", 3, 1)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = ExpectedMessage,
+				Locations = [new DiagnosticResultLocation("Test0.cs", 3, 1)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeWithClassTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeWithClassTest()
+	{
+		const string test = @"
 using System;
 using static System.Console;
 
@@ -95,28 +95,28 @@ public class MyClass
 }
 ";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = ExpectedMessage,
-					Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)],
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = ExpectedMessage,
-					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 1)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = ExpectedMessage,
+				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)],
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = ExpectedMessage,
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 1)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeWithNamespaceTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeWithNamespaceTest()
+	{
+		const string test = @"
 using System;
 
 MyNamespace.MyClass.MyMethod();
@@ -132,20 +132,19 @@ namespace MyNamespace
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = ExpectedMessage,
-					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 1)],
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = ExpectedMessage,
+				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 1)],
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+
+	#endregion
 }

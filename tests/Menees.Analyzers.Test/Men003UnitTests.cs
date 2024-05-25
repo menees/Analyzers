@@ -1,12 +1,12 @@
-﻿namespace Menees.Analyzers.Test
-{
-	[TestClass]
-	public class Men003UnitTests : CodeFixVerifier
-	{
-		#region Private Data Members
+﻿namespace Menees.Analyzers.Test;
 
-		// I had to factor this out into a const member to keep the InvalidCodeTest method less than 120 lines.
-		private const string InvalidCode = @"
+[TestClass]
+public class Men003UnitTests : CodeFixVerifier
+{
+	#region Private Data Members
+
+	// I had to factor this out into a const member to keep the InvalidCodeTest method less than 120 lines.
+	private const string InvalidCode = @"
 class Testing
 {
 	public Testing()
@@ -96,22 +96,22 @@ class Testing
 	}
 }";
 
-		#endregion
+	#endregion
 
-		#region Protected Properties
+	#region Protected Properties
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men003MethodTooLong();
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men003MethodTooLong();
 
-		#endregion
+	#endregion
 
-		#region ValidCodeTest
+	#region ValidCodeTest
 
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
+	[TestMethod]
+	public void ValidCodeTest()
+	{
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-			const string test = @"
+		const string test = @"
 class Testing
 {
 	/// <summary>Test</summary>
@@ -132,64 +132,63 @@ class Testing
 		return new Testing();
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
-
-		#endregion
-
-		#region InvalidCodeTest
-
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Constructor Testing must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Method Create must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 12, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Static constructor Testing must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 25, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Destructor ~Testing must be no longer than 5 lines (now 7).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 33, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Operator Explicit must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 54, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Operator Implicit must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 63, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Operator Equality must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 72, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Operator Inequality must be no longer than 5 lines (now 8).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 81, 2)]
-				},
-			];
-
-			this.VerifyCSharpDiagnostic(InvalidCode, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test);
 	}
+
+	#endregion
+
+	#region InvalidCodeTest
+
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Constructor Testing must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Method Create must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 12, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Static constructor Testing must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Destructor ~Testing must be no longer than 5 lines (now 7).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 33, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Operator Explicit must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 54, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Operator Implicit must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 63, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Operator Equality must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 72, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Operator Inequality must be no longer than 5 lines (now 8).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 81, 2)]
+			},
+		];
+
+		this.VerifyCSharpDiagnostic(InvalidCode, expected);
+	}
+
+	#endregion
 }

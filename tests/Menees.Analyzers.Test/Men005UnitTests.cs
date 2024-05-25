@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men005UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men005UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men005FileTooLong();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men005FileTooLong();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 using System;
 
 namespace Test
@@ -29,17 +29,17 @@ namespace Test
 		}
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	using System;
@@ -60,19 +60,18 @@ namespace ConsoleApplication1
 		}
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "File Test0.cs must be no longer than 20 lines (now 21).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 21, 1)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "File Test0.cs must be no longer than 20 lines (now 21).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 21, 1)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

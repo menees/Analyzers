@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men006UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men006UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men006RegionsShouldBeUsed();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men006RegionsShouldBeUsed();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			string test = @"
+		string test = @"
 using System;
 
 namespace Test
@@ -29,9 +29,9 @@ namespace Test
 		}
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
+		this.VerifyCSharpDiagnostic(test);
 
-			test = @"
+		test = @"
 namespace Test
 {
 	#region Using Directives
@@ -58,9 +58,9 @@ namespace Test
 		#endregion
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
+		this.VerifyCSharpDiagnostic(test);
 
-			test = @"
+		test = @"
 #region Using Directives
 using System;
 #endregion
@@ -75,17 +75,17 @@ namespace Settings
 		#endregion
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTestFileTooLong
+	#region InvalidCodeTestFileTooLong
 
-		[TestMethod]
-		public void InvalidCodeTestFileTooLong()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTestFileTooLong()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	using System;
@@ -106,27 +106,27 @@ namespace ConsoleApplication1
 		}
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used because Test0.cs is longer than 20 lines (now 21).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used because Test0.cs is longer than 20 lines (now 21).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTestMultipleTypes
+	#region InvalidCodeTestMultipleTypes
 
-		[TestMethod]
-		public void InvalidCodeTestMultipleTypes()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTestMultipleTypes()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	class Type1
@@ -141,27 +141,27 @@ namespace ConsoleApplication1
 		public Name { get; set; }
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used because Test0.cs contains multiple type declarations.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used because Test0.cs contains multiple type declarations.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTestPartialRegions
+	#region InvalidCodeTestPartialRegions
 
-		[TestMethod]
-		public void InvalidCodeTestClassPartialRegions()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTestClassPartialRegions()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	using System;
@@ -184,33 +184,33 @@ namespace ConsoleApplication1
 		public Name { get; set; }
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used around using directives.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used around all members in Type1.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used around all members in Type2.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 19, 2)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used around using directives.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used around all members in Type1.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used around all members in Type2.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 19, 2)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
 
-		[TestMethod]
-		public void InvalidCodeTestRecordPartialRegions()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTestRecordPartialRegions()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	using System;
@@ -228,24 +228,23 @@ namespace ConsoleApplication1
 		public Name { get; set; }
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used around using directives.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "#regions should be used around all members in Type1.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used around using directives.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "#regions should be used around all members in Type1.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

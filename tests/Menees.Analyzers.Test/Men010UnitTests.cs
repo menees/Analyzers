@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men010UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men010UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men010AvoidMagicNumbers();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men010AvoidMagicNumbers();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 using System;
 using System.Data;
 using System.Linq;
@@ -116,17 +116,17 @@ class Tester
 		return 123;
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 using System;
 class MagicNumbers
 {
@@ -174,54 +174,53 @@ class MagicNumbers
 	}
 }";
 
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 3UL should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 7, 42)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 5.0f should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 11, 30)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 10 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 13, 32)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 256 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 44, 32)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 17 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 45, 10)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 7 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 45, 38)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 0b010 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 45, 71)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "The numeric literal 5 should be replaced with a named constant.",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 45, 106)]
-				},
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 3UL should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 42)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 5.0f should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 30)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 10 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 32)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 256 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 44, 32)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 17 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 10)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 7 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 38)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 0b010 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 71)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "The numeric literal 5 should be replaced with a named constant.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 106)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

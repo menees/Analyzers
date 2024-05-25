@@ -1,22 +1,22 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men002UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men002UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men002LineTooLong();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men002LineTooLong();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"
+		const string test = @"
 using System;
 
 namespace Test
@@ -47,17 +47,17 @@ namespace Test
 		}
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string test = @"
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string test = @"
 namespace ConsoleApplication1
 {
 	using System;
@@ -76,43 +76,42 @@ namespace ConsoleApplication1
 		}
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Line must be no longer than 40 characters (now 83).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 5, 38)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Line must be no longer than 40 characters (now 73).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 12, 35)]
-				},
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Line must be no longer than 40 characters (now 61).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 13, 35)]
-				},
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Line must be no longer than 40 characters (now 83).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 38)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Line must be no longer than 40 characters (now 73).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 12, 35)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Line must be no longer than 40 characters (now 61).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 35)]
+			},
 #if DEBUG // MEN002A is disabled by default, so it won't run in release build unit tests.
-				new DiagnosticResult(analyzer)
-				{
-					Id = Men002LineTooLong.DiagnosticIdNotify,
-					Severity = DiagnosticSeverity.Info,
-					Message = "Line is over 35 characters (now 37).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 15, 27)],
-				},
+			new DiagnosticResult(analyzer)
+			{
+				Id = Men002LineTooLong.DiagnosticIdNotify,
+				Severity = DiagnosticSeverity.Info,
+				Message = "Line is over 35 characters (now 37).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 27)],
+			},
 #endif
-				new DiagnosticResult(analyzer)
-				{
-					Message = "Line must be no longer than 40 characters (now 149).",
-					Locations = [new DiagnosticResultLocation("Test0.cs", 16, 32)]
-				},
-			];
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Line must be no longer than 40 characters (now 149).",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 16, 32)]
+			},
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
-		}
-
-		#endregion
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
+
+	#endregion
 }

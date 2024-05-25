@@ -1,24 +1,24 @@
-﻿namespace Menees.Analyzers.Test
+﻿namespace Menees.Analyzers.Test;
+
+[TestClass]
+public sealed class Men001UnitTests : CodeFixVerifier
 {
-	[TestClass]
-	public sealed class Men001UnitTests : CodeFixVerifier
+	#region Protected Properties
+
+	protected override CodeFixProvider CSharpCodeFixProvider => new Men001TabsShouldBeUsedFixer();
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men001TabsShouldBeUsed();
+
+	#endregion
+
+	#region ValidCodeTest
+
+	[TestMethod]
+	public void ValidCodeTest()
 	{
-		#region Protected Properties
+		this.VerifyCSharpDiagnostic(string.Empty);
 
-		protected override CodeFixProvider CSharpCodeFixProvider => new Men001TabsShouldBeUsedFixer();
-
-		protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men001TabsShouldBeUsed();
-
-		#endregion
-
-		#region ValidCodeTest
-
-		[TestMethod]
-		public void ValidCodeTest()
-		{
-			this.VerifyCSharpDiagnostic(string.Empty);
-
-			const string test = @"	// On first line
+		const string test = @"	// On first line
 using System;
 
 namespace Test
@@ -36,18 +36,18 @@ namespace Test
 		}
 	}
 }";
-			this.VerifyCSharpDiagnostic(test);
-		}
+		this.VerifyCSharpDiagnostic(test);
+	}
 
-		#endregion
+	#endregion
 
-		#region InvalidCodeTest
+	#region InvalidCodeTest
 
-		[TestMethod]
-		public void InvalidCodeTest()
-		{
-			const string SpaceTab = "    ";
-			const string test = SpaceTab + @"// On first line
+	[TestMethod]
+	public void InvalidCodeTest()
+	{
+		const string SpaceTab = "    ";
+		const string test = SpaceTab + @"// On first line
 namespace ConsoleApplication1
 {
 	using System;
@@ -63,19 +63,19 @@ namespace ConsoleApplication1
 		}
 	}
 }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
-			DiagnosticResult[] expected =
-			[
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 10, 1)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 12, 1)] },
-				new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 13, 1)] },
-			];
+		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 1, 1)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 5, 1)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 10, 1)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 12, 1)] },
+			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 13, 1)] },
+		];
 
-			this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(test, expected);
 
-			const string fixtest = @"	// On first line
+		const string fixtest = @"	// On first line
 namespace ConsoleApplication1
 {
 	using System;
@@ -91,9 +91,8 @@ namespace ConsoleApplication1
 		}
 	}
 }";
-			this.VerifyCSharpFix(test, fixtest);
-		}
-
-		#endregion
+		this.VerifyCSharpFix(test, fixtest);
 	}
+
+	#endregion
 }
