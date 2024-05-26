@@ -9,4 +9,10 @@
 		<EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Meziantou.Polyfill" Version="1.0.38">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>

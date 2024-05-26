@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 #endregion
@@ -76,7 +77,7 @@ public sealed class NumericLiteral
 
 	#region Public Methods
 
-	public static bool TryParse(string? text, out NumericLiteral? value)
+	public static bool TryParse(string? text, [NotNullWhen(true)] out NumericLiteral? value)
 	{
 		text ??= string.Empty;
 		text = text.Trim();
@@ -115,7 +116,7 @@ public sealed class NumericLiteral
 		string prefix,
 		NumericBase numericBase,
 		HashSet<char> allowedDigits,
-		out NumericLiteral? value)
+		[NotNullWhen(true)] out NumericLiteral? value)
 	{
 		value = null;
 
@@ -127,7 +128,7 @@ public sealed class NumericLiteral
 			{
 				suffixLength = 2;
 			}
-			else if (text.Length > 1 && IntegerSuffixes.Contains(text[text.Length - 1].ToString()))
+			else if (text.Length > 1 && IntegerSuffixes.Contains(text[^1].ToString()))
 			{
 				suffixLength = 1;
 			}
@@ -144,7 +145,7 @@ public sealed class NumericLiteral
 		return value != null;
 	}
 
-	private static bool TryParseReal(string text, out NumericLiteral? value)
+	private static bool TryParseReal(string text, [NotNullWhen(true)] out NumericLiteral? value)
 	{
 		value = null;
 

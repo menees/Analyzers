@@ -74,7 +74,7 @@ public sealed class Men015UsePreferredTerms : Analyzer
 				if (char.IsUpper(ch))
 				{
 					// Don't add multiple spaces and don't separate consecutive capitals.
-					char previous = sb[sb.Length - 1];
+					char previous = sb[^1];
 					if (previous != ' ' && !char.IsUpper(previous))
 					{
 						sb.Append(' ');
@@ -83,13 +83,13 @@ public sealed class Men015UsePreferredTerms : Analyzer
 				else if (char.IsDigit(ch))
 				{
 					// Don't add multiple spaces and don't separate consecutive digits.
-					char previous = sb[sb.Length - 1];
+					char previous = sb[^1];
 					if (previous != ' ' && !char.IsDigit(previous))
 					{
 						sb.Append(' ');
 					}
 				}
-				else if (char.IsLetter(ch) && sb.Length >= 2 && char.IsUpper(sb[sb.Length - 1]) && char.IsUpper(sb[sb.Length - 2]))
+				else if (char.IsLetter(ch) && sb.Length >= 2 && char.IsUpper(sb[^1]) && char.IsUpper(sb[^2]))
 				{
 					// There were consecutive capitals followed by a non-captial letter, so insert a space before the last capital.
 					// MFCTest --> MFC Test.  CString --> C String.

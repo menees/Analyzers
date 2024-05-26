@@ -40,7 +40,6 @@ public class NumericLiteralTests
 			NumericBase numericBase = NumericBase.Decimal)
 		{
 			NumericLiteral.TryParse(text, out NumericLiteral? literal).ShouldBeTrue(text);
-			literal.ShouldNotBeNull(text);
 			literal.Base.ShouldBe(numericBase, text);
 			literal.OriginalDigits.ShouldBe(originalDigits ?? text, text);
 			literal.Prefix.ShouldBe(prefix ?? string.Empty, text);

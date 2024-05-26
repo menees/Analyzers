@@ -376,7 +376,7 @@ internal sealed partial class Settings
 	private static (string Scrubbed, NumericBase Base) SplitNumericLiteral(string text)
 	{
 		NumericBase numericBase = NumericBase.Decimal;
-		if (NumericLiteral.TryParse(text, out NumericLiteral? literal) && literal != null)
+		if (NumericLiteral.TryParse(text, out NumericLiteral? literal))
 		{
 			numericBase = literal.Base;
 
