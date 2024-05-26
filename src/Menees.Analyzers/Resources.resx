@@ -285,4 +285,13 @@
   <data name="Men017Title" xml:space="preserve">
     <value>Remove unused private setter</value>
   </data>
+  <data name="Men018Description" xml:space="preserve">
+    <value>Numeric literals should use digit separators to improve readability.</value>
+  </data>
+  <data name="Men018MessageFormat" xml:space="preserve">
+    <value>The numeric literal {0} should use digit separators.</value>
+  </data>
+  <data name="Men018Title" xml:space="preserve">
+    <value>Use digit separators</value>
+  </data>
 </root>

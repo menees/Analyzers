@@ -554,5 +554,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men017Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Numeric literals should use digit separators to improve readability..
+        /// </summary>
+        internal static string Men018Description {
+            get {
+                return ResourceManager.GetString("Men018Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The numeric literal {0} should use digit separators..
+        /// </summary>
+        internal static string Men018MessageFormat {
+            get {
+                return ResourceManager.GetString("Men018MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use digit separators.
+        /// </summary>
+        internal static string Men018Title {
+            get {
+                return ResourceManager.GetString("Men018Title", resourceCulture);
+            }
+        }
     }
 }
