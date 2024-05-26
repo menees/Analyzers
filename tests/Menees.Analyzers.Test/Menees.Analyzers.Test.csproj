@@ -9,6 +9,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Include="..\ParallelizeUnitTests.cs" Link="ParallelizeUnitTests.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\Directory.Build.props" Link="Directory.Build.props" />
 		<None Include="..\Directory.runsettings" Link="Directory.runsettings" />
 	</ItemGroup>

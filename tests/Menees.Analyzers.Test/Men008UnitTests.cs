@@ -45,8 +45,8 @@ namespace ValidCode
 		this.VerifyCSharpDiagnostic(new[] { @"partial interface Test { }", @"partial interface Test { }" });
 		this.VerifyCSharpDiagnostic(new[] { @"class Test0 { }", @"class Test<T> { }" });
 
-		string previousPrefix = DefaultFilePathPrefix;
-		DefaultFilePathPrefix = "Test.aspx"; // This will use a file name of Test0.aspx.cs.
+		string previousPrefix = DefaultFilePathPrefix.Value ?? string.Empty;
+		DefaultFilePathPrefix.Value = "Test.aspx"; // This will use a file name of Test0.aspx.cs.
 		try
 		{
 			this.VerifyCSharpDiagnostic(new[] { @"class Test { }" });
@@ -54,7 +54,7 @@ namespace ValidCode
 		}
 		finally
 		{
-			DefaultFilePathPrefix = previousPrefix;
+			DefaultFilePathPrefix.Value = previousPrefix;
 		}
 	}
 

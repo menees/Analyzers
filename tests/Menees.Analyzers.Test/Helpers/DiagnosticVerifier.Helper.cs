@@ -12,9 +12,9 @@ public abstract partial class DiagnosticVerifier
 	private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
 	private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
 
-	internal static string DefaultFilePathPrefix = "Test";
-	internal static string CSharpDefaultFileExt = "cs";
-	internal static string TestProjectName = "TestProject";
+	internal static readonly ThreadLocal<string> DefaultFilePathPrefix = new(() => "Test");
+	internal const string CSharpDefaultFileExt = "cs";
+	internal const string TestProjectName = "TestProject";
 
 	#region  Get Diagnostics
 
@@ -136,7 +136,7 @@ public abstract partial class DiagnosticVerifier
 	/// <returns>A Project created out of the Documents created from the source strings</returns>
 	private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
 	{
-		string fileNamePrefix = DefaultFilePathPrefix;
+		string fileNamePrefix = DefaultFilePathPrefix.Value ?? string.Empty;
 		string fileExt = CSharpDefaultFileExt;
 
 		var projectId = ProjectId.CreateNewId(debugName: TestProjectName);

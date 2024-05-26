@@ -5,6 +5,7 @@
 		<!-- https://docs.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file?view=vs-2019#elements-of-a-runsettings-file -->
 		<ResultsDirectory>..\TestResults</ResultsDirectory>
 		<TargetPlatform>x64</TargetPlatform>
+		<MaxCpuCount>0</MaxCpuCount>
 		<!-- https://github.com/microsoft/vstest-docs/blob/main/docs/configure.md -->
 		<!-- Also, required for MSTest 3 on .NET Framework. https://github.com/microsoft/testfx/issues/1437 -->
 		<DisableAppDomain>true</DisableAppDomain>
