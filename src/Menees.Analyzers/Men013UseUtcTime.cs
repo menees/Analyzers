@@ -52,18 +52,6 @@ public sealed class Men013UseUtcTime : Analyzer
 		return preferredText;
 	}
 
-	public static ImmutableDictionary<string, string?> GetProperties(IdentifierNameSyntax identifier, string preferredText)
-	{
-		// When "using static System.DateTime" is involved, then we can't always replace Today with UtcNow.Date.
-		// See the InvalidCodeUsingStaticTest unit test for some examples of where we leave Today.
-		bool canFix = preferredText.IndexOf('.') < 0
-			|| (identifier.Parent is MemberAccessExpressionSyntax access && access.Name == identifier);
-
-		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-		builder.Add(CanFixKey, canFix.ToString());
-		return builder.ToImmutable();
-	}
-
 	public override void Initialize(AnalysisContext context)
 	{
 		base.Initialize(context);
@@ -143,6 +131,18 @@ public sealed class Men013UseUtcTime : Analyzer
 		return syntaxTree.GetRoot().DescendantNodes()
 			.Where(node => node.IsKind(SyntaxKind.UsingDirective))
 			.Select(directive => (UsingDirectiveSyntax)directive);
+	}
+
+	private static ImmutableDictionary<string, string?> GetProperties(IdentifierNameSyntax identifier, string preferredText)
+	{
+		// When "using static System.DateTime" is involved, then we can't always replace Today with UtcNow.Date.
+		// See the InvalidCodeUsingStaticTest unit test for some examples of where we leave Today.
+		bool canFix = preferredText.IndexOf('.') < 0
+			|| (identifier.Parent is MemberAccessExpressionSyntax access && access.Name == identifier);
+
+		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+		builder.Add(CanFixKey, canFix.ToString());
+		return builder.ToImmutable();
 	}
 
 	#endregion
