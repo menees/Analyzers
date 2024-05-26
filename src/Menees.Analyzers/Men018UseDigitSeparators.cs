@@ -15,6 +15,8 @@ public sealed class Men018UseDigitSeparators : Analyzer
 
 	public const string DiagnosticId = "MEN018";
 
+	public const string PreferredKey = "Preferred";
+
 	#endregion
 
 	#region Private Data Members
@@ -53,54 +55,39 @@ public sealed class Men018UseDigitSeparators : Analyzer
 
 	private static void HandleNumericLiteral(SyntaxNodeAnalysisContext context)
 	{
+		// Only make a recommendation if the literal contains no separators already.
+		// If it's already separated in any way, we'll accept it.
 		if (context.Node is LiteralExpressionSyntax literalExpression
 			&& literalExpression.Token.IsKind(SyntaxKind.NumericLiteralToken)
 			&& NumericLiteral.TryParse(literalExpression.Token.Text, out NumericLiteral? literal)
 			&& literal.ScrubbedDigits == literal.OriginalDigits)
 		{
-			string scrubbed = literal.ScrubbedDigits;
-			switch (literal.Base)
+			const byte PreferredHexGroupSize = 2; // Per-Byte
+			const byte PreferredBinaryGroupSize = 4; // Per-Nibble
+			const byte PreferredDecimalGroupSize = 3; // Per-Thousand
+			byte preferredGroupSize = literal.Base switch
 			{
-				case NumericBase.Hexadecimal:
-					const int PreferredHexGroupSize = 2;
-					CheckLiteral(scrubbed, PreferredHexGroupSize);
-					break;
+				NumericBase.Hexadecimal => PreferredHexGroupSize,
+				NumericBase.Binary => PreferredBinaryGroupSize,
+				_ => PreferredDecimalGroupSize,
+			};
 
-				case NumericBase.Binary:
-					const int PreferredBinaryGroupSize = 4;
-					CheckLiteral(scrubbed, PreferredBinaryGroupSize);
-					break;
-
-				default:
-					const int PreferredDecimalGroupSize = 3;
-					if (literal.IsInteger)
-					{
-						CheckLiteral(scrubbed, PreferredDecimalGroupSize);
-					}
-					else if (!scrubbed.Contains('e', StringComparison.OrdinalIgnoreCase))
-					{
-						// We have no exponent, and we only want to check the integer part.
-						// Think about 123D, 123.0, .123, and 0.123.
-						int decimalIndex = scrubbed.IndexOf('.');
-						if (decimalIndex >= 0)
-						{
-							scrubbed = scrubbed.Substring(0, decimalIndex);
-						}
-
-						CheckLiteral(scrubbed, PreferredDecimalGroupSize);
-					}
-
-					break;
-			}
-
-			// TODO: Support code fixers too. [Bill, 5/25/2024]
-			void CheckLiteral(string scrubbedDigits, int preferredGroupSize)
+			// For integers, this length check is a quick short-circuit.
+			// For reals, it may be insufficient (e.g., 12.5 is 4 chars,
+			// but the integer part is only 2). However, comparing the ToString
+			// results below will be sufficient to avoid false positives.
+			if (literal.ScrubbedDigits.Length > preferredGroupSize)
 			{
-				if (scrubbedDigits.Length > preferredGroupSize)
+				string literalText = literal.ToString();
+				string preferredText = literal.ToString(preferredGroupSize);
+				if (preferredText != literalText)
 				{
+					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+					builder.Add(PreferredKey, preferredText);
+					ImmutableDictionary<string, string?> fixerProperties = builder.ToImmutable();
+
 					Location location = literalExpression.GetFirstLineLocation();
-					string literalText = literalExpression.Token.Text;
-					context.ReportDiagnostic(Diagnostic.Create(Rule, location, literalText));
+					context.ReportDiagnostic(Diagnostic.Create(Rule, location, fixerProperties, literalText));
 				}
 			}
 		}

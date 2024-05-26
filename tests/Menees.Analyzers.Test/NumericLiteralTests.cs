@@ -76,4 +76,46 @@ public class NumericLiteralTests
 			NumericLiteral.TryParse(text, out _).ShouldBeFalse(text);
 		}
 	}
+
+	[TestMethod]
+	public void ToStringTest()
+	{
+		Test("123", "123");
+		Test("10543765Lu", "10_543_765Lu");
+		Test("1_2__3___4____5", "12_345");
+
+		Test("0xFf", "0x_Ff");
+		Test("0X1ba044fEL", "0X_1b_a0_44_fEL");
+		Test("0x1ade_3FE1_29AaUL", "0x_1a_de_3F_E1_29_AaUL");
+		Test("0x1ade_3FE1_29AaUL", "0x_1ade_3FE1_29AaUL", 4);
+		Test("0x_abc", "0xa_bc");
+		Test("0x123d", "0x_12_3d");
+		Test("0x123d", "0x_1_2_3_d", 1);
+
+		Test("0b101", "0b101");
+		Test("0B1001_1010u", "0B_1001_1010u");
+		Test("0b1111_1111_0000UL", "0b_1111_1111_0000UL");
+		Test("0B__111", "0B111");
+
+		Test("1.234_567", "1.234567");
+		Test(".3e5f", ".3e5f");
+		Test("2_345E-2_0", "2345E-20");
+		Test("15D", "15D");
+		Test("19.73M", "19.73M");
+		Test("1234d", "1_234d");
+
+		static void Test(string text, string expected, byte? groupSize = null)
+		{
+			NumericLiteral.TryParse(text, out NumericLiteral? literal).ShouldBeTrue(text);
+			literal.ToString().ShouldBe(text);
+			groupSize ??= literal.Base switch
+			{
+				NumericBase.Hexadecimal => 2,
+				NumericBase.Binary => 4,
+				_ => 3,
+			};
+
+			literal.ToString(groupSize.Value).ShouldBe(expected, text);
+		}
+	}
 }

@@ -136,4 +136,7 @@
   <data name="Men017CodeFix" xml:space="preserve">
     <value>Remove unused private setter</value>
   </data>
+  <data name="Men018CodeFix" xml:space="preserve">
+    <value>Insert digit separators</value>
+  </data>
 </root>

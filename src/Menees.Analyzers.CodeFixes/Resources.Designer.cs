@@ -113,5 +113,14 @@ namespace Menees.Analyzers.CodeFixes {
                 return ResourceManager.GetString("Men017CodeFix", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Insert digit separators.
+        /// </summary>
+        internal static string Men018CodeFix {
+            get {
+                return ResourceManager.GetString("Men018CodeFix", resourceCulture);
+            }
+        }
     }
 }

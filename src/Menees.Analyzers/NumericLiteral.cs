@@ -23,12 +23,20 @@ public sealed class NumericLiteral
 	private static readonly HashSet<char> DecimalDigits = [.. BinaryDigits, '2', '3', '4', '5', '6', '7', '8', '9'];
 	private static readonly HashSet<char> HexadecimalDigits = [.. DecimalDigits, 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'];
 
+	private string originalText;
+
 	#endregion
 
 	#region Constructors
 
-	private NumericLiteral(string text, NumericBase numericBase, int digitsStartIndex, int digitsLength, bool isInteger)
+	private NumericLiteral(
+		string text,
+		NumericBase numericBase,
+		int digitsStartIndex,
+		int digitsLength,
+		bool isInteger)
 	{
+		this.originalText = text;
 		this.Base = numericBase;
 		this.Prefix = text.Substring(0, digitsStartIndex);
 		this.OriginalDigits = text.Substring(digitsStartIndex, digitsLength);
@@ -95,6 +103,72 @@ public sealed class NumericLiteral
 		}
 
 		return value != null;
+	}
+
+	public override string ToString() => this.originalText;
+
+	public string ToString(byte groupSize)
+	{
+		string result;
+
+		if (groupSize == 0)
+		{
+			result = this.ToString();
+		}
+		else
+		{
+			const int SeparatorPadding = 10;
+			StringBuilder sb = new(this.Prefix.Length + this.ScrubbedDigits.Length + this.Suffix.Length + SeparatorPadding);
+			sb.Append(this.Prefix);
+
+			// For integers, we can format all the scrubbed digits.
+			// For real numbers, we only format the integral part, and we don't format scientific notation.
+			int formatLength = this.ScrubbedDigits.Length;
+			if (!this.IsInteger)
+			{
+				if (this.ScrubbedDigits.Contains('e', StringComparison.OrdinalIgnoreCase))
+				{
+					// Scientific notation is its own type of formatting, so we won't try to mix in separators.
+					formatLength = 0;
+				}
+				else
+				{
+					// We have no exponent, and we only want to return the integer part.
+					// Think about 123D, 123.0, .123, and 0.123.
+					int decimalIndex = this.ScrubbedDigits.IndexOf('.');
+					if (decimalIndex >= 0)
+					{
+						formatLength = decimalIndex;
+					}
+				}
+			}
+
+			// A separator can't come first, but it can follow a prefix. A separator can never be last.
+			int modulus = formatLength % groupSize;
+			int separatorIndex = modulus == 0 && this.Prefix.Length == 0 ? groupSize : modulus;
+			for (int index = 0; index < formatLength; index++)
+			{
+				if (index == separatorIndex)
+				{
+					separatorIndex += groupSize;
+					if (sb.Length > 0)
+					{
+						sb.Append('_');
+					}
+				}
+
+				sb.Append(this.ScrubbedDigits, index, 1);
+			}
+
+			// TODO: Format fractional part too? Not reversed grouping like integer part. [Bill, 5/26/2024]
+			// For reals, this will add the fractional or scientific notation part.
+			sb.Append(this.ScrubbedDigits, formatLength, this.ScrubbedDigits.Length - formatLength);
+
+			sb.Append(this.Suffix);
+			result = sb.ToString();
+		}
+
+		return result;
 	}
 
 	#endregion
