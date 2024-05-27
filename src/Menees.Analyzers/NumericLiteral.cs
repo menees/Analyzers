@@ -24,7 +24,7 @@ public sealed class NumericLiteral
 	private static readonly HashSet<char> HexadecimalDigits = [.. DecimalDigits, 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'];
 	private static readonly char[] ExponentChar = ['e', 'E'];
 
-	private string originalText;
+	private readonly string originalText;
 
 	#endregion
 

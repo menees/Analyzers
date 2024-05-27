@@ -86,7 +86,7 @@ public sealed class Men018UseDigitSeparators : Analyzer
 					builder.Add(PreferredKey, preferredText);
 					ImmutableDictionary<string, string?> fixerProperties = builder.ToImmutable();
 
-					Location location = literalExpression.GetFirstLineLocation();
+					Location location = literalExpression.GetLocation();
 					context.ReportDiagnostic(Diagnostic.Create(Rule, location, fixerProperties, literalText));
 				}
 			}

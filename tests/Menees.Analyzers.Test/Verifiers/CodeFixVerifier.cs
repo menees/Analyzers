@@ -42,8 +42,13 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 	/// <param name="allowNewCompilerDiagnostics">A bool controlling whether or not the test will fail if the CodeFix introduces other warnings after being applied</param>
 	private static void VerifyFix(string language, DiagnosticAnalyzer analyzer, CodeFixProvider? codeFixProvider, string oldSource, string newSource, int? codeFixIndex, bool allowNewCompilerDiagnostics)
 	{
-		if (IsEnabled(analyzer) && codeFixProvider != null)
+		if (IsEnabled(analyzer))
 		{
+			if (codeFixProvider is null)
+			{
+				throw new ArgumentNullException(nameof(codeFixProvider), $"{nameof(VerifyFix)} requires a code fix provider.");
+			}
+
 			var document = CreateDocument(oldSource, language);
 			var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
 			var compilerDiagnostics = GetCompilerDiagnostics(document);
@@ -83,10 +88,10 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 
 					newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
-					Assert.IsTrue(false,
+					Assert.Fail(
 						string.Format("Fix introduced new compiler diagnostics:\r\n{0}\r\n\r\nNew document:\r\n{1}\r\n",
 							string.Join("\r\n", newCompilerDiagnostics.Select(d => d.ToString())),
-							document.GetSyntaxRootAsync().Result.ToFullString()));
+							document.GetSyntaxRootAsync().Result?.ToFullString()));
 				}
 
 				//check if there are analyzer diagnostics left after the code fix

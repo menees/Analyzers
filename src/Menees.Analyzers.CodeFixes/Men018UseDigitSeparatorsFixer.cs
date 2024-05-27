@@ -60,23 +60,37 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 		SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 		if (syntaxRoot != null)
 		{
-			SyntaxNode violatingNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
-			if (violatingNode is LiteralExpressionSyntax literalExpression)
+			SyntaxNode oldNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+			if (oldNode is LiteralExpressionSyntax literalExpression)
 			{
 				SyntaxToken literalToken = literalExpression.Token;
+				SyntaxTriviaList lead = literalToken.LeadingTrivia;
+				SyntaxTriviaList trail = literalToken.TrailingTrivia;
+				SyntaxToken? newToken = Type.GetTypeCode(literalToken.Value?.GetType()) switch
+				{
+					TypeCode.SByte => SyntaxFactory.Literal(lead, preferredText, (sbyte)literalToken.Value!, trail),
+					TypeCode.Byte => SyntaxFactory.Literal(lead, preferredText, (byte)literalToken.Value!, trail),
+					TypeCode.Int16 => SyntaxFactory.Literal(lead, preferredText, (short)literalToken.Value!, trail),
+					TypeCode.UInt16 => SyntaxFactory.Literal(lead, preferredText, (ushort)literalToken.Value!, trail),
+					TypeCode.Int32 => SyntaxFactory.Literal(lead, preferredText, (int)literalToken.Value!, trail),
+					TypeCode.UInt32 => SyntaxFactory.Literal(lead, preferredText, (uint)literalToken.Value!, trail),
+					TypeCode.Int64 => SyntaxFactory.Literal(lead, preferredText, (long)literalToken.Value!, trail),
+					TypeCode.UInt64 => SyntaxFactory.Literal(lead, preferredText, (ulong)literalToken.Value!, trail),
+					TypeCode.Single => SyntaxFactory.Literal(lead, preferredText, (float)literalToken.Value!, trail),
+					TypeCode.Double => SyntaxFactory.Literal(lead, preferredText, (double)literalToken.Value!, trail),
+					TypeCode.Decimal => SyntaxFactory.Literal(lead, preferredText, (decimal)literalToken.Value!, trail),
+					_ => null,
+				};
 
-				SyntaxNode oldNode = literalExpression;
-				SyntaxNode newNode = SyntaxFactory.LiteralExpression(
-					SyntaxKind.NumericLiteralExpression,
-					SyntaxFactory.Token(
-						literalToken.LeadingTrivia,
-						SyntaxKind.NumericLiteralToken,
-						preferredText,
-						preferredText,
-						literalToken.TrailingTrivia));
+				if (newToken != null)
+				{
+					SyntaxNode newNode = SyntaxFactory.LiteralExpression(
+						SyntaxKind.NumericLiteralExpression,
+						newToken.Value);
 
-				var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
-				result = document.WithSyntaxRoot(newSyntaxRoot);
+					var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
+					result = document.WithSyntaxRoot(newSyntaxRoot);
+				}
 			}
 		}
 

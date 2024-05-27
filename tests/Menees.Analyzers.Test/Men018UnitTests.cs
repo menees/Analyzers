@@ -1,11 +1,15 @@
 ﻿namespace Menees.Analyzers.Test;
 
+using Microsoft.CodeAnalysis.CodeFixes;
+
 [TestClass]
 public class Men018UnitTests : CodeFixVerifier
 {
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men018UseDigitSeparators();
+
+	protected override CodeFixProvider? CSharpCodeFixProvider => new Men018UseDigitSeparatorsFixer();
 
 	#endregion
 
@@ -52,7 +56,7 @@ public class Test
 	private const int Thousand = 1000;
 	private const uint HexHundred = 0x100u;
 	private const ulong BinaryMillion = 0b1000000UL;
-	private const double BigDouble = 123456.789;
+	private const double BigDouble = 123456.7890;
 }";
 
 		var analyzer = this.CSharpDiagnosticAnalyzer;
@@ -90,13 +94,52 @@ public class Test
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 123456.789 should use digit separators.",
+				Message = "The numeric literal 123456.7890 should use digit separators.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 35)]
 			},
 		];
 
-		// TODO: Add code fixer unit tests. [Bill, 5/26/2024]
 		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void InvalidCodeFixerTest()
+	{
+		const string before = @"
+public class Test
+{
+	private const int Million = 1000000;
+	private const uint MaxUint = 0xFFFFFFFFu;
+	private const decimal TenBillion = 10000000000m;
+	private const int Thousand = 1000;
+	private const uint HexHundred = 0x100u;
+	private const ulong BinaryMillion = 0b1000000UL;
+	private const double BigDouble = 123456.7890;
+	private static readonly double Conditional = Convert.ToBoolean(0) ? 0xFFFFFF : 1234.56789;
+	public Test()
+	{
+		if (DateTime.Now.TimeOfDay.TotalSeconds >= 43200) Console.WriteLine(""Afternoon"");
+	}
+}";
+
+		const string after = @"
+public class Test
+{
+	private const int Million = 1_000_000;
+	private const uint MaxUint = 0x_FF_FF_FF_FFu;
+	private const decimal TenBillion = 10_000_000_000m;
+	private const int Thousand = 1_000;
+	private const uint HexHundred = 0x1_00u;
+	private const ulong BinaryMillion = 0b100_0000UL;
+	private const double BigDouble = 123_456.789_0;
+	private static readonly double Conditional = Convert.ToBoolean(0) ? 0x_FF_FF_FF : 1_234.567_89;
+	public Test()
+	{
+		if (DateTime.Now.TimeOfDay.TotalSeconds >= 43_200) Console.WriteLine(""Afternoon"");
+	}
+}";
+
+		this.VerifyCSharpFix(before, after);
 	}
 
 	#endregion
