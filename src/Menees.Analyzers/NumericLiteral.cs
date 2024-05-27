@@ -22,6 +22,7 @@ public sealed class NumericLiteral
 	private static readonly HashSet<char> BinaryDigits = ['0', '1'];
 	private static readonly HashSet<char> DecimalDigits = [.. BinaryDigits, '2', '3', '4', '5', '6', '7', '8', '9'];
 	private static readonly HashSet<char> HexadecimalDigits = [.. DecimalDigits, 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f'];
+	private static readonly char[] ExponentChar = ['e', 'E'];
 
 	private string originalText;
 
@@ -113,7 +114,7 @@ public sealed class NumericLiteral
 
 		if (groupSize == 0)
 		{
-			result = this.ToString();
+			result = $"{this.Prefix}{this.ScrubbedDigits}{this.Suffix}";
 		}
 		else
 		{
@@ -121,48 +122,53 @@ public sealed class NumericLiteral
 			StringBuilder sb = new(this.Prefix.Length + this.ScrubbedDigits.Length + this.Suffix.Length + SeparatorPadding);
 			sb.Append(this.Prefix);
 
-			// For integers, we can format all the scrubbed digits.
-			// For real numbers, we only format the integral part, and we don't format scientific notation.
-			int formatLength = this.ScrubbedDigits.Length;
-			if (!this.IsInteger)
+			if (this.IsInteger)
 			{
-				if (this.ScrubbedDigits.Contains('e', StringComparison.OrdinalIgnoreCase))
+				this.AppendIntegerDigits(sb, 0, this.ScrubbedDigits.Length, groupSize, this.Prefix.Length > 0);
+			}
+			else
+			{
+				// A real number is basically "Integer Fraction Exponent", and any of those parts can be empty.
+				// They can't all be empty, and we can't have just an Exponent part. The other six possibilities
+				// are allowed: .123, .12e3, 123d, 12e3, 1.23, 1.2e3
+				int decimalIndex = this.ScrubbedDigits.IndexOf('.');
+				int exponentIndex = this.ScrubbedDigits.IndexOfAny(ExponentChar, decimalIndex + 1);
+
+				if (decimalIndex < 0 && exponentIndex < 0)
 				{
-					// Scientific notation is its own type of formatting, so we won't try to mix in separators.
-					formatLength = 0;
+					// Integer part only. Example: 123d
+					this.AppendIntegerDigits(sb, 0, this.ScrubbedDigits.Length, groupSize);
+				}
+				else if (exponentIndex < 0)
+				{
+					// Has fraction part and may have an integer part. Examples: .123 or 1.23
+					this.AppendIntegerDigits(sb, 0, decimalIndex, groupSize);
+					sb.Append(this.ScrubbedDigits[decimalIndex]);
+					int fractionIndex = decimalIndex + 1;
+					this.AppendScrubbedDigits(sb, fractionIndex, this.ScrubbedDigits.Length - fractionIndex, groupSize, fractionIndex + groupSize);
+				}
+				else if (decimalIndex < 0)
+				{
+					// Has exponent part with a required integer part. Example: 12e3
+					this.AppendIntegerDigits(sb, 0, exponentIndex, groupSize);
+
+					// See comments below about why we don't format the exponent.
+					sb.Append(this.ScrubbedDigits, exponentIndex, this.ScrubbedDigits.Length - exponentIndex);
 				}
 				else
 				{
-					// We have no exponent, and we only want to return the integer part.
-					// Think about 123D, 123.0, .123, and 0.123.
-					int decimalIndex = this.ScrubbedDigits.IndexOf('.');
-					if (decimalIndex >= 0)
-					{
-						formatLength = decimalIndex;
-					}
+					// Has fraction part, exponent part, and maybe an integer part. Examples: .12e3 or 1.2e3
+					this.AppendIntegerDigits(sb, 0, decimalIndex, groupSize);
+					sb.Append(this.ScrubbedDigits[decimalIndex]);
+					int fractionIndex = decimalIndex + 1;
+					this.AppendScrubbedDigits(sb, fractionIndex, exponentIndex - fractionIndex, groupSize, fractionIndex + groupSize);
+
+					// Note: Double only allows 3 digit exponents, so we'll never try to format those.
+					// Technically, we could if groupSize < 3, but it's so rare that it's not worth the
+					// hassle of parsing the optional sign and doing another integer right-to-left format.
+					sb.Append(this.ScrubbedDigits, exponentIndex, this.ScrubbedDigits.Length - exponentIndex);
 				}
 			}
-
-			// A separator can't come first, but it can follow a prefix. A separator can never be last.
-			int modulus = formatLength % groupSize;
-			int separatorIndex = modulus == 0 && this.Prefix.Length == 0 ? groupSize : modulus;
-			for (int index = 0; index < formatLength; index++)
-			{
-				if (index == separatorIndex)
-				{
-					separatorIndex += groupSize;
-					if (sb.Length > 0)
-					{
-						sb.Append('_');
-					}
-				}
-
-				sb.Append(this.ScrubbedDigits, index, 1);
-			}
-
-			// TODO: Format fractional part too? Not reversed grouping like integer part. [Bill, 5/26/2024]
-			// For reals, this will add the fractional or scientific notation part.
-			sb.Append(this.ScrubbedDigits, formatLength, this.ScrubbedDigits.Length - formatLength);
 
 			sb.Append(this.Suffix);
 			result = sb.ToString();
@@ -252,6 +258,47 @@ public sealed class NumericLiteral
 		}
 
 		return value != null;
+	}
+
+	/// <summary>
+	/// Appends the integer portion of <see cref="ScrubbedDigits"/> with separators added from right to left.
+	/// </summary>
+	private void AppendIntegerDigits(
+		StringBuilder sb,
+		int startIndex,
+		int length,
+		byte groupSize,
+		bool allowLeadingSeparator = false)
+	{
+		// A separator can't come first, but it can follow a prefix. A separator can never be last.
+		int modulus = length % groupSize;
+		int separatorIndex = (modulus == 0 && !allowLeadingSeparator ? groupSize : modulus) + startIndex;
+		AppendScrubbedDigits(sb, startIndex, length, groupSize, separatorIndex);
+	}
+
+	/// <summary>
+	/// Appends any portion of <see cref="ScrubbedDigits"/> with separators added from left to right.
+	/// </summary>
+	private void AppendScrubbedDigits(
+		StringBuilder sb,
+		int startIndex,
+		int length,
+		byte groupSize,
+		int separatorIndex)
+	{
+		for (int index = startIndex; index < (startIndex + length); index++)
+		{
+			if (index == separatorIndex)
+			{
+				separatorIndex += groupSize;
+				if (sb.Length > 0)
+				{
+					sb.Append('_');
+				}
+			}
+
+			sb.Append(this.ScrubbedDigits, index, 1);
+		}
 	}
 
 	#endregion

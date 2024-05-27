@@ -97,9 +97,22 @@ public class NumericLiteralTests
 		Test("0b1111_1111_0000UL", "0b_1111_1111_0000UL");
 		Test("0B__111", "0B111");
 
-		Test("1.234_567", "1.234567");
+		Test("1.234_567", "1.234567", 0);
+		Test("1_234.567", "1234.567", 0);
+
+		Test("1.234567", "1.234_567");
+		Test("123.4567", "123.456_7");
+		Test("1234.567", "1_234.567");
+		Test(".123456", ".123_456");
+		Test(".1234567", ".123_456_7");
+		Test(".12345e67", ".123_45e67");
+		Test("1234567d", "1_234_567d");
+		Test("12345e67", "12_345e67");
+		Test("1234.567e89", "1_234.567e89");
+		Test("1234.5678e9", "1_234.567_8e9");
+
 		Test(".3e5f", ".3e5f");
-		Test("2_345E-2_0", "2345E-20");
+		Test("2345E-2_0", "2_345E-20");
 		Test("15D", "15D");
 		Test("19.73M", "19.73M");
 		Test("1234d", "1_234d");
@@ -108,6 +121,8 @@ public class NumericLiteralTests
 		{
 			NumericLiteral.TryParse(text, out NumericLiteral? literal).ShouldBeTrue(text);
 			literal.ToString().ShouldBe(text);
+			literal.ToString(0).ShouldBe(text.Replace("_", string.Empty));
+
 			groupSize ??= literal.Base switch
 			{
 				NumericBase.Hexadecimal => 2,
