@@ -108,6 +108,7 @@ public class Test
 		const string before = @"
 public class Test
 {
+	private static readonly DateTime SomeDay = new(2024, 5, 28);
 	private const int Million = 1000000;
 	private const uint MaxUint = 0xFFFFFFFFu;
 	private const decimal TenBillion = 10000000000m;
@@ -125,6 +126,7 @@ public class Test
 		const string after = @"
 public class Test
 {
+	private static readonly DateTime SomeDay = new(2_024, 5, 28);
 	private const int Million = 1_000_000;
 	private const uint MaxUint = 0x_FF_FF_FF_FFu;
 	private const decimal TenBillion = 10_000_000_000m;

@@ -60,8 +60,13 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 		SyntaxNode? syntaxRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 		if (syntaxRoot != null)
 		{
-			SyntaxNode oldNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
-			if (oldNode is LiteralExpressionSyntax literalExpression)
+			// Because we're finding the node by its location, this may return a parent node
+			// (e.g., ArgumentSyntax that wraps the LiteralExpressionSyntax in Test(123456);).
+			SyntaxNode locationNode = syntaxRoot.FindNode(diagnostic.Location.SourceSpan);
+			LiteralExpressionSyntax? literalExpression = locationNode.DescendantNodesAndSelf()
+				.OfType<LiteralExpressionSyntax>()
+				.FirstOrDefault();
+			if (literalExpression != null)
 			{
 				SyntaxToken literalToken = literalExpression.Token;
 				SyntaxTriviaList lead = literalToken.LeadingTrivia;
@@ -88,7 +93,7 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 						SyntaxKind.NumericLiteralExpression,
 						newToken.Value);
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
+					var newSyntaxRoot = syntaxRoot.ReplaceNode(literalExpression, newNode);
 					result = document.WithSyntaxRoot(newSyntaxRoot);
 				}
 			}
