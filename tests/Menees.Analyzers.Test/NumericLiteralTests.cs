@@ -133,4 +133,38 @@ public class NumericLiteralTests
 			literal.ToString(groupSize.Value).ShouldBe(expected, text);
 		}
 	}
+
+	[TestMethod]
+	public void GetSizeTest()
+	{
+		Test("123", 3);
+		Test("10543765Lu", 8);
+		Test("1_2__3___4____5", 5);
+
+		Test("0xFf", 2);
+		Test("0X1ba044fEL", 8);
+
+		Test("0B1001_1010u", 8);
+		Test("0b1111_1111_0000UL", 12);
+		Test("0B__111", 3);
+
+		Test("1.234_567", 6);
+		Test("1_234.567", 4);
+		Test("123_456.7", 6);
+		Test(".123456", 6);
+		Test(".12345e67", 5);
+		Test("1234567d", 7);
+		Test("1234.567e89", 4);
+
+		Test(".3e5f", 1);
+		Test("2345E-2_0", 4);
+		Test("15D", 2);
+		Test("19.73M", 2);
+
+		static void Test(string text, byte  expected)
+		{
+			NumericLiteral.TryParse(text, out NumericLiteral? literal).ShouldBeTrue(text);
+			literal.GetSize().ShouldBe(expected, text);
+		}
+	}
 }

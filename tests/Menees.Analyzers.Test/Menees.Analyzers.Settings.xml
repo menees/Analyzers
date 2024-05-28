@@ -51,4 +51,10 @@
 		<Term Avoid="Indices" Prefer="Indexes" />
 		<Term Avoid="Kustom" Prefer="Custom"/>
 	</PreferredTerms>
+
+	<DigitSeparators>
+		<Decimal MinSize="4" GroupSize="3" />
+		<Hexadecimal MinSize="3" GroupSize="2" />
+		<Binary MinSize="5" GroupSize="4" />
+	</DigitSeparators>
 </Menees.Analyzers.Settings>

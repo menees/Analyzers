@@ -6,6 +6,25 @@
 		</xs:restriction>
 	</xs:simpleType>
 
+	<xs:complexType name="DigitSeparator">
+		<xs:attribute name="MinSize" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedByte">
+					<xs:minInclusive value="2" />
+					<xs:maxInclusive value="28" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="GroupSize" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:unsignedByte">
+					<xs:minInclusive value="1"/>
+					<xs:maxInclusive value="10" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
 	<xs:element name="Menees.Analyzers.Settings">
 		<xs:complexType>
 			<xs:all>
@@ -66,6 +85,16 @@
 								</xs:complexType>
 							</xs:element>
 						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="DigitSeparators" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Decimal" type="DigitSeparator" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="Hexadecimal" type="DigitSeparator" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="Binary" type="DigitSeparator" minOccurs="0" maxOccurs="1"/>
+						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
 			</xs:all>

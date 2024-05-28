@@ -133,6 +133,14 @@ internal sealed partial class Settings
 				.Select(term => new KeyValuePair<string, string>(term.Attribute("Avoid").Value, term.Attribute("Prefer").Value))
 				.ToDictionary(pair => pair.Key, pair => pair.Value);
 		}
+
+		XElement digitSeparators = xml.Element("DigitSeparators");
+		if (digitSeparators != null)
+		{
+			this.DecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Decimal"), this.DecimalSeparators);
+			this.HexadecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Hexadecimal"), this.HexadecimalSeparators);
+			this.BinarySeparators = GetDigitSeparatorFormat(digitSeparators.Element("Binary"), this.BinarySeparators);
+		}
 	}
 
 	#endregion
@@ -178,6 +186,16 @@ internal sealed partial class Settings
 	public bool AllowLongUriLines { get; } = true;
 
 	public bool AllowLongFourSlashCommentLines { get; }
+
+	#endregion
+
+	#region Private Properties
+
+	private (byte MinSize, byte GroupSize) DecimalSeparators { get; } = (5, 3); // Group Per-Thousand
+
+	private (byte MinSize, byte GroupSize) HexadecimalSeparators { get; } = (5, 2); // Group Per-Byte
+
+	private (byte MinSize, byte GroupSize) BinarySeparators { get; } = (6, 4); // Group Per-Nibble
 
 	#endregion
 
@@ -302,6 +320,18 @@ internal sealed partial class Settings
 		return result;
 	}
 
+	public (byte MinSize, byte GroupSize) GetDigitSeparatorFormat(NumericLiteral literal)
+	{
+		(byte MinSize, byte GroupSize) result = literal.Base switch
+		{
+			NumericBase.Hexadecimal => this.HexadecimalSeparators,
+			NumericBase.Binary => this.BinarySeparators,
+			_ => this.DecimalSeparators,
+		};
+
+		return result;
+	}
+
 	#endregion
 
 	#region Private Methods
@@ -407,6 +437,31 @@ internal sealed partial class Settings
 		}
 
 		return (text, numericBase);
+	}
+
+	private (byte MinSize, byte GroupSize) GetDigitSeparatorFormat(XElement? baseElement, (byte MinSize, byte GroupSize) defaultSeparators)
+	{
+		(byte MinSize, byte GroupSize) result = defaultSeparators;
+
+		if (baseElement != null)
+		{
+			byte minSize = GetByte(baseElement, "MinSize", defaultSeparators.MinSize);
+			byte groupSize = GetByte(baseElement, "GroupSize", defaultSeparators.GroupSize);
+			result = (minSize, groupSize);
+		}
+
+		static byte GetByte(XElement element, string attributeName, byte defaultValue)
+		{
+			string? value = element.Attribute(attributeName)?.Value;
+			if (!byte.TryParse(value, out byte result))
+			{
+				result = defaultValue;
+			}
+
+			return result;
+		}
+
+		return result;
 	}
 
 	#endregion

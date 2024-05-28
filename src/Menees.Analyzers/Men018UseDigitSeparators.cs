@@ -53,7 +53,7 @@ public sealed class Men018UseDigitSeparators : Analyzer
 
 	#region Private Methods
 
-	private static void HandleNumericLiteral(SyntaxNodeAnalysisContext context)
+	private void HandleNumericLiteral(SyntaxNodeAnalysisContext context)
 	{
 		// Only make a recommendation if the literal contains no separators already.
 		// If it's already separated in any way, we'll accept it.
@@ -62,24 +62,12 @@ public sealed class Men018UseDigitSeparators : Analyzer
 			&& NumericLiteral.TryParse(literalExpression.Token.Text, out NumericLiteral? literal)
 			&& literal.ScrubbedDigits == literal.OriginalDigits)
 		{
-			const byte PreferredHexGroupSize = 2; // Per-Byte
-			const byte PreferredBinaryGroupSize = 4; // Per-Nibble
-			const byte PreferredDecimalGroupSize = 3; // Per-Thousand
-			byte preferredGroupSize = literal.Base switch
-			{
-				NumericBase.Hexadecimal => PreferredHexGroupSize,
-				NumericBase.Binary => PreferredBinaryGroupSize,
-				_ => PreferredDecimalGroupSize,
-			};
-
-			// For integers, this length check is a quick short-circuit.
-			// For reals, it may be insufficient (e.g., 12.5 is 4 chars,
-			// but the integer part is only 2). However, comparing the ToString
-			// results below will be sufficient to avoid false positives.
-			if (literal.ScrubbedDigits.Length > preferredGroupSize)
+			byte literalSize = literal.GetSize();
+			(byte minSize, byte groupSize) = this.Settings.GetDigitSeparatorFormat(literal);
+			if (literalSize >= minSize)
 			{
 				string literalText = literal.ToString();
-				string preferredText = literal.ToString(preferredGroupSize);
+				string preferredText = literal.ToString(groupSize);
 				if (preferredText != literalText)
 				{
 					var builder = ImmutableDictionary.CreateBuilder<string, string?>();

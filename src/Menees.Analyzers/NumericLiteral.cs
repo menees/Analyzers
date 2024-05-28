@@ -177,6 +177,53 @@ public sealed class NumericLiteral
 		return result;
 	}
 
+	/// <summary>
+	/// Gets the length of the longest part of the number (e.g., integer or fraction).
+	/// </summary>
+	public byte GetSize()
+	{
+		int size;
+
+		if (this.IsInteger)
+		{
+			size = this.ScrubbedDigits.Length;
+		}
+		else
+		{
+			// See comments in ToString(byte) for how we split up ScrubbedDigits.
+			int decimalIndex = this.ScrubbedDigits.IndexOf('.');
+			int exponentIndex = this.ScrubbedDigits.IndexOfAny(ExponentChar, decimalIndex + 1);
+
+			if (decimalIndex < 0 && exponentIndex < 0)
+			{
+				// Integer part only. Example: 123d
+				size = this.ScrubbedDigits.Length;
+			}
+			else if (exponentIndex < 0)
+			{
+				// Has fraction part and may have an integer part. Examples: .123 or 1.23
+				// We'll use max part length instead of total digit length so 1234.5 isn't
+				// formatted to 1_234.5 with minSize 5 and groupSize 3. Also, consider
+				// 5678.901234 and 567890.1234. We'd want to end up with 5_678.901_234
+				// and 567_890.123_4 for consistency.
+				size = Math.Max(decimalIndex, this.ScrubbedDigits.Length - (decimalIndex + 1));
+			}
+			else if (decimalIndex < 0)
+			{
+				// Has exponent part with a required integer part. Example: 12e3
+				size = exponentIndex;
+			}
+			else
+			{
+				// Has fraction part, exponent part, and maybe an integer part. Examples: .12e3 or 1.2e3
+				size = Math.Max(decimalIndex, exponentIndex - (decimalIndex + 1));
+			}
+		}
+
+		byte result = size > byte.MaxValue ? byte.MaxValue : (byte)size;
+		return result;
+	}
+
 	#endregion
 
 	#region Private Methods
