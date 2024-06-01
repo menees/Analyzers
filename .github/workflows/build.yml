@@ -11,20 +11,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-
+    - uses: actions/checkout@v4.1.5
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4.0.0
+      with:
+        dotnet-version: 8.0.x
+        
     - name: Build everything
       run: |
         & .\eng\build.ps1 -build $true
-
-    - name: Add VSTest.Console.exe to PATH
-      uses: darenm/Setup-VSTest@v1
 
     - name: Run unit tests
       run: |
