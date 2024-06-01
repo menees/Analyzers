@@ -26,10 +26,14 @@ if ($build)
 {
 	foreach ($configuration in $configurations)
 	{
+		# Note: We can't use "dotnet build" because we have a Vsix project that transitively uses
+		# CodeTaskFactory (for SetVsSDKEnvironmentVariables) via Microsoft.VSSDK.BuildTools.targets.
+		# The .NET Core version of MSBuild doesn't support CodeTaskFactory, so we're stuck with MSBuild.
+		# We need to keep the Vsix project for easy debugging and testing of the analyzers in VS.
+		#
 		# Restore NuGet packages first
 		Write-Host "`nRestoring $configuration packages"
 		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo /t:Restore
-
 		Write-Host "`nBuilding $configuration projects"
 		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
 	}
@@ -37,16 +41,9 @@ if ($build)
 
 if ($test)
 {
-	# Using "dotnet test Analyzers.sln" gets the NuGet restore error mentioned above.
-	# So we have to directly run the vstest app against the DLLs we built above.
 	foreach ($configuration in $configurations)
 	{
-		$testDlls = @(Get-ChildItem -r "$repoPath\tests\**\*.Test.dll" | Where-Object {$_.Directory -like "*\bin\$configuration\*"})
-		foreach ($testDll in $testDlls)
-		{
-			write-host "`n`n***** $testDll *****"
-			vstest.console.exe $testDll /Platform:X64
-		}
+		dotnet test $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
 	}
 }
 
