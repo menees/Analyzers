@@ -191,11 +191,11 @@ internal sealed partial class Settings
 
 	#region Private Properties
 
-	private (byte MinSize, byte GroupSize) DecimalSeparators { get; } = (5, 3); // Group Per-Thousand
+	private (byte MinSize, byte GroupSize) DecimalSeparators { get; } = (6, 3); // Group Per-Thousand
 
-	private (byte MinSize, byte GroupSize) HexadecimalSeparators { get; } = (5, 2); // Group Per-Byte
+	private (byte MinSize, byte GroupSize) HexadecimalSeparators { get; } = (8, 4); // Group Per-Word
 
-	private (byte MinSize, byte GroupSize) BinarySeparators { get; } = (6, 4); // Group Per-Nibble
+	private (byte MinSize, byte GroupSize) BinarySeparators { get; } = (8, 4); // Group Per-Nibble
 
 	#endregion
 
