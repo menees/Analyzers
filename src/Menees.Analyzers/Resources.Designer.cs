@@ -601,7 +601,7 @@ namespace Menees.Analyzers {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Async method needs CancellationToken parameter.
+        ///   Looks up a localized string similar to Async method needs CancellationToken.
         /// </summary>
         internal static string Men019Title {
             get {
