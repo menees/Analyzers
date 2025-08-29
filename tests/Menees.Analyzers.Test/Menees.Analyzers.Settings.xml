@@ -57,4 +57,12 @@
 		<Hexadecimal MinSize="3" GroupSize="2" />
 		<Binary MinSize="5" GroupSize="4" />
 	</DigitSeparators>
+
+	<SupportAsyncCancellationToken CheckPrivateMethods="true">
+		<Properties>
+			<Property>CancellationToken</Property>
+			<Property>Cancellation</Property>
+			<Property>Cancel</Property>
+		</Properties>
+	</SupportAsyncCancellationToken>
 </Menees.Analyzers.Settings>

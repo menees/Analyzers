@@ -83,9 +83,8 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 							// and 2 are allowed by default, it's common to see other small sequential indexes used too.
 							// Note: ArrayRankSpecifier (e.g., in new string[7]) is a different syntax kind, so this won't allow
 							// magic numbers for array ranks (just indexes).
-							byte indexValue;
 							allowed = HasParentChain(literalExpression, SyntaxKind.Argument, SyntaxKind.BracketedArgumentList)
-								&& byte.TryParse(literalExpression.Token.Text, out indexValue);
+								&& byte.TryParse(literalExpression.Token.Text, out byte indexValue);
 							break;
 
 						case SyntaxKind.EnumMemberDeclaration:
@@ -95,12 +94,12 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 
 						case SyntaxKind.MethodDeclaration:
 							// Unit test methods typically use lots of numeric literals for test cases, and they don't need to be named constants.
-							allowed = IsUnitTestMethod((BaseMethodDeclarationSyntax)ancestor, settings);
+							allowed = settings.IsUnitTestMethod((BaseMethodDeclarationSyntax)ancestor);
 							break;
 
 						case SyntaxKind.ClassDeclaration:
 							// Unit test classes typically use lots of numeric literals for test cases, and they don't need to be named constants.
-							allowed = IsUnitTestClass((ClassDeclarationSyntax)ancestor, settings);
+							allowed = settings.IsUnitTestClass((ClassDeclarationSyntax)ancestor);
 							break;
 
 						case SyntaxKind.InvocationExpression:
@@ -169,20 +168,6 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 			}
 		}
 
-		return result;
-	}
-
-	private static bool IsUnitTestClass(ClassDeclarationSyntax classSyntax, Settings settings)
-		=> HasUnitTestAttribute(classSyntax.AttributeLists, settings.TestClassAttributeNames);
-
-	private static bool IsUnitTestMethod(BaseMethodDeclarationSyntax method, Settings settings)
-		=> HasUnitTestAttribute(method.AttributeLists, settings.TestMethodAttributeNames);
-
-	private static bool HasUnitTestAttribute(SyntaxList<AttributeListSyntax> attributeLists, ISet<string> unitTestAttributeNames)
-	{
-		// If settings is configured with no unit test attributes, then we can skip this test.
-		bool result = unitTestAttributeNames.Count > 0
-			&& attributeLists.HasIndicatorAttribute(unitTestAttributeNames);
 		return result;
 	}
 

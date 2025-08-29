@@ -294,4 +294,13 @@
   <data name="Men018Title" xml:space="preserve">
     <value>Use digit separators</value>
   </data>
+  <data name="Men019Description" xml:space="preserve">
+    <value>An async method should take a CancellationToken parameter or take a parameter that has a public CancellationToken property.</value>
+  </data>
+  <data name="Men019MessageFormat" xml:space="preserve">
+    <value>Async method {0} should take a CancellationToken parameter.</value>
+  </data>
+  <data name="Men019Title" xml:space="preserve">
+    <value>Async method needs CancellationToken parameter</value>
+  </data>
 </root>

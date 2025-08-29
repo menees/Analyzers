@@ -581,5 +581,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men018Title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An async method should take a CancellationToken parameter or take a parameter that has a public CancellationToken property..
+        /// </summary>
+        internal static string Men019Description {
+            get {
+                return ResourceManager.GetString("Men019Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Async method {0} should take a CancellationToken parameter..
+        /// </summary>
+        internal static string Men019MessageFormat {
+            get {
+                return ResourceManager.GetString("Men019MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Async method needs CancellationToken parameter.
+        /// </summary>
+        internal static string Men019Title {
+            get {
+                return ResourceManager.GetString("Men019Title", resourceCulture);
+            }
+        }
     }
 }

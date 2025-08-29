@@ -97,6 +97,21 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+
+				<xs:element name="SupportAsyncCancellationToken" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence minOccurs="0" maxOccurs="1">
+							<xs:element name="Properties">
+								<xs:complexType>
+									<xs:choice minOccurs="1" maxOccurs="unbounded">
+										<xs:element name="Property" type="NonEmptyString"/>
+									</xs:choice>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="CheckPrivateMethods" type="xs:boolean" default="false"/>
+					</xs:complexType>
+				</xs:element>
 			</xs:all>
 		</xs:complexType>
 	</xs:element>

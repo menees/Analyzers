@@ -158,6 +158,34 @@ public static class Rules
 			ImmutableArray.Create(syntaxKinds));
 	}
 
+	internal static void RegisterSymbolActionHonorExclusions(
+		this AnalysisContext context,
+		Analyzer analyzer,
+		Predicate<Compilation>? initialize,
+		Action<SymbolAnalysisContext> action,
+		params SymbolKind[] symbolKinds)
+	{
+		ConfigureStandardAnalysis(context);
+
+		context.RegisterCompilationStartAction(
+			compilationContext =>
+			{
+				if (initialize?.Invoke(compilationContext.Compilation) ?? true)
+				{
+					compilationContext.RegisterSymbolAction(
+						c =>
+						{
+							ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
+							if (c.Symbol.Locations.Any(location => location.SourceTree?.IsGeneratedDocument(analyzer.Settings, c.CancellationToken) is false))
+							{
+								action(c);
+							}
+						},
+						ImmutableArray.Create(symbolKinds));
+				}
+			});
+	}
+
 	internal static bool HasIndicatorAttribute(this SyntaxList<AttributeListSyntax> attributeLists, ISet<string> attributeNames)
 	{
 		bool result = attributeLists.Any(list => list.Attributes.Any(

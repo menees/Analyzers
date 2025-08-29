@@ -108,23 +108,21 @@ internal sealed partial class Settings
 		XElement allowedNumericLiteralsElement = xml.Element("AllowedNumericLiterals");
 		if (allowedNumericLiteralsElement != null)
 		{
-			this.allowedNumericLiterals = new HashSet<string>(
-				allowedNumericLiteralsElement.Elements("Literal").Select(literal => literal.Value));
-			this.allowedNumericCallerNames = new HashSet<string>(
-				allowedNumericLiteralsElement.Elements("CallerName").Select(callerName => callerName.Value));
-			this.allowedNumericCallerRegexes = allowedNumericLiteralsElement.Elements("CallerRegex")
-				.Select<XElement, Predicate<string>>(callerRegex => callerName => Regex.IsMatch(callerName, callerRegex.Value)).ToList();
+			this.allowedNumericLiterals = [.. allowedNumericLiteralsElement.Elements("Literal").Select(literal => literal.Value)];
+			this.allowedNumericCallerNames = [.. allowedNumericLiteralsElement.Elements("CallerName").Select(callerName => callerName.Value)];
+			this.allowedNumericCallerRegexes = [.. allowedNumericLiteralsElement.Elements("CallerRegex").Select<XElement, Predicate<string>>(callerRegex => callerName => Regex.IsMatch(callerName, callerRegex.Value))];
 		}
 
 		XElement unitTestAttributes = xml.Element("UnitTestAttributes");
 		if (unitTestAttributes != null)
 		{
-			this.TestClassAttributeNames = new HashSet<string>(
-				unitTestAttributes.Elements("Class").Select(element => element.Value));
+			this.TestClassAttributeNames = [.. unitTestAttributes.Elements("Class").Select(element => element.Value)];
 
-			this.TestMethodAttributeNames = new HashSet<string>(
-				unitTestAttributes.Elements("Method").Select(element => element.Value));
+			this.TestMethodAttributeNames = [.. unitTestAttributes.Elements("Method").Select(element => element.Value)];
 		}
+
+		NormalizeAttributeNames(this.TestClassAttributeNames);
+		NormalizeAttributeNames(this.TestMethodAttributeNames);
 
 		XElement preferredTermsElement = xml.Element("PreferredTerms");
 		if (preferredTermsElement != null)
@@ -140,6 +138,21 @@ internal sealed partial class Settings
 			this.DecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Decimal"), this.DecimalSeparators);
 			this.HexadecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Hexadecimal"), this.HexadecimalSeparators);
 			this.BinarySeparators = GetDigitSeparatorFormat(digitSeparators.Element("Binary"), this.BinarySeparators);
+		}
+
+		XElement? supportAsyncCancellationToken = xml.Element("SupportAsyncCancellationToken");
+		if (supportAsyncCancellationToken != null)
+		{
+			if (bool.TryParse(supportAsyncCancellationToken.Attribute("CheckPrivateMethods")?.Value, out bool value))
+			{
+				this.CheckPrivateMethodsForCancellation = value;
+			}
+
+			XElement? properties = supportAsyncCancellationToken.Element("Properties");
+			if (properties != null)
+			{
+				this.PropertyNamesForCancellation = [.. properties.Elements("Property").Select(p => p.Value)];
+			}
 		}
 	}
 
@@ -176,16 +189,15 @@ internal sealed partial class Settings
 
 	public int MaxUnregionedLines { get; } = 100;
 
-	// These attributes cover MSTest, NUnit, and xUnit.
-	public HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(["TestMethod", "Test", "Fact"]);
-
-	public HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(["TestClass", "TestFixture"]);
-
 	public bool HasPreferredTerms => this.preferredTerms.Count > 0;
 
 	public bool AllowLongUriLines { get; } = true;
 
 	public bool AllowLongFourSlashCommentLines { get; }
+
+	public bool CheckPrivateMethodsForCancellation { get; }
+
+	public HashSet<string> PropertyNamesForCancellation { get; } = new HashSet<string>([nameof(CancellationToken), "Cancellation"]);
 
 	#endregion
 
@@ -196,6 +208,11 @@ internal sealed partial class Settings
 	private (byte MinSize, byte GroupSize) HexadecimalSeparators { get; } = (8, 4); // Group Per-Word
 
 	private (byte MinSize, byte GroupSize) BinarySeparators { get; } = (8, 4); // Group Per-Nibble
+
+	// These attributes cover MSTest, NUnit, and xUnit.
+	private HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(["TestMethod", "Test", "Fact", "Theory"]);
+
+	private HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(["TestClass", "TestFixture"]);
 
 	#endregion
 
@@ -332,6 +349,15 @@ internal sealed partial class Settings
 		return result;
 	}
 
+	public bool IsUnitTestClass(ClassDeclarationSyntax classSyntax)
+		=> HasUnitTestAttribute(classSyntax.AttributeLists, this.TestClassAttributeNames);
+
+	public bool IsUnitTestMethod(BaseMethodDeclarationSyntax method)
+		=> HasUnitTestAttribute(method.AttributeLists, this.TestMethodAttributeNames);
+
+	public bool IsUnitTestMethod(IMethodSymbol method)
+		=> HasUnitTestAttribute(method.GetAttributes(), this.TestMethodAttributeNames);
+
 	#endregion
 
 	#region Private Methods
@@ -382,9 +408,10 @@ internal sealed partial class Settings
 		if (exclusionsElement != null)
 		{
 			result =
-				exclusionsElement.Elements("FileRegex").Select(element => CreateFileRegexPredicate(element.Value))
-				.Concat(exclusionsElement.Elements("FileName").Select(element => CreateFileNamePredicate(element.Value)))
-				.ToList();
+				[
+					.. exclusionsElement.Elements("FileRegex").Select(element => CreateFileRegexPredicate(element.Value)),
+					.. exclusionsElement.Elements("FileName").Select(element => CreateFileNamePredicate(element.Value)),
+				];
 		}
 
 		return result;
@@ -462,6 +489,34 @@ internal sealed partial class Settings
 		}
 
 		return result;
+	}
+
+	private static bool HasUnitTestAttribute(SyntaxList<AttributeListSyntax> attributeLists, ISet<string> unitTestAttributeNames)
+	{
+		// If settings is configured with no unit test attributes, then we can skip this test.
+		bool result = unitTestAttributeNames.Count > 0
+			&& attributeLists.HasIndicatorAttribute(unitTestAttributeNames);
+		return result;
+	}
+
+	private static bool HasUnitTestAttribute(ImmutableArray<AttributeData> attributeData, ISet<string> unitTestAttributeNames)
+	{
+		// If settings is configured with no unit test attributes, then we can skip this test.
+		bool result = unitTestAttributeNames.Count > 0
+			&& attributeData.Any(attribute => attribute.AttributeClass != null
+				&& unitTestAttributeNames.Contains(attribute.AttributeClass.Name));
+		return result;
+	}
+
+	private static void NormalizeAttributeNames(HashSet<string> attributeNames)
+	{
+		// With SyntaxNodes, we can use the short names, but with ISymbols we need the long names.
+		const string Suffix = "Attribute";
+		string[] needSuffix = [.. attributeNames.Where(name => !name.EndsWith(Suffix))];
+		foreach (string name in needSuffix)
+		{
+			attributeNames.Add(name);
+		}
 	}
 
 	#endregion
