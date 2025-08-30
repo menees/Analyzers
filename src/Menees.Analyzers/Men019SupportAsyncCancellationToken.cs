@@ -162,9 +162,9 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		{
 			bool result = false;
 
-			if (this.fixedTaskTypes.Contains(type, SymbolEqualityComparer.Default)
+			if (this.fixedTaskTypes.Contains(type, SymbolEqualityComparer.IncludeNullability)
 				|| (type is INamedTypeSymbol { IsGenericType: true } namedType
-					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolEqualityComparer.Default)))
+					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolEqualityComparer.IncludeNullability)))
 			{
 				result = true;
 			}
@@ -193,7 +193,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 					foreach (ISymbol member in containingType.AllInterfaces.SelectMany(intf => intf.GetMembers(method.Name)))
 					{
 						ISymbol? interfaceImplementation = containingType.FindImplementationForInterfaceMember(member);
-						if (method.Equals(interfaceImplementation, SymbolEqualityComparer.Default))
+						if (method.Equals(interfaceImplementation, SymbolEqualityComparer.IncludeNullability))
 						{
 							result = true;
 							break;
@@ -212,7 +212,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			foreach (IParameterSymbol parameterSymbol in parameters)
 			{
 				INamedTypeSymbol? parameterType = parameterSymbol.Type as INamedTypeSymbol;
-				if (this.cancellationTokenType.Equals(parameterType, SymbolEqualityComparer.Default))
+				if (this.cancellationTokenType.Equals(parameterType, SymbolEqualityComparer.IncludeNullability))
 				{
 					result = true;
 					break;
@@ -235,7 +235,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 					.Cast<IPropertySymbol>();
 				foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
 				{
-					if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolEqualityComparer.Default))
+					if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolEqualityComparer.IncludeNullability))
 					{
 						result = true;
 						break;
