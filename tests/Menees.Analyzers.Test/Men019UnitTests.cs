@@ -33,11 +33,16 @@ public sealed class TestBase : IThink1
 	public virtual Task Think1() => return Task.CompletedTask;
 }
 
-public class Test : IFormattable, IThink2
+public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
+public sealed class Awaiter { public bool GetResult() => true; }
+
+public class Test : TestBase, IFormattable, IThink2
 {
 	private Task<bool> CheckPrivate(CancellationToken c) { return Task.FromResult(true); }
 
 	public async Task UseAsyncKeyword(CancellationToken c) { await Task.Yield(); }
+
+	public Awaitable TryAwaitable(CancellationToken c = default) { return new Awaitable(); }
 
 	// Interface implementations
 	Task IThink2.Think2() => return Task.CompletedTask;
@@ -48,6 +53,11 @@ public class Test : IFormattable, IThink2
 	public Task UnitTest() => return Task.CompletedTask;
 
 	public Task GetsCancelProperty(Cancellable cancellable) => return Task.CompletedTask;
+
+	// Normal methods
+	public override string ToString() => nameof(Test);
+	public int GetPercent(double fraction) => 100 * fraction;
+	public void SyncCancel(CancellationToken c = default) { }
 }";
 
 		this.VerifyCSharpDiagnostic(test);
@@ -61,31 +71,53 @@ public class Test : IFormattable, IThink2
 	public void InvalidCodeTest()
 	{
 		const string test = @"
+using System.Threading;
+using System.Threading.Tasks;
+
+public interface IThink1 { Task Think1(); }
+
+public sealed class Cancellable { public CancellationToken Cancelled {get;}}
+
 public class Test
 {
-	// todo: Add invalid methods
-	// (method.DeclaredAccessibility > Accessibility.Private || settings.CheckPrivateMethodsForCancellation)
-	// !method.IsImplicitlyDeclared
-	// IsAsyncMethodKindSupported(method.MethodKind)
-	// !method.ReturnsVoid
-	// method.ReturnType is not null  // Roslyn's ISymbolExtensions.IsAwaitableNonDynamic checks this
-	// (method.IsAsync || IsAwaitable(method.ReturnType))
-	// !method.IsOverride
-	// method.ExplicitInterfaceImplementations.IsDefaultOrEmpty
-	// !IsImplicitInterfaceImplementation(method)
-	// !settings.IsUnitTestMethod(method))
-	// !HasCancellationTokenParameter(parameters)
-	// !parameters.Any(ParameterHasCancellationTokenProperty)
+	private Task<bool> CheckPrivate() { return Task.FromResult(true); }
+
+	public async Task UseAsyncKeyword() { await Task.Yield(); }
+
+	internal ValueTask<string?> GetString(int a, bool b, string c) { return new ValueTask(c); }
+
+	// Not a configured name to look for.
+	public Task GetsCancelledProperty(Cancellable cancellable) => return Task.CompletedTask;
 }";
 
-		// var analyzer = this.CSharpDiagnosticAnalyzer;
+		var analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
-			// new DiagnosticResult(analyzer)
-			// {
-				// Message = "The numeric literal 1000000 should use digit separators.",
-				// Locations = [new DiagnosticResultLocation("Test0.cs", 4, 30)]
-			// },
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method Think1 should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 33)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method CheckPrivate should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 21)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method UseAsyncKeyword should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 20)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method GetString should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 30)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method GetsCancelledProperty should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 18, 14)]
+			},
 		];
 
 		this.VerifyCSharpDiagnostic(test, expected);
