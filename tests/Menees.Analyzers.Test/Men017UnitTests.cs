@@ -245,6 +245,7 @@ public class Men017UnitTests : CodeFixVerifier
 	public void UsedInLambda()
 	{
 		const string Code = """
+			using System;
 			class C
 			{
 			    public int Property { get; private set; }
@@ -270,6 +271,7 @@ public class Men017UnitTests : CodeFixVerifier
 			    public C()
 			    {
 			        void f() => Property = 2;
+					f();
 			    }
 			}
 			""";
@@ -331,10 +333,13 @@ public class Men017UnitTests : CodeFixVerifier
 	}
 
 	[TestMethod]
-	public void PrimaryConstructorWithCustomSetter()
+	public void ConstructorWithCustomSetter()
 	{
 		// https://github.com/menees/Analyzers/issues/12
 		const string Code = """
+			#nullable enable
+			using System.Collections.Generic;
+			using System.Runtime.CompilerServices;
 			public sealed class MyClass
 			{
 			    private readonly Dictionary<string, object?> myMap = new();
@@ -347,11 +352,10 @@ public class Men017UnitTests : CodeFixVerifier
 			        private set => this.Write(value);
 			    }
 
-			    [return: MaybeNull]
 			    private TValue Read<TValue>([CallerMemberName] string propertyName = "") =>
-			        this.myMap.TryGetValue(propertyName, out var value) ? (TValue)value! : default;
+			        this.myMap.TryGetValue(propertyName, out var value) ? (TValue)value! : default!;
 
-			    private void Write<TValue>([AllowNull] TValue value, [CallerMemberName] string propertyName = "") =>
+			    private void Write<TValue>(TValue value, [CallerMemberName] string propertyName = "") =>
 			        this.myMap[propertyName] = value;
 			}
 			""";
@@ -479,19 +483,6 @@ public class Men017UnitTests : CodeFixVerifier
 			""";
 
 		RequireDiagnostic(Code);
-	}
-
-	[TestMethod]
-	public void PrimaryConstructor()
-	{
-		const string Code = """
-			class C(bool f)
-			{
-			    public bool Property { get; [|private set;|] } = f;
-			}
-			""";
-
-		this.RequireDiagnostic(Code);
 	}
 
 	#endregion

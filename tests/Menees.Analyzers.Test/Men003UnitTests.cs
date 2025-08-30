@@ -6,7 +6,7 @@ public class Men003UnitTests : CodeFixVerifier
 	#region Private Data Members
 
 	// I had to factor this out into a const member to keep the InvalidCodeTest method less than 120 lines.
-	private const string InvalidCode = @"
+	private const string InvalidCode = @"using System;
 class Testing
 {
 	public Testing()
@@ -17,7 +17,7 @@ class Testing
 		// Line
 	}
 
-	public Testing Create()
+	public static Testing Create()
 	{
 		// Line
 		// Line
@@ -94,6 +94,9 @@ class Testing
 		// Line
 		return false;
 	}
+
+	public override bool Equals(object o) => false;
+	public override int GetHashCode() => 0;
 }";
 
 	#endregion
@@ -112,6 +115,7 @@ class Testing
 		this.VerifyCSharpDiagnostic(string.Empty);
 
 		const string test = @"
+using System;
 class Testing
 {
 	/// <summary>Test</summary>

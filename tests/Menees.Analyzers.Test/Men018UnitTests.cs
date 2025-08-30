@@ -106,6 +106,7 @@ public class Test
 	public void InvalidCodeFixerTest()
 	{
 		const string before = @"
+using System;
 public class Test
 {
 	private static readonly DateTime SomeDay = new(2024, 5, 28);
@@ -124,6 +125,7 @@ public class Test
 }";
 
 		const string after = @"
+using System;
 public class Test
 {
 	private static readonly DateTime SomeDay = new(2_024, 5, 28);

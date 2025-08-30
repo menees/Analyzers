@@ -13,6 +13,8 @@ public class Men016UnitTests : CodeFixVerifier
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men016AvoidTopLevelStatements();
 
+	protected override OutputKind AssemblyOutputKind => OutputKind.ConsoleApplication;
+
 	#endregion
 
 	#region ValidCodeTest
@@ -20,7 +22,7 @@ public class Men016UnitTests : CodeFixVerifier
 	[TestMethod]
 	public void ValidCodeTest()
 	{
-		this.VerifyCSharpDiagnostic(string.Empty);
+		this.VerifyCSharpDiagnostic("class Program { static void Main() {} }");
 
 		const string test = @"
 using System.Collections.Generic;
@@ -47,6 +49,8 @@ class Testing
 	}
 
 	public bool ContainsKey(string key) => _entries.ContainsKey(key);
+
+	private static void Main() {}
 }";
 		this.VerifyCSharpDiagnostic(test);
 	}

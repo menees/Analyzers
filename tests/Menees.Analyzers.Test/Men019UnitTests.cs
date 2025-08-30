@@ -18,9 +18,11 @@ public class Men019UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"
+		const string test = @"#nullable enable
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #pragma warning disable MEN019 // We have to make some 'invalid' interface methods inheritable.
 public interface IThink1 { Task Think1(); }
@@ -28,9 +30,9 @@ public interface IThink2 { Task Think2(); }
 #pragma warning restore MEN019
 
 public sealed class Cancellable { public CancellationToken Cancel {get;}}
-public sealed class TestBase : IThink1
+public class TestBase : IThink1
 {
-	public virtual Task Think1() => return Task.CompletedTask;
+	public virtual Task Think1() => Task.CompletedTask;
 }
 
 public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
@@ -45,18 +47,18 @@ public class Test : TestBase, IFormattable, IThink2
 	public Awaitable TryAwaitable(CancellationToken c = default) { return new Awaitable(); }
 
 	// Interface implementations
-	Task IThink2.Think2() => return Task.CompletedTask;
+	Task IThink2.Think2() => Task.CompletedTask;
 	public string ToString(string? format, IFormatProvider? formatProvider) => ""test"";
-	public override Task Think1() => return Task.CompletedTask;
+	public override Task Think1() => Task.CompletedTask;
 
 	[TestMethod]
-	public Task UnitTest() => return Task.CompletedTask;
+	public Task UnitTest() => Task.CompletedTask;
 
-	public Task GetsCancelProperty(Cancellable cancellable) => return Task.CompletedTask;
+	public Task GetsCancelProperty(Cancellable cancellable) => Task.CompletedTask;
 
 	// Normal methods
 	public override string ToString() => nameof(Test);
-	public int GetPercent(double fraction) => 100 * fraction;
+	public int GetPercent(double fraction) => (int)(100 * fraction);
 	public void SyncCancel(CancellationToken c = default) { }
 }";
 
@@ -70,7 +72,7 @@ public class Test : TestBase, IFormattable, IThink2
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"
+		const string test = @"#nullable enable
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -84,10 +86,10 @@ public class Test
 
 	public async Task UseAsyncKeyword() { await Task.Yield(); }
 
-	internal ValueTask<string?> GetString(int a, bool b, string c) { return new ValueTask(c); }
+	internal ValueTask<string?> GetString(int a, bool b, string c) { return new ValueTask<string?>(c); }
 
 	// Not a configured name to look for.
-	public Task GetsCancelledProperty(Cancellable cancellable) => return Task.CompletedTask;
+	public Task GetsCancelledProperty(Cancellable cancellable) => Task.CompletedTask;
 }";
 
 		var analyzer = this.CSharpDiagnosticAnalyzer;

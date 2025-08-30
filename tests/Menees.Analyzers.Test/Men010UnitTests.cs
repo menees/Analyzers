@@ -20,6 +20,7 @@ public sealed class Men010UnitTests : CodeFixVerifier
 using System;
 using System.Data;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 class MagicNumbers
 {
 	private enum Test
@@ -39,7 +40,7 @@ class MagicNumbers
 
 	public int MaxRate { get; } = 100;
 
-	private int GetTwice(int value) => 2 * value;
+	private static int GetTwice(int value) => 2 * value;
 
 	public TimeSpan GetTime() => TimeSpan.FromDays(3) + TimeSpan.FromHours(4.5) + TimeSpan.FromMinutes(6);
 
@@ -95,7 +96,9 @@ class MagicNumbers
 		}
 
 		string x = ""Testing is fun"";
+#if NET
 		x = x[3..5] + x[6..^3];
+#endif
 		x.ToString();
 
 		return one;
@@ -134,7 +137,7 @@ class MagicNumbers
 	private static ulong SaturdayValue = 11UL; // Not readonly still a simple field init.
 	private static ulong AltSaturdayValue = 3UL + SaturdayValue;
 	private int sundayValue = 7;
-	private double mondayValue = 3.0;
+	private static double mondayValue = 3.0;
 	private decimal tuesdayValue = 5.0m;
 	private float fridayValue = 5.0f + (float)mondayValue;
 

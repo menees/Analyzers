@@ -65,6 +65,11 @@ namespace Test
 using System;
 #endregion
 
+#if NETFRAMEWORK
+// For property ""init;"" support. https://stackoverflow.com/a/64749403/1882616
+namespace System.Runtime.CompilerServices { internal static class IsExternalInit {} }
+#endif
+
 namespace Settings
 {
 	public record Test
@@ -138,7 +143,7 @@ namespace ConsoleApplication1
 
 	struct Type2
 	{
-		public Name { get; set; }
+		public string Name { get; set; }
 	}
 }";
 		var analyzer = this.CSharpDiagnosticAnalyzer;
@@ -176,12 +181,12 @@ namespace ConsoleApplication1
 
 		#endregion
 
-		public Name { get; set; }
+		public string Name { get; set; }
 	}
 
 	struct Type2
 	{
-		public Name { get; set; }
+		public string Name { get; set; }
 	}
 }";
 		var analyzer = this.CSharpDiagnosticAnalyzer;
@@ -225,7 +230,7 @@ namespace ConsoleApplication1
 
 		#endregion
 
-		public Name { get; set; }
+		public string Name { get; set; }
 	}
 }";
 		var analyzer = this.CSharpDiagnosticAnalyzer;

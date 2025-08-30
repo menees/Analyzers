@@ -18,7 +18,7 @@ public class Men009UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	public Testing()
@@ -51,7 +51,7 @@ class Testing
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	public Testing()
@@ -122,7 +122,7 @@ class Testing
 
 		this.VerifyCSharpDiagnostic(test, expected);
 
-		const string fixtest = @"
+		const string fixtest = @"using System;
 class Testing
 {
 	public Testing()

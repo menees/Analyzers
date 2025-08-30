@@ -16,7 +16,7 @@ public class Men004UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	/// <summary>Test</summary>
@@ -66,7 +66,7 @@ class Testing
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	public DateTime Now

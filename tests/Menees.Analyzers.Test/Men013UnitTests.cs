@@ -173,7 +173,7 @@ class Testing
 	[TestMethod]
 	public void InvalidCodeUsingStaticTest()
 	{
-		const string diagnosticsTest = @"
+		const string diagnosticsTest = @"using System;
 using static System.DateTime;
 class Testing
 {
@@ -240,7 +240,7 @@ class Testing
 		// each one to the document, and it stops once a diagnostic reports no fix action even if other
 		// diagnostics exist that haven't been applied!  The simplest workaround is to not mix fixable
 		// and non-fixable conditions in the same VerifyCSharpFix call.
-		const string nowTest = @"
+		const string nowTest = @"using System;
 using static System.DateTime;
 class Testing
 {
@@ -254,7 +254,7 @@ class Testing
 		}
 	}
 }";
-		const string fixNowTest = @"
+		const string fixNowTest = @"using System;
 using static System.DateTime;
 class Testing
 {
@@ -270,7 +270,7 @@ class Testing
 }";
 		this.VerifyCSharpFix(nowTest, fixNowTest);
 
-		const string todayTestCannotBeFixed = @"
+		const string todayTestCannotBeFixed = @"using System;
 using static System.DateTime;
 class Testing
 {
@@ -279,7 +279,7 @@ class Testing
 		if (Today < DateTime.MaxValue)
 		{
 			Today.ToString();
-			x = Today;
+			var x = Today;
 			x.ToString();
 		}
 	}

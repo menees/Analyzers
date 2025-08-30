@@ -16,7 +16,7 @@ public class Men012UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"
+		const string test = @"using System;
 [Flags]
 public enum Test : ulong
 {
@@ -43,7 +43,7 @@ public enum Test2 : short
 }
 
 [Flags]
-private enum ErrorModes : uint // Base as uint since SetErrorMode takes a UINT.
+internal enum ErrorModes : uint // Base as uint since SetErrorMode takes a UINT.
 {
 	SYSTEM_DEFAULT = 0x0,
 	SEM_FAILCRITICALERRORS = 0x0001,
@@ -61,7 +61,7 @@ private enum ErrorModes : uint // Base as uint since SetErrorMode takes a UINT.
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"
+		const string test = @"using System;
 [Flags]
 public enum Test
 {

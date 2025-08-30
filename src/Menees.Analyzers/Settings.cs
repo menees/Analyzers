@@ -515,7 +515,7 @@ internal sealed partial class Settings
 		string[] needSuffix = [.. attributeNames.Where(name => !name.EndsWith(Suffix))];
 		foreach (string name in needSuffix)
 		{
-			attributeNames.Add(name);
+			attributeNames.Add(name + Suffix);
 		}
 	}
 

@@ -49,7 +49,7 @@ namespace TestID.Kustom
 		private int colourID;
 		public Cancelled()
 		{
-			colourID = GetIndicies();
+			colourID = GetIndices();
 		}
 
 		public int Kustom => colourID;
@@ -141,7 +141,7 @@ class Canceled
 	public void InvalidCodeIgnoreOverrideTest()
 	{
 		const string test = @"
-namespace Testing;
+namespace Testing {
 class Base
 {
 	public virtual int Colour => 1;
@@ -152,7 +152,7 @@ class Derived : Base
 	public override int Colour => 2;
 	public override int GetIndices() => 2;
 }
-";
+}";
 
 		var analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =

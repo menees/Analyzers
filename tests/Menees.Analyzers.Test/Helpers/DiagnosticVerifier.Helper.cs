@@ -1,5 +1,14 @@
 namespace Menees.Analyzers.Test;
 
+using System.Collections.Concurrent;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Xml;
+using System.Xml.Linq;
+
 /// <summary>
 /// Class for turning strings into documents and getting the diagnostics on them
 /// All methods are static
@@ -7,10 +16,28 @@ namespace Menees.Analyzers.Test;
 [GeneratedCode("VS Template", "2017")]
 public abstract partial class DiagnosticVerifier
 {
-	private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
-	private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-	private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
-	private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+	private static readonly MetadataReference[] RequiredTypeReferences = [.. new Type[]
+	{
+		typeof(BrowsableAttribute),
+		typeof(Compilation),
+		typeof(ConcurrentDictionary<,>),
+		typeof(Console),
+		typeof(CSharpCompilation),
+		typeof(DataTable),
+		typeof(Enumerable),
+		typeof(object),
+		typeof(TestClassAttribute),
+		typeof(ValueTask),
+		typeof(XDocument),
+		typeof(XmlDocument),
+	}.Select(type => MetadataReference.CreateFromFile(type.Assembly.Location))];
+
+	private static readonly MetadataReference[] RequiredLibraryReferences = [.. new string[]
+	{
+		"netstandard.dll",
+		"System.Collections.dll",
+		"System.Runtime.dll",
+	}.Select(fileName => MetadataReference.CreateFromFile(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), fileName)))];
 
 	internal static readonly ThreadLocal<string> DefaultFilePathPrefix = new(() => "Test");
 	internal const string CSharpDefaultFileExt = "cs";
@@ -25,7 +52,7 @@ public abstract partial class DiagnosticVerifier
 	/// <param name="language">The language the source classes are in</param>
 	/// <param name="analyzer">The analyzer to be run on the sources</param>
 	/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
-	private static Diagnostic[] GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer)
+	private Diagnostic[] GetSortedDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer)
 	{
 		return GetSortedDiagnosticsFromDocuments(analyzer, GetDocuments(sources, language));
 	}
@@ -51,7 +78,9 @@ public abstract partial class DiagnosticVerifier
 		var diagnostics = new List<Diagnostic>();
 		foreach (var project in projects)
 		{
-			var compilationWithAnalyzers = project.GetCompilationAsync().Result?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
+			var compilation = project.GetCompilationAsync().Result;
+			ReportCompilationDiagnostics(compilation);
+			var compilationWithAnalyzers = compilation?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
 #pragma warning restore IDE0303 // Simplify collection initialization
 
 			var diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
@@ -81,6 +110,37 @@ public abstract partial class DiagnosticVerifier
 		return results;
 	}
 
+	#endregion
+
+	#region Set up compilation and documents
+
+	private static void ReportCompilationDiagnostics(Compilation? compilation)
+	{
+		var compilationDiagnostics = compilation?.GetDiagnostics();
+		if (compilationDiagnostics != null)
+		{
+			var reportable = compilationDiagnostics.Value
+				.Where(d => d.Severity > DiagnosticSeverity.Hidden)
+				.OrderBy(d => d.Location.GetLineSpan().Span.Start.Line)
+				.ToArray();
+			if (reportable.Length > 0)
+			{
+				const DiagnosticSeverity FailSeverity = DiagnosticSeverity.Warning;
+				foreach (Diagnostic diagnostic in reportable.Where(d => d.Severity < FailSeverity))
+				{
+					Debug.WriteLine(diagnostic);
+				}
+
+				var errors = reportable.Where(d => d.Severity >= FailSeverity).ToArray();
+				if (errors.Length > 0)
+				{
+					var nl = Environment.NewLine;
+					throw new ArgumentException($"Compile errors:{nl}{string.Join(nl, (IEnumerable<Diagnostic>)errors)}");
+				}
+			}
+		}
+	}
+
 	/// <summary>
 	/// Sort diagnostics by location in source document
 	/// </summary>
@@ -89,17 +149,13 @@ public abstract partial class DiagnosticVerifier
 	private static Diagnostic[] SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
 		=> [.. diagnostics.OrderBy(d => d.Location.SourceSpan.Start)];
 
-	#endregion
-
-	#region Set up compilation and documents
-
 	/// <summary>
 	/// Given an array of strings as sources and a language, turn them into a project and return the documents and spans of it.
 	/// </summary>
 	/// <param name="sources">Classes in the form of strings</param>
 	/// <param name="language">The language the source code is in</param>
 	/// <returns>A Tuple containing the Documents produced from the sources and their TextSpans if relevant</returns>
-	private static Document[] GetDocuments(string[] sources, string language)
+	private Document[] GetDocuments(string[] sources, string language)
 	{
 		if (language != LanguageNames.CSharp)
 		{
@@ -123,7 +179,7 @@ public abstract partial class DiagnosticVerifier
 	/// <param name="source">Classes in the form of a string</param>
 	/// <param name="language">The language the source code is in</param>
 	/// <returns>A Document created from the source string</returns>
-	protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
+	protected Document CreateDocument(string source, string language = LanguageNames.CSharp)
 	{
 		return CreateProject([source], language).Documents.First();
 	}
@@ -134,7 +190,7 @@ public abstract partial class DiagnosticVerifier
 	/// <param name="sources">Classes in the form of strings</param>
 	/// <param name="language">The language the source code is in</param>
 	/// <returns>A Project created out of the Documents created from the source strings</returns>
-	private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
+	private Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
 	{
 		string fileNamePrefix = DefaultFilePathPrefix.Value ?? string.Empty;
 		string fileExt = CSharpDefaultFileExt;
@@ -143,11 +199,12 @@ public abstract partial class DiagnosticVerifier
 
 		var solution = new AdhocWorkspace()
 			.CurrentSolution
-			.AddProject(projectId, TestProjectName, TestProjectName, language)
-			.AddMetadataReference(projectId, CorlibReference)
-			.AddMetadataReference(projectId, SystemCoreReference)
-			.AddMetadataReference(projectId, CSharpSymbolsReference)
-			.AddMetadataReference(projectId, CodeAnalysisReference);
+			.AddProject(projectId, TestProjectName, TestProjectName, language);
+
+		foreach (var reference in RequiredTypeReferences.Concat(RequiredLibraryReferences))
+		{
+			solution = solution.AddMetadataReference(projectId, reference);
+		}
 
 		int count = 0;
 		foreach (var source in sources)
@@ -158,7 +215,23 @@ public abstract partial class DiagnosticVerifier
 			count++;
 		}
 
+		var project = solution.GetProject(projectId);
+		if (project?.ParseOptions is CSharpParseOptions parseOptions)
+		{
+			var isNetFramework = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework ");
+			parseOptions = parseOptions.WithPreprocessorSymbols(isNetFramework ? "NETFRAMEWORK" : "NET")
+				.WithLanguageVersion(LanguageVersion.Latest);
+			solution = solution.WithProjectParseOptions(projectId, parseOptions);
+		}
+
+		if (project?.CompilationOptions is CompilationOptions options)
+		{
+			// Don't use a ConsoleApplication since we don't have a Main() method in each test.
+			// https://davidwalschots.github.io/2019/11/12/fixing-roslyn-compilation-errors-in-unit-tests-of-a-code-analyzer
+			solution = solution.WithProjectCompilationOptions(projectId, options.WithOutputKind(this.AssemblyOutputKind));
+		}
+
 		return solution.GetProject(projectId) ?? throw new InvalidOperationException("Unable to create project.");
 	}
-	#endregion
+#endregion
 }

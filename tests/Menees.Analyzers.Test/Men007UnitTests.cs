@@ -16,7 +16,7 @@ public class Men007UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	/// <summary>Test</summary>
@@ -84,7 +84,7 @@ class Testing
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"
+		const string test = @"using System;
 class Testing
 {
 	public DateTime Now
@@ -159,8 +159,8 @@ class Testing
 		Func<bool> test = () => { if (Convert.ToBoolean(0)) return false; else return true; };
 		test();
 
-		Action<bool> test2 = x => { x.ToString(); return; }
-		test2();
+		Action<bool> test2 = x => { x.ToString(); return; };
+		test2(false);
 	}
 }";
 		var analyzer = this.CSharpDiagnosticAnalyzer;

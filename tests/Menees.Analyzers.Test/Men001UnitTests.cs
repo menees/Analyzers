@@ -32,7 +32,7 @@ namespace Test
 		{
 #pragma warning disable 1234
 			/* The space between these comments... */ /* ...should not be a problem. */
-#pragma warning default 1234
+#pragma warning restore 1234
 		}
 	}
 }";
