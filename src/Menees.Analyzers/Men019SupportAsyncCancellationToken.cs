@@ -92,18 +92,22 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		public void HandleNamedTypeSymbol(SymbolAnalysisContext context)
 		{
 			INamedTypeSymbol namedType = (INamedTypeSymbol)context.Symbol;
-#pragma warning disable RS1024 // Compare symbols correctly. False positive; we're grouping by the Name not IMethodSymbol!
+
+#pragma warning disable IDE0079 // Remove unnecessary suppression. False positive!
+#pragma warning disable RS1024 // Compare symbols correctly. False positive! We're grouping by the Name not IMethodSymbol.
 			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = namedType.GetMembers()
 				.OfType<IMethodSymbol>()
 				.GroupBy(m => m.Name, m => m, StringComparer.Ordinal);
 #pragma warning restore RS1024 // Compare symbols correctly
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
+			Settings settings = this.callingAnalyzer.Settings;
 			foreach (IGrouping<string, IMethodSymbol> methodGroup in methodGroups)
 			{
+				List<IMethodSymbol> eligibleMethods = [];
+				bool isAtLeastOneOverloadCancellable = false;
 				foreach (IMethodSymbol method in methodGroup)
 				{
-					Settings settings = this.callingAnalyzer.Settings;
-
 					if ((method.DeclaredAccessibility > Accessibility.Private || settings.CheckPrivateMethodsForCancellation)
 						&& !method.IsImplicitlyDeclared
 						&& IsAsyncMethodKindSupported(method.MethodKind)
@@ -115,13 +119,22 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 						&& !IsImplicitInterfaceImplementation(method)
 						&& !settings.IsUnitTestMethod(method))
 					{
+						eligibleMethods.Add(method);
+
 						List<IParameterSymbol> parameters = GetEligibleParameters(method);
-						if (!HasCancellationTokenParameter(parameters)
-							&& !parameters.Any(ParameterHasCancellationTokenProperty))
+						if (HasCancellationTokenParameter(parameters)
+							|| parameters.Any(ParameterHasCancellationTokenProperty))
 						{
-							// TODO: Check if another overload if this method is cancellable. [Bill, 8/30/2025]
-							context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
+							isAtLeastOneOverloadCancellable = true;
 						}
+					}
+				}
+
+				if (eligibleMethods.Count > 0 && !isAtLeastOneOverloadCancellable)
+				{
+					foreach (IMethodSymbol method in eligibleMethods)
+					{
+						context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
 					}
 				}
 			}
