@@ -64,7 +64,7 @@ public sealed class Men001TabsShouldBeUsed : Analyzer
 	private static void HandleSyntaxTree(SyntaxTreeAnalysisContext context)
 	{
 		SyntaxNode root = context.Tree.GetCompilationUnitRoot(context.CancellationToken);
-		foreach (var trivia in root.DescendantTrivia(descendIntoTrivia: true))
+		foreach (SyntaxTrivia trivia in root.DescendantTrivia(descendIntoTrivia: true))
 		{
 			switch (trivia.Kind())
 			{

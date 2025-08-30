@@ -49,15 +49,15 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 				throw new ArgumentNullException(nameof(codeFixProvider), $"{nameof(VerifyFix)} requires a code fix provider.");
 			}
 
-			var document = CreateDocument(oldSource, language);
-			var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
-			var compilerDiagnostics = GetCompilerDiagnostics(document);
-			var attempts = analyzerDiagnostics.Length;
+			Document document = CreateDocument(oldSource, language);
+			Diagnostic[] analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
+			IEnumerable<Diagnostic> compilerDiagnostics = GetCompilerDiagnostics(document);
+			int attempts = analyzerDiagnostics.Length;
 
 			for (int i = 0; i < attempts; ++i)
 			{
-				var actions = new List<CodeAction>();
-				var context = new CodeFixContext(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
+				List<CodeAction> actions = [];
+				CodeFixContext context = new(document, analyzerDiagnostics[0], (a, d) => actions.Add(a), CancellationToken.None);
 				codeFixProvider.RegisterCodeFixesAsync(context).Wait();
 
 				if (actions.Count == 0)
@@ -74,7 +74,7 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 				document = ApplyFix(document, actions.ElementAt(0));
 				analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
 
-				var newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
+				IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
 
 				//check if applying the code fix introduced any new compiler diagnostics
 				if (!allowNewCompilerDiagnostics && newCompilerDiagnostics.Any())
@@ -102,7 +102,7 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 			}
 
 			//after applying all of the code fixes, compare the resulting string to the inputted one
-			var actual = GetStringFromDocument(document);
+			string actual = GetStringFromDocument(document);
 			Assert.AreEqual(newSource, actual);
 		}
 	}

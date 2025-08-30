@@ -61,7 +61,7 @@ public class Test
 	private const double BigDouble = 123456.7890;
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

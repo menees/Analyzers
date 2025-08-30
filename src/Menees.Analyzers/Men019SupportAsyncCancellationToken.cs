@@ -173,7 +173,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 				// From 2018 at https://github.com/DotNetAnalyzers/AsyncUsageAnalyzers/pull/70#discussion_r209184372
 				// For a more modern and complex version that also handles extension methods, see:
 				// https://github.com/dotnet/roslyn/blob/main/src/Workspaces/SharedUtilitiesAndExtensions/Compiler/Extensions/Symbols/ISymbolExtensions.cs#L640
-				result = TryFindFirstMethod(type, "GetAwaiter", x => x.Parameters.Length == 0, out var method)
+				result = TryFindFirstMethod(type, "GetAwaiter", x => x.Parameters.Length == 0, out IMethodSymbol? method)
 					&& method.ReturnType is ITypeSymbol returnType
 					&& TryFindFirstMethod(returnType, "GetResult", x => x.Parameters.Length == 0, out _);
 			}

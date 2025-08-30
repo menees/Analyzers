@@ -53,7 +53,7 @@ public sealed class Men005FileTooLong : Analyzer
 			if (fileLength > maxLength)
 			{
 				// Only mark the first line past the limit.  Marking every line from maxLength to fileLength-1 was ugly.
-				var fileLocation = Rules.GetFileLocation(tree, text, maxLength, maxLength);
+				Tuple<string, Location> fileLocation = Rules.GetFileLocation(tree, text, maxLength, maxLength);
 				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Item2, fileLocation.Item1, maxLength, fileLength));
 			}
 		}

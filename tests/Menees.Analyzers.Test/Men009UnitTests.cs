@@ -80,7 +80,7 @@ class Testing
 	public string Key2 { get => throw new NotImplementedException(""get2""); set => throw new NotImplementedException(""set2""); }
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

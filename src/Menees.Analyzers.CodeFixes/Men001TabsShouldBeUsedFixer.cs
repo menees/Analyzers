@@ -64,8 +64,8 @@ public sealed class Men001TabsShouldBeUsedFixer : CodeFixProvider
 				char ch = originalIndent[i];
 				if (ch == '\t')
 				{
-					var offsetWithinTabColumn = originalIndentColumn % tabSize;
-					var spaceCount = tabSize - offsetWithinTabColumn;
+					int offsetWithinTabColumn = originalIndentColumn % tabSize;
+					int spaceCount = tabSize - offsetWithinTabColumn;
 					originalIndentColumn += spaceCount;
 				}
 				else if (char.IsWhiteSpace(ch))
@@ -90,7 +90,7 @@ public sealed class Men001TabsShouldBeUsedFixer : CodeFixProvider
 			SyntaxTrivia newTrivia = violatingTrivia.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia)
 				? SyntaxFactory.DocumentationCommentExterior(tabIndent)
 				: SyntaxFactory.Whitespace(tabIndent);
-			var newSyntaxRoot = syntaxRoot.ReplaceTrivia(violatingTrivia, newTrivia);
+			SyntaxNode newSyntaxRoot = syntaxRoot.ReplaceTrivia(violatingTrivia, newTrivia);
 			result = document.WithSyntaxRoot(newSyntaxRoot);
 		}
 

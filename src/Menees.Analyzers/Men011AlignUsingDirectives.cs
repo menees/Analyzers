@@ -57,13 +57,13 @@ public sealed class Men011AlignUsingDirectives : Analyzer
 
 		foreach (var levelGroup in usingInfo.GroupBy(info => info.Level))
 		{
-			var indentInfos = levelGroup.Select(info => new IndentInfo(info.Using, info.Level));
+			IEnumerable<IndentInfo> indentInfos = levelGroup.Select(info => new IndentInfo(info.Using, info.Level));
 
 			// If there were any usings where we couldn't determine the indent validity immediately,
 			// then we'll only assume its valid if everything in that sub-group uses the same indent.
 			// This should only happen when spaces are used for indentation of usings in a namespace.
 			bool defaultValidity = false;
-			var unknownValidity = indentInfos.Where(indent => indent.IsValid == null);
+			IEnumerable<IndentInfo> unknownValidity = indentInfos.Where(indent => indent.IsValid == null);
 			if (unknownValidity.Any())
 			{
 				// We need to ignore the known valid or invalid cases in order for our unit tests to
@@ -73,7 +73,7 @@ public sealed class Men011AlignUsingDirectives : Analyzer
 				defaultValidity = unknownValidity.Select(indent => indent.IndentText).Distinct().Count() == 1;
 			}
 
-			var properties = new Dictionary<string, string?>() { { "Level", levelGroup.Key.ToString() } }.ToImmutableDictionary();
+			ImmutableDictionary<string, string?> properties = new Dictionary<string, string?>() { { "Level", levelGroup.Key.ToString() } }.ToImmutableDictionary();
 			foreach (IndentInfo indent in indentInfos.Where(i => !(i.IsValid ?? defaultValidity)))
 			{
 				context.ReportDiagnostic(Diagnostic.Create(Rule, indent.Using.GetLocation(), properties));

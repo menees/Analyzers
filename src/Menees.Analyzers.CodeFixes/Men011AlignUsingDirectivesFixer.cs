@@ -96,7 +96,7 @@ public sealed class Men011AlignUsingDirectivesFixer : CodeFixProvider
 		{
 			// Insert leading indent trivia.
 			SyntaxToken keyword = indent.Using.UsingKeyword;
-			var newLeadingTrivia = keyword.LeadingTrivia.Concat([SyntaxFactory.Whitespace(newIndentText)]);
+			IEnumerable<SyntaxTrivia> newLeadingTrivia = keyword.LeadingTrivia.Concat([SyntaxFactory.Whitespace(newIndentText)]);
 			SyntaxToken newKeyword = keyword.WithLeadingTrivia(newLeadingTrivia);
 			newSyntaxRoot = syntaxRoot.ReplaceToken(keyword, newKeyword);
 		}

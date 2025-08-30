@@ -117,7 +117,7 @@ public sealed class Men006RegionsShouldBeUsed : Analyzer
 
 		// In a perfect world, the #region and #endregion directives will be balanced (even if they're nested).
 		// But we have to gracefully handle if they're mismatched or out of order.
-		var regionBounds = new List<Tuple<RegionDirectiveTriviaSyntax, EndRegionDirectiveTriviaSyntax>>();
+		List<Tuple<RegionDirectiveTriviaSyntax, EndRegionDirectiveTriviaSyntax>> regionBounds = [];
 		Stack<RegionDirectiveTriviaSyntax> regionStack = new();
 		foreach (SyntaxNode node in regionNodes)
 		{
@@ -148,13 +148,13 @@ public sealed class Men006RegionsShouldBeUsed : Analyzer
 			int fileLength = text.Lines.Count;
 			if (fileLength > maxLength)
 			{
-				var fileLocation = Rules.GetFileLocation(tree, text);
+				Tuple<string, Location> fileLocation = Rules.GetFileLocation(tree, text);
 				string message = $" because {fileLocation.Item1} is longer than {maxLength} lines (now {fileLength})";
 				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Item2, message));
 			}
 			else if (ContainsMultipleTypeDeclarations(root))
 			{
-				var fileLocation = Rules.GetFileLocation(tree, text);
+				Tuple<string, Location> fileLocation = Rules.GetFileLocation(tree, text);
 				string message = $" because {fileLocation.Item1} contains multiple type declarations";
 				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Item2, message));
 			}

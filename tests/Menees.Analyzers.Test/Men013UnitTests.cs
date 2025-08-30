@@ -57,7 +57,7 @@ class Testing
 	}
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)
@@ -122,7 +122,7 @@ class Testing
 	}
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)
@@ -192,7 +192,7 @@ class Testing
 	}
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

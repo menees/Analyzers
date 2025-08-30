@@ -99,7 +99,7 @@ public sealed class Men013UseUtcTimeFixer : CodeFixProvider
 						newNode = CreateIdentifier(violatingToken, newName);
 					}
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
+					SyntaxNode newSyntaxRoot = syntaxRoot.ReplaceNode(oldNode, newNode);
 					result = document.WithSyntaxRoot(newSyntaxRoot);
 				}
 			}

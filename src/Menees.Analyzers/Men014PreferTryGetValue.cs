@@ -61,7 +61,7 @@ public sealed class Men014PreferTryGetValue : Analyzer
 				{
 					ExpressionSyntax dictionary = memberAccess.Expression;
 					ArgumentSyntax keyArg = invocation.ArgumentList.Arguments[0];
-					foreach (var indexer in searchBlock.DescendantNodes().OfType<ElementAccessExpressionSyntax>())
+					foreach (ElementAccessExpressionSyntax indexer in searchBlock.DescendantNodes().OfType<ElementAccessExpressionSyntax>())
 					{
 						if (indexer.Expression.IsEquivalentTo(dictionary)
 							&& indexer.ArgumentList.Arguments.Count == 1

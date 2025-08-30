@@ -93,7 +93,7 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 						SyntaxKind.NumericLiteralExpression,
 						newToken.Value);
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(literalExpression, newNode);
+					SyntaxNode newSyntaxRoot = syntaxRoot.ReplaceNode(literalExpression, newNode);
 					result = document.WithSyntaxRoot(newSyntaxRoot);
 				}
 			}

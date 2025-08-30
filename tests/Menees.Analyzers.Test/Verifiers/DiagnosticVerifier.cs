@@ -73,7 +73,7 @@ public abstract partial class DiagnosticVerifier
 	{
 		if (IsEnabled(analyzer))
 		{
-			var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
+			Diagnostic[] diagnostics = GetSortedDiagnostics(sources, language, analyzer);
 			VerifyDiagnosticResults(diagnostics, analyzer, expected);
 		}
 	}
@@ -102,8 +102,8 @@ public abstract partial class DiagnosticVerifier
 
 		for (int i = 0; i < expectedResults.Length; i++)
 		{
-			var actual = actualResults.ElementAt(i);
-			var expected = expectedResults[i];
+			Diagnostic actual = actualResults.ElementAt(i);
+			DiagnosticResult expected = expectedResults[i];
 
 			if (expected.Line == -1 && expected.Column == -1)
 			{
@@ -116,7 +116,7 @@ public abstract partial class DiagnosticVerifier
 			else
 			{
 				VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
-				var additionalLocations = actual.AdditionalLocations.ToArray();
+				Location[] additionalLocations = [.. actual.AdditionalLocations];
 
 				if (additionalLocations.Length != expected.Locations.Length - 1)
 				{
@@ -160,13 +160,13 @@ public abstract partial class DiagnosticVerifier
 	/// <param name="expected">The DiagnosticResultLocation that should have been found</param>
 	private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
 	{
-		var actualSpan = actual.GetLineSpan();
+		FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
 		Assert.IsTrue(actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")),
 			string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
 				expected.Path, actualSpan.Path, FormatDiagnostics(analyzer, diagnostic)));
 
-		var actualLinePosition = actualSpan.StartLinePosition;
+		LinePosition actualLinePosition = actualSpan.StartLinePosition;
 
 		// Only check line position if there is an actual line in the real diagnostic
 		if (actualLinePosition.Line > 0)
@@ -200,19 +200,19 @@ public abstract partial class DiagnosticVerifier
 	/// <returns>The Diagnostics formatted as a string</returns>
 	private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
 	{
-		var builder = new StringBuilder();
+		StringBuilder builder = new();
 		for (int i = 0; i < diagnostics.Length; ++i)
 		{
 			builder.AppendLine("// " + diagnostics[i]);
 
-			var analyzerType = analyzer.GetType();
-			var rules = analyzer.SupportedDiagnostics;
+			Type analyzerType = analyzer.GetType();
+			ImmutableArray<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
 
-			foreach (var rule in rules)
+			foreach (DiagnosticDescriptor rule in rules)
 			{
 				if (rule != null && rule.Id == diagnostics[i].Id)
 				{
-					var location = diagnostics[i].Location;
+					Location location = diagnostics[i].Location;
 					if (location == Location.None)
 					{
 						builder.AppendFormat("GetGlobalResult({0}.{1})", analyzerType.Name, rule.Id);
@@ -222,7 +222,7 @@ public abstract partial class DiagnosticVerifier
 						Assert.IsTrue(location.IsInSource,
 							$"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
 
-						var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
+						LinePosition linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
 						builder.AppendFormat("GetCSharpResultAt({0}, {1}, {2}.{3})",
 							linePosition.Line + 1,

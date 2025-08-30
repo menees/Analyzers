@@ -71,7 +71,7 @@ using System;
 Console.WriteLine(""Test"");
 ";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)
@@ -103,7 +103,7 @@ public class MyClass
 }
 ";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)
@@ -140,7 +140,7 @@ namespace MyNamespace
 	}
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

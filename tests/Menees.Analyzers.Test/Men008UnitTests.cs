@@ -68,7 +68,7 @@ namespace ValidCode
 		foreach (string declarationType in new[] { "class", "struct", "record" })
 		{
 			string test = @"namespace Testing {" + declarationType + " Invalid { } }";
-			var analyzer = this.CSharpDiagnosticAnalyzer;
+			DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 			DiagnosticResult[] expected =
 			[
 				new DiagnosticResult(analyzer)
@@ -89,7 +89,7 @@ namespace ValidCode
 	[TestMethod]
 	public void InvalidCodeTestPartialType()
 	{
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)
@@ -119,7 +119,7 @@ namespace Testing
 {
 	class test0 { }
 }";
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

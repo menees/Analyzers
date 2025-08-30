@@ -96,7 +96,7 @@ public class Test
 	public Task GetsCancelledProperty(Cancellable cancellable) => Task.CompletedTask;
 }";
 
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer)

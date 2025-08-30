@@ -59,7 +59,7 @@ public sealed class Men009UsePreferredExceptionsFixer : CodeFixProvider
 					SyntaxToken newToken = SyntaxFactory.Identifier(violatingToken.LeadingTrivia, newName, violatingToken.TrailingTrivia);
 					IdentifierNameSyntax newIdentifier = SyntaxFactory.IdentifierName(newToken);
 
-					var newSyntaxRoot = syntaxRoot.ReplaceNode(violatingIdentifier, newIdentifier);
+					SyntaxNode newSyntaxRoot = syntaxRoot.ReplaceNode(violatingIdentifier, newIdentifier);
 					result = document.WithSyntaxRoot(newSyntaxRoot);
 				}
 			}

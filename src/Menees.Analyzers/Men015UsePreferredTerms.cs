@@ -129,11 +129,10 @@ public sealed class Men015UsePreferredTerms : Analyzer
 			SyntaxNode root = context.Tree.GetRoot(context.CancellationToken);
 			if (root != null)
 			{
-				List<SyntaxToken> identifierTokens = root.DescendantNodesAndTokens()
+				List<SyntaxToken> identifierTokens = [.. root.DescendantNodesAndTokens()
 					.Where(item => item.IsToken && item.IsKind(SyntaxKind.IdentifierToken))
 					.Select(item => item.AsToken())
-					.Where(token => token.Parent != null && IsIdentifierDeclaration(token.Parent))
-					.ToList();
+					.Where(token => token.Parent != null && IsIdentifierDeclaration(token.Parent))];
 
 				foreach (SyntaxToken identifier in identifierTokens)
 				{
@@ -173,7 +172,7 @@ public sealed class Men015UsePreferredTerms : Analyzer
 						Location location = identifier.GetLocation();
 
 						// The code fix provider also needs a custom property to give it the preferred term to use.
-						var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+						ImmutableDictionary<string, string?>.Builder builder = ImmutableDictionary.CreateBuilder<string, string?>();
 						builder.Add(PreferredKey, preferredTerm);
 
 						// The code fix provider can't fix some things (e.g., namespace TestID.Other since only last part can be renamed).

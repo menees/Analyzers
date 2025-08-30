@@ -122,14 +122,14 @@ internal static class GeneratedCodeAnalysisExtensions
 	{
 		bool result = false;
 
-		var root = tree.GetRoot(cancellationToken);
+		SyntaxNode root = tree.GetRoot(cancellationToken);
 		if (root != null)
 		{
-			var firstToken = root.GetFirstToken();
+			SyntaxToken firstToken = root.GetFirstToken();
 			SyntaxTriviaList? trivia = null;
 			if (firstToken == default)
 			{
-				var token = ((CompilationUnitSyntax)root).EndOfFileToken;
+				SyntaxToken token = ((CompilationUnitSyntax)root).EndOfFileToken;
 				if (token.HasLeadingTrivia)
 				{
 					trivia = token.LeadingTrivia;
@@ -142,7 +142,7 @@ internal static class GeneratedCodeAnalysisExtensions
 
 			if (trivia != null)
 			{
-				var comments = trivia.Value.Where(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
+				IEnumerable<SyntaxTrivia> comments = trivia.Value.Where(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
 				result = comments.Any(t =>
 				{
 					string s = t.ToString();
@@ -166,10 +166,10 @@ internal static class GeneratedCodeAnalysisExtensions
 	{
 		bool result = false;
 
-		var root = tree.GetRoot(cancellationToken);
+		SyntaxNode root = tree.GetRoot(cancellationToken);
 		if (root != null)
 		{
-			var firstToken = root.GetFirstToken(includeZeroWidth: true);
+			SyntaxToken firstToken = root.GetFirstToken(includeZeroWidth: true);
 
 			result = firstToken.IsKind(SyntaxKind.EndOfFileToken)
 				&& IndexOfFirstNonWhitespaceTrivia(firstToken.LeadingTrivia) == NonIndex;
@@ -187,9 +187,9 @@ internal static class GeneratedCodeAnalysisExtensions
 	{
 		int result = NonIndex;
 
-		for (var index = 0; index < triviaList.Count && result == NonIndex; index++)
+		for (int index = 0; index < triviaList.Count && result == NonIndex; index++)
 		{
-			var currentTrivia = triviaList[index];
+			SyntaxTrivia currentTrivia = triviaList[index];
 			switch (currentTrivia.Kind())
 			{
 				case SyntaxKind.EndOfLineTrivia:

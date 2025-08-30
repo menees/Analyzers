@@ -73,7 +73,7 @@ using System.Collections;
 		}
 	}
 }";
-		var analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
 			new DiagnosticResult(analyzer) { Locations = [new DiagnosticResultLocation("Test0.cs", 2, 2)] },

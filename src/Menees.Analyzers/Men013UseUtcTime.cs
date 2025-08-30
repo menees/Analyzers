@@ -72,7 +72,7 @@ public sealed class Men013UseUtcTime : Analyzer
 			{
 				// Check for DateTime, which could be fully-qualified, partially-qualified, or unqualified (e.g., via "using static").
 				// I'm omitting DateTimeOffset.Now since it retains the local offset, and its comparisons use the UTC time.
-				var memberAccess = identifier.Parent as MemberAccessExpressionSyntax;
+				MemberAccessExpressionSyntax? memberAccess = identifier.Parent as MemberAccessExpressionSyntax;
 				if ((memberAccess != null && memberAccess.Name == identifier && IsSystemDateTimeReference(memberAccess.Expression))
 					|| ((memberAccess == null || memberAccess.Expression == identifier) && IsUsingStaticDateTimeReference(identifier.SyntaxTree)))
 				{
@@ -140,7 +140,7 @@ public sealed class Men013UseUtcTime : Analyzer
 		bool canFix = preferredText.IndexOf('.') < 0
 			|| (identifier.Parent is MemberAccessExpressionSyntax access && access.Name == identifier);
 
-		var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+		ImmutableDictionary<string, string?>.Builder builder = ImmutableDictionary.CreateBuilder<string, string?>();
 		builder.Add(CanFixKey, canFix.ToString());
 		return builder.ToImmutable();
 	}

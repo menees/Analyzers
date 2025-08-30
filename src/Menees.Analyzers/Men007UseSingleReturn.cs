@@ -157,9 +157,9 @@ public sealed class Men007UseSingleReturn : Analyzer
 			.ToList();
 
 		// Group the return statements by the member function/accessor, local function, lambda, or anonymous function that most directly contains them.
-		var localBlockGroups = allReturnStatements
+		IEnumerable<IGrouping<SyntaxNode, ReturnStatementSyntax>> localBlockGroups = allReturnStatements
 			.GroupBy(ret => ret.Ancestors().First(ancestor => ancestor == codeBlock || IsReturnContainer(ancestor)));
-		foreach (var localBlockGroup in localBlockGroups)
+		foreach (IGrouping<SyntaxNode, ReturnStatementSyntax>? localBlockGroup in localBlockGroups)
 		{
 			SyntaxNode localBlockNode = localBlockGroup.Key;
 			IEnumerable<ReturnStatementSyntax> localBlockReturns = localBlockGroup;
@@ -173,7 +173,7 @@ public sealed class Men007UseSingleReturn : Analyzer
 			}
 			else
 			{
-				var tuple = GetReturnContainerInfo(localBlockNode, localBlockReturns);
+				Tuple<string?, bool> tuple = GetReturnContainerInfo(localBlockNode, localBlockReturns);
 				name = tuple.Item1;
 				returnsVoid = tuple.Item2;
 			}

@@ -57,25 +57,25 @@ public abstract partial class DiagnosticVerifier
 	/// <returns>An IEnumerable of Diagnostics that surfaced in the source code, sorted by Location</returns>
 	protected static Diagnostic[] GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
 	{
-		var projects = new HashSet<Project>();
-		foreach (var document in documents)
+		HashSet<Project> projects = [];
+		foreach (Document document in documents)
 		{
 			projects.Add(document.Project);
 		}
 
 		AdditionalText additionalText = new AdditionalTextHelper("Menees.Analyzers.Settings.xml", Properties.Resources.Menees_Analyzers_Settings_Xml);
 #pragma warning disable IDE0303 // Simplify collection initialization. NET Framework 4.8 doesn't support collection expressions for ImmutableArray.Create.
-		var options = new AnalyzerOptions(ImmutableArray.Create(additionalText));
-		var diagnostics = new List<Diagnostic>();
-		foreach (var project in projects)
+		AnalyzerOptions options = new(ImmutableArray.Create(additionalText));
+		List<Diagnostic> diagnostics = [];
+		foreach (Project project in projects)
 		{
-			var compilation = project.GetCompilationAsync().Result;
+			Compilation? compilation = project.GetCompilationAsync().Result;
 			ReportCompilationDiagnostics(compilation);
-			var compilationWithAnalyzers = compilation?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
+			CompilationWithAnalyzers? compilationWithAnalyzers = compilation?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
 #pragma warning restore IDE0303 // Simplify collection initialization
 
-			var diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
-			foreach (var diag in diags)
+			IEnumerable<Diagnostic> diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
+			foreach (Diagnostic diag in diags)
 			{
 				if (diag.Location == Location.None || diag.Location.IsInMetadata)
 				{
@@ -85,8 +85,8 @@ public abstract partial class DiagnosticVerifier
 				{
 					for (int i = 0; i < documents.Length; i++)
 					{
-						var document = documents[i];
-						var tree = document.GetSyntaxTreeAsync().Result;
+						Document document = documents[i];
+						SyntaxTree? tree = document.GetSyntaxTreeAsync().Result;
 						if (tree == diag.Location.SourceTree)
 						{
 							diagnostics.Add(diag);
@@ -96,7 +96,7 @@ public abstract partial class DiagnosticVerifier
 			}
 		}
 
-		var results = SortDiagnostics(diagnostics);
+		Diagnostic[] results = SortDiagnostics(diagnostics);
 		diagnostics.Clear();
 		return results;
 	}
@@ -107,13 +107,12 @@ public abstract partial class DiagnosticVerifier
 
 	private static void ReportCompilationDiagnostics(Compilation? compilation)
 	{
-		var compilationDiagnostics = compilation?.GetDiagnostics();
+		ImmutableArray<Diagnostic>? compilationDiagnostics = compilation?.GetDiagnostics();
 		if (compilationDiagnostics != null)
 		{
-			var reportable = compilationDiagnostics.Value
+			Diagnostic[] reportable = [.. compilationDiagnostics.Value
 				.Where(d => d.Severity > DiagnosticSeverity.Hidden)
-				.OrderBy(d => d.Location.GetLineSpan().Span.Start.Line)
-				.ToArray();
+				.OrderBy(d => d.Location.GetLineSpan().Span.Start.Line)];
 			if (reportable.Length > 0)
 			{
 				const DiagnosticSeverity FailSeverity = DiagnosticSeverity.Warning;
@@ -122,10 +121,10 @@ public abstract partial class DiagnosticVerifier
 					Debug.WriteLine(diagnostic);
 				}
 
-				var errors = reportable.Where(d => d.Severity >= FailSeverity).ToArray();
+				Diagnostic[] errors = [.. reportable.Where(d => d.Severity >= FailSeverity)];
 				if (errors.Length > 0)
 				{
-					var nl = Environment.NewLine;
+					string nl = Environment.NewLine;
 					throw new ArgumentException($"Compile errors:{nl}{string.Join(nl, (IEnumerable<Diagnostic>)errors)}");
 				}
 			}
@@ -153,8 +152,8 @@ public abstract partial class DiagnosticVerifier
 			throw new ArgumentException("Unsupported Language");
 		}
 
-		var project = CreateProject(sources, language);
-		var documents = project.Documents.ToArray();
+		Project project = CreateProject(sources, language);
+		Document[] documents = [.. project.Documents];
 
 		if (sources.Length != documents.Length)
 		{
@@ -186,34 +185,34 @@ public abstract partial class DiagnosticVerifier
 		string fileNamePrefix = DefaultFilePathPrefix.Value ?? string.Empty;
 		string fileExt = CSharpDefaultFileExt;
 
-		var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
+		ProjectId projectId = ProjectId.CreateNewId(debugName: TestProjectName);
 
-		var solution = new AdhocWorkspace()
+		Solution solution = new AdhocWorkspace()
 			.CurrentSolution
 			.AddProject(projectId, TestProjectName, TestProjectName, language);
 
-		var metadataReferences = RequiredTypeReferences
+		IEnumerable<MetadataReference> metadataReferences = RequiredTypeReferences
 			.Concat(RequiredLibraryReferences)
 			.Concat(AssemblyRequiredTypes.Select(CreateTypeReference))
 			.Concat(AssemblyRequiredLibraryFileNames.Select(CreateLibraryReference));
-		foreach (var reference in metadataReferences)
+		foreach (MetadataReference? reference in metadataReferences)
 		{
 			solution = solution.AddMetadataReference(projectId, reference);
 		}
 
 		int count = 0;
-		foreach (var source in sources)
+		foreach (string source in sources)
 		{
-			var newFileName = fileNamePrefix + count + "." + fileExt;
-			var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+			string newFileName = fileNamePrefix + count + "." + fileExt;
+			DocumentId documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
 			solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
 			count++;
 		}
 
-		var project = solution.GetProject(projectId);
+		Project? project = solution.GetProject(projectId);
 		if (project?.ParseOptions is CSharpParseOptions parseOptions)
 		{
-			var isNetFramework = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework ");
+			bool isNetFramework = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework ");
 			parseOptions = parseOptions.WithPreprocessorSymbols(isNetFramework ? "NETFRAMEWORK" : "NET")
 				.WithLanguageVersion(LanguageVersion.Latest);
 			solution = solution.WithProjectParseOptions(projectId, parseOptions);

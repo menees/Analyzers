@@ -70,7 +70,7 @@ public sealed class Men018UseDigitSeparators : Analyzer
 				string preferredText = literal.ToString(groupSize);
 				if (preferredText != literalText)
 				{
-					var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+					ImmutableDictionary<string, string?>.Builder builder = ImmutableDictionary.CreateBuilder<string, string?>();
 					builder.Add(PreferredKey, preferredText);
 					ImmutableDictionary<string, string?> fixerProperties = builder.ToImmutable();
 
