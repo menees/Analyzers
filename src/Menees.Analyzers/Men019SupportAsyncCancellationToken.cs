@@ -28,6 +28,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 	private static readonly DiagnosticDescriptor Rule =
 		new(DiagnosticId, Title, MessageFormat, Rules.Design, Rules.InfoSeverity, Rules.EnabledByDefault, Description);
 
+	private static readonly SymbolEqualityComparer SymbolComparer = SymbolEqualityComparer.IncludeNullability;
+
 	#endregion
 
 	#region Public Properties
@@ -48,8 +50,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		context.RegisterSymbolActionHonorExclusions(
 			this,
 			compilation => (nestedAnalyzer = NestedAnalyzer.TryCreate(compilation, this)) != null,
-			symbolAnalysisContext => nestedAnalyzer?.HandleMethodSymbol(symbolAnalysisContext),
-			SymbolKind.Method);
+			symbolAnalysisContext => nestedAnalyzer?.HandleNamedTypeSymbol(symbolAnalysisContext),
+			SymbolKind.NamedType);
 	}
 
 	#endregion
@@ -87,27 +89,40 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			return result;
 		}
 
-		public void HandleMethodSymbol(SymbolAnalysisContext context)
+		public void HandleNamedTypeSymbol(SymbolAnalysisContext context)
 		{
-			IMethodSymbol method = (IMethodSymbol)context.Symbol;
-			Settings settings = this.callingAnalyzer.Settings;
+			INamedTypeSymbol namedType = (INamedTypeSymbol)context.Symbol;
+#pragma warning disable RS1024 // Compare symbols correctly. False positive; we're grouping by the Name not IMethodSymbol!
+			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = namedType.GetMembers()
+				.OfType<IMethodSymbol>()
+				.GroupBy(m => m.Name, m => m, StringComparer.Ordinal);
+#pragma warning restore RS1024 // Compare symbols correctly
 
-			if ((method.DeclaredAccessibility > Accessibility.Private || settings.CheckPrivateMethodsForCancellation)
-				&& !method.IsImplicitlyDeclared
-				&& IsAsyncMethodKindSupported(method.MethodKind)
-				&& !method.ReturnsVoid
-				&& method.ReturnType is not null  // Roslyn's ISymbolExtensions.IsAwaitableNonDynamic checks this
-				&& (method.IsAsync || IsAwaitable(method.ReturnType))
-				&& !method.IsOverride
-				&& method.ExplicitInterfaceImplementations.IsDefaultOrEmpty
-				&& !IsImplicitInterfaceImplementation(method)
-				&& !settings.IsUnitTestMethod(method))
+			foreach (IGrouping<string, IMethodSymbol> methodGroup in methodGroups)
 			{
-				List<IParameterSymbol> parameters = GetEligibleParameters(method);
-				if (!HasCancellationTokenParameter(parameters)
-					&& !parameters.Any(ParameterHasCancellationTokenProperty))
+				foreach (IMethodSymbol method in methodGroup)
 				{
-					context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
+					Settings settings = this.callingAnalyzer.Settings;
+
+					if ((method.DeclaredAccessibility > Accessibility.Private || settings.CheckPrivateMethodsForCancellation)
+						&& !method.IsImplicitlyDeclared
+						&& IsAsyncMethodKindSupported(method.MethodKind)
+						&& !method.ReturnsVoid
+						&& method.ReturnType is not null  // Roslyn's ISymbolExtensions.IsAwaitableNonDynamic checks this
+						&& (method.IsAsync || IsAwaitable(method.ReturnType))
+						&& !method.IsOverride
+						&& method.ExplicitInterfaceImplementations.IsDefaultOrEmpty
+						&& !IsImplicitInterfaceImplementation(method)
+						&& !settings.IsUnitTestMethod(method))
+					{
+						List<IParameterSymbol> parameters = GetEligibleParameters(method);
+						if (!HasCancellationTokenParameter(parameters)
+							&& !parameters.Any(ParameterHasCancellationTokenProperty))
+						{
+							// TODO: Check if another overload if this method is cancellable. [Bill, 8/30/2025]
+							context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
+						}
+					}
 				}
 			}
 		}
@@ -162,9 +177,9 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		{
 			bool result = false;
 
-			if (this.fixedTaskTypes.Contains(type, SymbolEqualityComparer.IncludeNullability)
+			if (this.fixedTaskTypes.Contains(type, SymbolComparer)
 				|| (type is INamedTypeSymbol { IsGenericType: true } namedType
-					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolEqualityComparer.IncludeNullability)))
+					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolComparer)))
 			{
 				result = true;
 			}
@@ -193,7 +208,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 					foreach (ISymbol member in containingType.AllInterfaces.SelectMany(intf => intf.GetMembers(method.Name)))
 					{
 						ISymbol? interfaceImplementation = containingType.FindImplementationForInterfaceMember(member);
-						if (method.Equals(interfaceImplementation, SymbolEqualityComparer.IncludeNullability))
+						if (method.Equals(interfaceImplementation, SymbolComparer))
 						{
 							result = true;
 							break;
@@ -212,7 +227,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			foreach (IParameterSymbol parameterSymbol in parameters)
 			{
 				INamedTypeSymbol? parameterType = parameterSymbol.Type as INamedTypeSymbol;
-				if (this.cancellationTokenType.Equals(parameterType, SymbolEqualityComparer.IncludeNullability))
+				if (this.cancellationTokenType.Equals(parameterType, SymbolComparer))
 				{
 					result = true;
 					break;
@@ -235,7 +250,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 					.Cast<IPropertySymbol>();
 				foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
 				{
-					if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolEqualityComparer.IncludeNullability))
+					if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolComparer))
 					{
 						result = true;
 						break;
