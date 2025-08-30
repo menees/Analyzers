@@ -1,5 +1,7 @@
 ﻿namespace Menees.Analyzers.Test;
 
+using System.Diagnostics;
+
 [TestClass]
 public class Men016UnitTests : CodeFixVerifier
 {
@@ -14,6 +16,8 @@ public class Men016UnitTests : CodeFixVerifier
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men016AvoidTopLevelStatements();
 
 	protected override OutputKind AssemblyOutputKind => OutputKind.ConsoleApplication;
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(Console), typeof(Debug)];
 
 	#endregion
 

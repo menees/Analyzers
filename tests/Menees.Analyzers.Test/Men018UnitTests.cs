@@ -11,6 +11,8 @@ public class Men018UnitTests : CodeFixVerifier
 
 	protected override CodeFixProvider? CSharpCodeFixProvider => new Men018UseDigitSeparatorsFixer();
 
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(Console)];
+
 	#endregion
 
 	#region ValidCodeTest

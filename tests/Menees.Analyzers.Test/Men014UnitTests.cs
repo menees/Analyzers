@@ -1,11 +1,16 @@
 ﻿namespace Menees.Analyzers.Test;
 
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
 [TestClass]
 public class Men014UnitTests : CodeFixVerifier
 {
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men014PreferTryGetValue();
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(ConcurrentDictionary<,>), typeof(Debug)];
 
 	#endregion
 

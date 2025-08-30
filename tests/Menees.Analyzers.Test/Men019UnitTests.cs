@@ -1,5 +1,7 @@
 ﻿namespace Menees.Analyzers.Test;
 
+using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeFixes;
 
 [TestClass]
@@ -8,6 +10,8 @@ public class Men019UnitTests : CodeFixVerifier
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men019SupportAsyncCancellationToken();
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(ValueTask), typeof(TestMethodAttribute)];
 
 	#endregion
 

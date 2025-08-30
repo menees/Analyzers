@@ -12,7 +12,23 @@ public abstract partial class DiagnosticVerifier
 	/// </summary>
 	protected abstract DiagnosticAnalyzer CSharpDiagnosticAnalyzer { get; }
 
+	/// <summary>
+	/// Gets the kind of assembly that should be compiled.
+	/// </summary>
+	/// <remarks>
+	/// This defaults to DLL since most tests won't need a Main() method.
+	/// </remarks>
 	protected virtual OutputKind AssemblyOutputKind => OutputKind.DynamicallyLinkedLibrary;
+
+	/// <summary>
+	/// Gets a collection of additional types required by this class's tests.
+	/// </summary>
+	protected virtual IEnumerable<Type> AssemblyRequiredTypes => [];
+
+	/// <summary>
+	/// Gets a collection of additional runtime DLL files needed by the <see cref="AssemblyRequiredTypes"/>.
+	/// </summary>
+	protected virtual IEnumerable<string> AssemblyRequiredLibraryFileNames => [];
 
 	#endregion
 

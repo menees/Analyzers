@@ -9,6 +9,8 @@ public class Men015UnitTests : CodeFixVerifier
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men015UsePreferredTerms();
 
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(Console)];
+
 	#endregion
 
 	#region ValidCodeTest

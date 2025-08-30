@@ -18,26 +18,17 @@ public abstract partial class DiagnosticVerifier
 {
 	private static readonly MetadataReference[] RequiredTypeReferences = [.. new Type[]
 	{
-		typeof(BrowsableAttribute),
 		typeof(Compilation),
-		typeof(ConcurrentDictionary<,>),
-		typeof(Console),
 		typeof(CSharpCompilation),
-		typeof(DataTable),
 		typeof(Enumerable),
 		typeof(object),
-		typeof(TestClassAttribute),
-		typeof(ValueTask),
-		typeof(XDocument),
-		typeof(XmlDocument),
-	}.Select(type => MetadataReference.CreateFromFile(type.Assembly.Location))];
+	}.Select(CreateTypeReference)];
 
 	private static readonly MetadataReference[] RequiredLibraryReferences = [.. new string[]
 	{
 		"netstandard.dll",
-		"System.Collections.dll",
 		"System.Runtime.dll",
-	}.Select(fileName => MetadataReference.CreateFromFile(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), fileName)))];
+	}.Select(CreateLibraryReference)];
 
 	internal static readonly ThreadLocal<string> DefaultFilePathPrefix = new(() => "Test");
 	internal const string CSharpDefaultFileExt = "cs";
@@ -201,7 +192,11 @@ public abstract partial class DiagnosticVerifier
 			.CurrentSolution
 			.AddProject(projectId, TestProjectName, TestProjectName, language);
 
-		foreach (var reference in RequiredTypeReferences.Concat(RequiredLibraryReferences))
+		var metadataReferences = RequiredTypeReferences
+			.Concat(RequiredLibraryReferences)
+			.Concat(AssemblyRequiredTypes.Select(CreateTypeReference))
+			.Concat(AssemblyRequiredLibraryFileNames.Select(CreateLibraryReference));
+		foreach (var reference in metadataReferences)
 		{
 			solution = solution.AddMetadataReference(projectId, reference);
 		}
@@ -233,5 +228,12 @@ public abstract partial class DiagnosticVerifier
 
 		return solution.GetProject(projectId) ?? throw new InvalidOperationException("Unable to create project.");
 	}
-#endregion
+
+	private static PortableExecutableReference CreateTypeReference(Type type)
+		=> MetadataReference.CreateFromFile(type.Assembly.Location);
+
+	private static PortableExecutableReference CreateLibraryReference(string fileName)
+		=> MetadataReference.CreateFromFile(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), fileName));
+
+	#endregion
 }

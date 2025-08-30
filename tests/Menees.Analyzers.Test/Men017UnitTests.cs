@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ public class Men017UnitTests : CodeFixVerifier
 	protected override CodeFixProvider CSharpCodeFixProvider => new Men017RemoveUnusedPrivateSetterFixer();
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men017RemoveUnusedPrivateSetter();
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(BrowsableAttribute)];
 
 	#endregion
 

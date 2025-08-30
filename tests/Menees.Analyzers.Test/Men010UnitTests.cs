@@ -1,11 +1,19 @@
 ﻿namespace Menees.Analyzers.Test;
 
+using System;
+using System.Collections.Generic;
+using System.Data;
+
 [TestClass]
 public sealed class Men010UnitTests : CodeFixVerifier
 {
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men010AvoidMagicNumbers();
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(DataColumn), typeof(TestMethodAttribute)];
+
+	protected override IEnumerable<string> AssemblyRequiredLibraryFileNames => ["System.Collections.dll"];
 
 	#endregion
 
