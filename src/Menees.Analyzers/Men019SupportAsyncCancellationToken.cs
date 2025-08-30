@@ -59,13 +59,15 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 	private sealed class NestedAnalyzer(
 		Analyzer caller,
 		INamedTypeSymbol cancellationTokenType,
-		INamedTypeSymbol[] knownTaskTypes)
+		INamedTypeSymbol[] fixedTaskTypes,
+		INamedTypeSymbol[] genericTaskTypes)
 	{
 		#region Private Data Members
 
 		private readonly Analyzer callingAnalyzer = caller;
 		private readonly INamedTypeSymbol cancellationTokenType = cancellationTokenType;
-		private readonly INamedTypeSymbol[] knownTaskTypes = knownTaskTypes;
+		private readonly INamedTypeSymbol[] fixedTaskTypes = fixedTaskTypes;
+		private readonly INamedTypeSymbol[] genericTaskTypes = genericTaskTypes;
 
 		#endregion
 
@@ -80,7 +82,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			INamedTypeSymbol? valueTask1Type = compilation.GetTypeByMetadataName(typeof(ValueTask<>).FullName);
 
 			NestedAnalyzer? result = cancellationTokenType != null && taskType != null && task1Type != null && valueTaskType != null && valueTask1Type != null
-				? new(caller, cancellationTokenType, [taskType, task1Type, valueTaskType, valueTask1Type])
+				? new(caller, cancellationTokenType, [taskType, valueTaskType], [task1Type, valueTask1Type])
 				: null;
 			return result;
 		}
@@ -160,7 +162,9 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		{
 			bool result = false;
 
-			if (this.knownTaskTypes.Contains(type, SymbolEqualityComparer.Default))
+			if (this.fixedTaskTypes.Contains(type, SymbolEqualityComparer.Default)
+				|| (type is INamedTypeSymbol { IsGenericType: true } namedType
+					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolEqualityComparer.Default)))
 			{
 				result = true;
 			}
