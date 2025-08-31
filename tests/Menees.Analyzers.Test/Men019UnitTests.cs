@@ -7,6 +7,28 @@ using Microsoft.CodeAnalysis.CodeFixes;
 [TestClass]
 public class Men019UnitTests : CodeFixVerifier
 {
+	private const string SharedCode = """
+		public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
+		public sealed class Awaiter { public bool GetResult() => true; }
+
+		[AsyncMethodBuilder(typeof(MyTaskBuilder))]
+		public readonly struct MyTask
+		{
+		}
+
+		class MyTaskBuilder
+		{
+		    public static MyTaskBuilder Create() => new();
+		    public void Start<TStateMachine>(ref TStateMachine stateMachine) where TStateMachine : IAsyncStateMachine { }
+		    public void SetStateMachine(IAsyncStateMachine stateMachine) { }
+		    public void SetResult() { }
+		    public void SetException(Exception exception) { }
+		    public MyTask Task => default(MyTask);
+		    public void AwaitOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine) where TAwaiter : INotifyCompletion where TStateMachine : IAsyncStateMachine { }
+		    public void AwaitUnsafeOnCompleted<TAwaiter, TStateMachine>(ref TAwaiter awaiter, ref TStateMachine stateMachine) where TAwaiter : ICriticalNotifyCompletion where TStateMachine : IAsyncStateMachine { }
+		}
+		""";
+
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men019SupportAsyncCancellationToken();
@@ -22,8 +44,9 @@ public class Men019UnitTests : CodeFixVerifier
 	{
 		this.VerifyCSharpDiagnostic(string.Empty);
 
-		const string test = @"#nullable enable
+		string test = @"#nullable enable
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -42,8 +65,11 @@ public class TestBase : IThink1
 	public int Ineligible(int i) => i;
 }
 
-public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
-public sealed class Awaiter { public bool GetResult() => true; }
+interface InterfaceName
+{
+  Task MethodAsync();
+  Task MethodAsync(CancellationToken cancellationToken);
+}
 
 public class Test : TestBase, IFormattable, IThink2
 {
@@ -52,6 +78,8 @@ public class Test : TestBase, IFormattable, IThink2
 	public async Task UseAsyncKeyword(CancellationToken c) { await Task.Yield(); }
 
 	public Awaitable TryAwaitable(CancellationToken c = default) { return new Awaitable(); }
+
+	public MyTask UseMyTask(CancellationToken c) => new();
 
 	// Interface implementations
 	Task IThink2.Think2() => Task.CompletedTask;
@@ -73,7 +101,8 @@ public class Test : TestBase, IFormattable, IThink2
 
 	public Task SplitMethodGroup() => Task.CompletedTask; // Base class's overload is cancellable.
 	public int Ineligible(int i, int multiplier) => i * multiplier;
-}";
+}"
++ Environment.NewLine + SharedCode;
 
 		this.VerifyCSharpDiagnostic(test);
 	}
@@ -85,7 +114,9 @@ public class Test : TestBase, IFormattable, IThink2
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		const string test = @"#nullable enable
+		string test = @"#nullable enable
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -106,7 +137,12 @@ public class Test
 
 	public Task LocalMethodGroup(string name) => Task.CompletedTask;
 	public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
-}";
+
+	public Awaitable TryAwaitable() { return new Awaitable(); }
+
+	public MyTask UseMyTask() => new();
+}"
++ Environment.NewLine + SharedCode;
 
 		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
@@ -114,37 +150,47 @@ public class Test
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method Think1 should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 33)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 33)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method CheckPrivate should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 21)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 21)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method UseAsyncKeyword should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 20)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 20)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method GetString should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 30)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 17, 30)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method GetsCancelledProperty should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 18, 14)]
-			},
-			new DiagnosticResult(analyzer)
-			{
-				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 20, 14)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 21, 14)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 22, 14)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 23, 14)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method TryAwaitable should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 19)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method UseMyTask should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 16)]
 			},
 		];
 

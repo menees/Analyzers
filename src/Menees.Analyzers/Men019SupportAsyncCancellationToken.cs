@@ -62,7 +62,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		Analyzer caller,
 		INamedTypeSymbol cancellationTokenType,
 		INamedTypeSymbol[] fixedTaskTypes,
-		INamedTypeSymbol[] genericTaskTypes)
+		INamedTypeSymbol[] genericTaskTypes,
+		INamedTypeSymbol asyncMethodBuilderAttributeType)
 	{
 		#region Private Data Members
 
@@ -70,6 +71,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		private readonly INamedTypeSymbol cancellationTokenType = cancellationTokenType;
 		private readonly INamedTypeSymbol[] fixedTaskTypes = fixedTaskTypes;
 		private readonly INamedTypeSymbol[] genericTaskTypes = genericTaskTypes;
+		private readonly INamedTypeSymbol asyncMethodBuilderAttributeType = asyncMethodBuilderAttributeType;
 
 		#endregion
 
@@ -82,9 +84,11 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			INamedTypeSymbol? task1Type = compilation.GetTypeByMetadataName(typeof(Task<>).FullName);
 			INamedTypeSymbol? valueTaskType = compilation.GetTypeByMetadataName(typeof(ValueTask).FullName);
 			INamedTypeSymbol? valueTask1Type = compilation.GetTypeByMetadataName(typeof(ValueTask<>).FullName);
+			INamedTypeSymbol? asyncMethodBuilderAttributeType = compilation.GetTypeByMetadataName(typeof(AsyncMethodBuilderAttribute).FullName);
 
-			NestedAnalyzer? result = cancellationTokenType != null && taskType != null && task1Type != null && valueTaskType != null && valueTask1Type != null
-				? new(caller, cancellationTokenType, [taskType, valueTaskType], [task1Type, valueTask1Type])
+			NestedAnalyzer? result = cancellationTokenType != null && taskType != null && task1Type != null
+					&& valueTaskType != null && valueTask1Type != null && asyncMethodBuilderAttributeType != null
+				? new(caller, cancellationTokenType, [taskType, valueTaskType], [task1Type, valueTask1Type], asyncMethodBuilderAttributeType)
 				: null;
 			return result;
 		}
@@ -207,7 +211,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 			if (this.fixedTaskTypes.Contains(type, SymbolComparer)
 				|| (type is INamedTypeSymbol { IsGenericType: true } namedType
-					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolComparer)))
+					&& this.genericTaskTypes.Contains(namedType.OriginalDefinition, SymbolComparer))
+				|| type.GetAttributes().Any(attr => SymbolComparer.Equals(attr.AttributeClass, this.asyncMethodBuilderAttributeType)))
 			{
 				result = true;
 			}
