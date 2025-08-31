@@ -91,11 +91,15 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 		public void HandleNamedTypeSymbol(SymbolAnalysisContext context)
 		{
+			// Look at each overload method group (including inherited methods).
+			// If a method group has any eligible async/awaitable methods and none
+			// of those are cancellable, then we'll report each eligible method.
 			INamedTypeSymbol namedType = (INamedTypeSymbol)context.Symbol;
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression. False positive!
 #pragma warning disable RS1024 // Compare symbols correctly. False positive! We're grouping by the Name not IMethodSymbol.
-			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = namedType.GetMembers()
+			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = GetTypeAndBaseTypes(namedType)
+				.SelectMany(type => type.GetMembers())
 				.OfType<IMethodSymbol>()
 				.GroupBy(m => m.Name, m => m, StringComparer.Ordinal);
 #pragma warning restore RS1024 // Compare symbols correctly
@@ -184,6 +188,17 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		{
 			method = type.GetMembers(methodName).OfType<IMethodSymbol>().FirstOrDefault(m => match(m));
 			return method != null;
+		}
+
+		private static IEnumerable<ITypeSymbol> GetTypeAndBaseTypes(ITypeSymbol type)
+		{
+			// https://stackoverflow.com/a/30445814/1882616
+			ITypeSymbol? current = type;
+			while (current != null)
+			{
+				yield return current;
+				current = current.BaseType;
+			}
 		}
 
 		private bool IsAwaitable(ITypeSymbol type)

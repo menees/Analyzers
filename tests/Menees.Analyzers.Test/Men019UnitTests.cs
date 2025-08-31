@@ -37,6 +37,9 @@ public sealed class Cancellable { public CancellationToken Cancel {get;}}
 public class TestBase : IThink1
 {
 	public virtual Task Think1() => Task.CompletedTask;
+
+	public Task SplitMethodGroup(CancellationToken c) => Task.CompletedTask;
+	public int Ineligible(int i) => i;
 }
 
 public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
@@ -64,6 +67,12 @@ public class Test : TestBase, IFormattable, IThink2
 	public override string ToString() => nameof(Test);
 	public int GetPercent(double fraction) => (int)(100 * fraction);
 	public void SyncCancel(CancellationToken c = default) { }
+
+	public Task LocalMethodGroup(string name) => Task.CompletedTask;
+	public Task LocalMethodGroup(string name, CancellationToken c) => Task.CompletedTask;
+
+	public Task SplitMethodGroup() => Task.CompletedTask; // Base class's overload is cancellable.
+	public int Ineligible(int i, int multiplier) => i * multiplier;
 }";
 
 		this.VerifyCSharpDiagnostic(test);
@@ -94,6 +103,9 @@ public class Test
 
 	// Not a configured name to look for.
 	public Task GetsCancelledProperty(Cancellable cancellable) => Task.CompletedTask;
+
+	public Task LocalMethodGroup(string name) => Task.CompletedTask;
+	public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
 }";
 
 		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
@@ -123,6 +135,16 @@ public class Test
 			{
 				Message = "Async method GetsCancelledProperty should take a CancellationToken parameter.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 18, 14)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 20, 14)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 21, 14)]
 			},
 		];
 
