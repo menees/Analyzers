@@ -1,6 +1,7 @@
 ﻿namespace Menees.Analyzers;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
@@ -72,6 +73,11 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		private readonly INamedTypeSymbol[] fixedTaskTypes = fixedTaskTypes;
 		private readonly INamedTypeSymbol[] genericTaskTypes = genericTaskTypes;
 		private readonly INamedTypeSymbol asyncMethodBuilderAttributeType = asyncMethodBuilderAttributeType;
+#pragma warning disable IDE0079 // Remove unnecessary suppression. False positive.
+#pragma warning disable RS1024 // Compare symbols correctly. False positive; this is using a SymbolEqualityComparer.
+		private readonly ConcurrentDictionary<ITypeSymbol, bool> typeHasCancellationTokenProperty = new(SymbolComparer);
+#pragma warning restore RS1024 // Compare symbols correctly
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
 		#endregion
 
@@ -272,24 +278,26 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 		private bool ParameterHasCancellationTokenProperty(IParameterSymbol parameterSymbol)
 		{
-			bool result = false;
-
 			ISet<string> propertyNamesToCheck = this.callingAnalyzer.Settings.PropertyNamesForCancellation;
-			if (propertyNamesToCheck.Count > 0)
-			{
-				IEnumerable<IPropertySymbol> publicCancellationProperties = propertyNamesToCheck
-					.SelectMany(propertyName => parameterSymbol.Type.GetMembers(propertyName))
-					.Where(m => m.Kind == SymbolKind.Property && m.DeclaredAccessibility == Accessibility.Public)
-					.Cast<IPropertySymbol>();
-				foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
+			bool result = propertyNamesToCheck.Count > 0
+				&& typeHasCancellationTokenProperty.GetOrAdd(parameterSymbol.Type, type =>
 				{
-					if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolComparer))
+					bool hasCancellationTokenProperty = false;
+					IEnumerable<IPropertySymbol> publicCancellationProperties = propertyNamesToCheck
+						.SelectMany(propertyName => type.GetMembers(propertyName))
+						.Where(m => m.Kind == SymbolKind.Property && m.DeclaredAccessibility == Accessibility.Public)
+						.Cast<IPropertySymbol>();
+					foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
 					{
-						result = true;
-						break;
+						if (this.cancellationTokenType.Equals(propertySymbol.Type, SymbolComparer))
+						{
+							hasCancellationTokenProperty = true;
+							break;
+						}
 					}
-				}
-			}
+
+					return hasCancellationTokenProperty;
+				});
 
 			return result;
 		}
