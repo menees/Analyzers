@@ -35,7 +35,7 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 			{
 				context.RegisterCodeFix(
 					CodeAction.Create(
-						CodeFixes.Resources.Men018CodeFix,
+						Resources.Men018CodeFix,
 						cancel => GetTransformedDocumentAsync(context.Document, diagnostic, preferredText!, cancel),
 						nameof(Men018UseDigitSeparatorsFixer)),
 					diagnostic);
@@ -99,13 +99,6 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 			}
 		}
 
-		return result;
-	}
-
-	private static IdentifierNameSyntax CreateIdentifier(SyntaxToken violatingToken, string newName)
-	{
-		SyntaxToken newToken = SyntaxFactory.Identifier(violatingToken.LeadingTrivia, newName, violatingToken.TrailingTrivia);
-		IdentifierNameSyntax result = SyntaxFactory.IdentifierName(newToken);
 		return result;
 	}
 

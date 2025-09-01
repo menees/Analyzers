@@ -6,9 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Menees.Analyzers.CodeFixes;
 using Microsoft.CodeAnalysis;
-using static System.Net.Mime.MediaTypeNames;
 
 // This was inspired by Dustin Campbell's UseGetterOnlyAutoPropertyAnalyzer, which was abandoned in 2015.
 // https://github.com/DustinCampbell/CSharpEssentials/blob/master/Source/CSharpEssentials.Tests/GetterOnlyAutoProperty/UseGetterOnlyAutoPropertyAnalyzerTests.cs

@@ -36,7 +36,7 @@ public sealed class Men015UsePreferredTermsFixer : CodeFixProvider
 			{
 				context.RegisterCodeFix(
 					CodeAction.Create(
-						CodeFixes.Resources.Men015CodeFix,
+						Resources.Men015CodeFix,
 						cancel => GetTransformedSolutionAsync(context.Document, diagnostic, preferredTerm, cancel),
 						nameof(Men015UsePreferredTermsFixer)),
 					diagnostic);

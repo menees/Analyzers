@@ -34,7 +34,7 @@ public sealed class Men011AlignUsingDirectivesFixer : CodeFixProvider
 		{
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					CodeFixes.Resources.Men011CodeFix,
+					Resources.Men011CodeFix,
 					token => GetTransformedDocumentAsync(context.Document, diagnostic, token),
 					equivalenceKey: nameof(Men011AlignUsingDirectivesFixer)),
 				diagnostic);

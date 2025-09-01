@@ -26,7 +26,7 @@ public sealed class Men009UsePreferredExceptionsFixer : CodeFixProvider
 		{
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					CodeFixes.Resources.Men009CodeFix,
+					Resources.Men009CodeFix,
 					token => GetTransformedDocumentAsync(context.Document, diagnostic, token),
 					equivalenceKey: nameof(Men009UsePreferredExceptionsFixer)),
 				diagnostic);

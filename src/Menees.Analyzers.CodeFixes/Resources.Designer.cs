@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Menees.Analyzers.CodeFixes {
+namespace Menees.Analyzers {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Menees.Analyzers.CodeFixes {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.CodeFixes.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Menees.Analyzers.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -120,6 +120,15 @@ namespace Menees.Analyzers.CodeFixes {
         internal static string Men018CodeFix {
             get {
                 return ResourceManager.GetString("Men018CodeFix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add CancellationToken parameter.
+        /// </summary>
+        internal static string Men019CodeFix {
+            get {
+                return ResourceManager.GetString("Men019CodeFix", resourceCulture);
             }
         }
     }

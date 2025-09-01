@@ -29,7 +29,7 @@ public sealed class Men013UseUtcTimeFixer : CodeFixProvider
 			{
 				context.RegisterCodeFix(
 					CodeAction.Create(
-						CodeFixes.Resources.Men013CodeFix,
+						Resources.Men013CodeFix,
 						cancel => GetTransformedDocumentAsync(context.Document, diagnostic, cancel),
 						nameof(Men013UseUtcTimeFixer)),
 					diagnostic);

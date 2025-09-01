@@ -146,10 +146,11 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 				if (eligibleMethods.Count > 0 && !isAtLeastOneOverloadCancellable)
 				{
-					foreach (IMethodSymbol method in eligibleMethods)
-					{
-						context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
-					}
+					// Choose the method with the most parameters and then with the longest source code.
+					IMethodSymbol method = eligibleMethods.OrderByDescending(m => m.Parameters.Length)
+						.ThenBy(m => m.DeclaringSyntaxReferences.FirstOrDefault()?.Span.Length ?? 0)
+						.First();
+					context.ReportDiagnostic(Diagnostic.Create(Rule, method.Locations[0], method.Name));
 				}
 			}
 		}

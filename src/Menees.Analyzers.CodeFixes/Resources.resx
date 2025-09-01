@@ -139,4 +139,7 @@
   <data name="Men018CodeFix" xml:space="preserve">
     <value>Insert digit separators</value>
   </data>
+  <data name="Men019CodeFix" xml:space="preserve">
+    <value>Add CancellationToken parameter</value>
+  </data>
 </root>

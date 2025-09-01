@@ -4,6 +4,7 @@
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<RootNamespace>Menees.Analyzers</RootNamespace>
 	</PropertyGroup>
 
 	<PropertyGroup>

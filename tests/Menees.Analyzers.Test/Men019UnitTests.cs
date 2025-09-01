@@ -7,7 +7,10 @@ using Microsoft.CodeAnalysis.CodeFixes;
 [TestClass]
 public class Men019UnitTests : CodeFixVerifier
 {
+	#region Private Data Members
+
 	private const string SharedCode = """
+
 		public sealed class Awaitable { public Awaiter GetAwaiter() => new(); }
 		public sealed class Awaiter { public bool GetResult() => true; }
 
@@ -29,9 +32,45 @@ public class Men019UnitTests : CodeFixVerifier
 		}
 		""";
 
+	private const string InvalidCode = """
+		#nullable enable
+		using System;
+		using System.Runtime.CompilerServices;
+		using System.Threading;
+		using System.Threading.Tasks;
+
+		public interface IThink1 { Task Think1(); }
+
+		public sealed class Cancellable { public CancellationToken Cancelled {get;}}
+
+		public class Test
+		{
+			private Task<bool> CheckPrivate() { return Task.FromResult(true); }
+
+			public async Task UseAsyncKeyword() { await Task.Yield(); }
+
+			internal ValueTask<string?> GetString(int a, bool b, string? c = null) { return new ValueTask<string?>(c); }
+
+			// Not a configured name to look for.
+			public Task GetsCancelledProperty(Cancellable cancellable) => Task.CompletedTask;
+
+			public Task LocalMethodGroup(string name) => Task.CompletedTask;
+			public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
+			public Task LocalMethodGroup(string name, int i, params string[] tokens) => Task.CompletedTask;
+
+			public Awaitable TryAwaitable() { return new Awaitable(); }
+
+			public MyTask UseMyTask() => new();
+		}
+		""" + SharedCode;
+
+	#endregion
+
 	#region Protected Properties
 
 	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men019SupportAsyncCancellationToken();
+
+	protected override CodeFixProvider? CSharpCodeFixProvider => new Men019SupportAsyncCancellationTokenFixer();
 
 	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(ValueTask), typeof(TestMethodAttribute)];
 
@@ -114,36 +153,6 @@ public class Test : TestBase, IFormattable, IThink2
 	[TestMethod]
 	public void InvalidCodeTest()
 	{
-		string test = @"#nullable enable
-using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-public interface IThink1 { Task Think1(); }
-
-public sealed class Cancellable { public CancellationToken Cancelled {get;}}
-
-public class Test
-{
-	private Task<bool> CheckPrivate() { return Task.FromResult(true); }
-
-	public async Task UseAsyncKeyword() { await Task.Yield(); }
-
-	internal ValueTask<string?> GetString(int a, bool b, string c) { return new ValueTask<string?>(c); }
-
-	// Not a configured name to look for.
-	public Task GetsCancelledProperty(Cancellable cancellable) => Task.CompletedTask;
-
-	public Task LocalMethodGroup(string name) => Task.CompletedTask;
-	public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
-
-	public Awaitable TryAwaitable() { return new Awaitable(); }
-
-	public MyTask UseMyTask() => new();
-}"
-+ Environment.NewLine + SharedCode;
-
 		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
 		[
@@ -175,27 +184,59 @@ public class Test
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 22, 14)]
-			},
-			new DiagnosticResult(analyzer)
-			{
-				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 23, 14)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 24, 14)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method TryAwaitable should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 19)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 19)]
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Async method UseMyTask should take a CancellationToken parameter.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 16)]
+				Locations = [new DiagnosticResultLocation("Test0.cs", 28, 16)]
 			},
 		];
 
-		this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(InvalidCode, expected);
 	}
 
+	[TestMethod]
+	public void InvalidCodeFixerTest()
+	{
+		const string after = """
+			#nullable enable
+			using System;
+			using System.Runtime.CompilerServices;
+			using System.Threading;
+			using System.Threading.Tasks;
+
+			public interface IThink1 { Task Think1(CancellationToken cancellationToken); }
+
+			public sealed class Cancellable { public CancellationToken Cancelled {get;}}
+
+			public class Test
+			{
+				private Task<bool> CheckPrivate(CancellationToken cancellationToken) { return Task.FromResult(true); }
+
+				public async Task UseAsyncKeyword(CancellationToken cancellationToken) { await Task.Yield(); }
+
+				internal ValueTask<string?> GetString(int a, bool b, CancellationToken cancellationToken, string? c = null) { return new ValueTask<string?>(c); }
+
+				// Not a configured name to look for.
+				public Task GetsCancelledProperty(Cancellable cancellable, CancellationToken cancellationToken) => Task.CompletedTask;
+
+				public Task LocalMethodGroup(string name) => Task.CompletedTask;
+				public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
+				public Task LocalMethodGroup(string name, int i, CancellationToken cancellationToken, params string[] tokens) => Task.CompletedTask;
+
+				public Awaitable TryAwaitable(CancellationToken cancellationToken) { return new Awaitable(); }
+
+				public MyTask UseMyTask(CancellationToken cancellationToken) => new();
+			}
+			""" + SharedCode;
+
+		this.VerifyCSharpFix(InvalidCode, after);
+	}
 	#endregion
 }

@@ -26,7 +26,7 @@ public sealed class Men001TabsShouldBeUsedFixer : CodeFixProvider
 		{
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					CodeFixes.Resources.Men001CodeFix,
+					Resources.Men001CodeFix,
 					token => GetTransformedDocumentAsync(context.Document, diagnostic, token),
 					equivalenceKey: nameof(Men001TabsShouldBeUsedFixer)),
 				diagnostic);

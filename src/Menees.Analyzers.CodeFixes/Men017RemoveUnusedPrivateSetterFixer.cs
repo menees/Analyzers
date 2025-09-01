@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.CodeFixes;
+﻿namespace Menees.Analyzers;
 
 using System;
 using System.Collections.Generic;
