@@ -88,6 +88,7 @@ internal sealed partial class Settings
 		this.IsDefault = true;
 		this.analyzeFileNameExclusions = DefaultAnalyzeFileNameExclusions;
 		this.typeFileNameExclusions = DefaultTypeFileNameExclusions;
+		this.FinishConstruction();
 	}
 
 	private Settings(XElement xml)
@@ -117,12 +118,8 @@ internal sealed partial class Settings
 		if (unitTestAttributes != null)
 		{
 			this.TestClassAttributeNames = [.. unitTestAttributes.Elements("Class").Select(element => element.Value)];
-
 			this.TestMethodAttributeNames = [.. unitTestAttributes.Elements("Method").Select(element => element.Value)];
 		}
-
-		NormalizeAttributeNames(this.TestClassAttributeNames);
-		NormalizeAttributeNames(this.TestMethodAttributeNames);
 
 		XElement preferredTermsElement = xml.Element("PreferredTerms");
 		if (preferredTermsElement != null)
@@ -154,6 +151,8 @@ internal sealed partial class Settings
 				this.PropertyNamesForCancellation = [.. properties.Elements("Property").Select(p => p.Value)];
 			}
 		}
+
+		this.FinishConstruction();
 	}
 
 	#endregion
@@ -517,6 +516,12 @@ internal sealed partial class Settings
 		{
 			attributeNames.Add(name + Suffix);
 		}
+	}
+
+	private void FinishConstruction()
+	{
+		NormalizeAttributeNames(this.TestClassAttributeNames);
+		NormalizeAttributeNames(this.TestMethodAttributeNames);
 	}
 
 	#endregion
