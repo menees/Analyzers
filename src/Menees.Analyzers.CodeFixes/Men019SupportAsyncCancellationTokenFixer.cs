@@ -49,7 +49,6 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 
 	#region Private Methods
 
-	[Browsable(true)]
 	private static async Task<Document> GetTransformedDocumentAsync(
 		Document document,
 		Diagnostic diagnostic,
@@ -88,7 +87,7 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 					.WithAdditionalAnnotations(Formatter.Annotation);
 
 				SyntaxNode newSyntaxRoot = syntaxRoot.ReplaceNode(oldParameterList, newParameterList);
-				return document.WithSyntaxRoot(newSyntaxRoot);
+				result = document.WithSyntaxRoot(newSyntaxRoot);
 			}
 		}
 

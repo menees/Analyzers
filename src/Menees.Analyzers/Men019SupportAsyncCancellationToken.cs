@@ -131,7 +131,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 						&& !method.IsOverride
 						&& method.ExplicitInterfaceImplementations.IsDefaultOrEmpty
 						&& !IsImplicitInterfaceImplementation(method)
-						&& !settings.IsUnitTestMethod(method))
+						&& !settings.IsUnitTestMethod(method)
+						&& !IsAssemblyEntryPoint(method, ref context))
 					{
 						eligibleMethods.Add(method);
 
@@ -257,6 +258,14 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 				}
 			}
 
+			return result;
+		}
+
+		private static bool IsAssemblyEntryPoint(IMethodSymbol method, ref SymbolAnalysisContext context)
+		{
+			bool result = method.IsStatic
+				&& method.Name == "Main"
+				&& SymbolComparer.Equals(method, context.Compilation.GetEntryPoint(context.CancellationToken));
 			return result;
 		}
 
