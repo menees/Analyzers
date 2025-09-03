@@ -205,7 +205,7 @@ public class Test : TestBase, IFormattable, IThink2
 	}
 
 	[TestMethod]
-	public void InvalidCodeFixerTest()
+	public void InvalidCodeFixerTestWithoutDefault()
 	{
 		const string after = """
 			#nullable enable
@@ -239,7 +239,46 @@ public class Test : TestBase, IFormattable, IThink2
 			}
 			""" + SharedCode;
 
-		this.VerifyCSharpFix(InvalidCode, after);
+		this.VerifyCSharpFix(InvalidCode, after, codeFixIndex: 0);
 	}
+
+	[TestMethod]
+	public void InvalidCodeFixerTestWithDefault()
+	{
+		const string after = """
+			#nullable enable
+			using System;
+			using System.Runtime.CompilerServices;
+			using System.Threading;
+			using System.Threading.Tasks;
+
+			public interface IThink1 { Task Think1(CancellationToken cancellationToken = default); }
+
+			public sealed class Cancellable { public CancellationToken Cancelled {get;}}
+
+			public class Test
+			{
+				private Task<bool> CheckPrivate(CancellationToken cancellationToken = default) { return Task.FromResult(true); }
+
+				public async Task UseAsyncKeyword(CancellationToken cancellationToken = default) { await Task.Yield(); }
+
+				internal ValueTask<string?> GetString(int a, bool b, string? c = null, CancellationToken cancellationToken = default) { return new ValueTask<string?>(c); }
+
+				// Not a configured name to look for.
+				public Task GetsCancelledProperty(Cancellable cancellable, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+				public Task LocalMethodGroup(string name) => Task.CompletedTask;
+				public Task LocalMethodGroup(string name, int i) => Task.CompletedTask;
+				public Task LocalMethodGroup(string name, int i, CancellationToken cancellationToken = default, params string[] tokens) => Task.CompletedTask;
+
+				public Awaitable TryAwaitable(CancellationToken cancellationToken = default) { return new Awaitable(); }
+
+				public MyTask UseMyTask(CancellationToken cancellationToken = default) => new();
+			}
+			""" + SharedCode;
+
+		this.VerifyCSharpFix(InvalidCode, after, codeFixIndex: 1);
+	}
+
 	#endregion
 }

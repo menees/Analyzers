@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="Menees.Analyzers.Vsix" Version="3.3.1" Language="en-US" Publisher="Bill Menees"/>
+        <Identity Id="Menees.Analyzers.Vsix" Version="3.3.2" Language="en-US" Publisher="Bill Menees"/>
         <DisplayName>Menees.Analyzers.Vsix</DisplayName>
         <Description xml:space="preserve">Provides analyzers for validating that tabs are used for indentation, that the lengths of lines, methods, properties, and files are acceptable, and that #regions are used within long files and files that contain multiple types.</Description>
         <License>License.txt</License>

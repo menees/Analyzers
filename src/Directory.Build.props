@@ -21,7 +21,7 @@
 		<AssemblyOriginatorKeyFile>../Analyzers.snk</AssemblyOriginatorKeyFile>
 
 		<!-- NOTE: Change the version in Vsix\source.extension.vsixmanifest to match this! -->
-		<Version>3.3.1</Version>
+		<Version>3.3.2</Version>
 
 		<RoslynVersion>3.11.0</RoslynVersion>
 	</PropertyGroup>

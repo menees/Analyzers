@@ -124,11 +124,20 @@ namespace Menees.Analyzers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add CancellationToken parameter with default.
+        /// </summary>
+        internal static string Men019CodeFixWithDefault {
+            get {
+                return ResourceManager.GetString("Men019CodeFixWithDefault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add CancellationToken parameter.
         /// </summary>
-        internal static string Men019CodeFix {
+        internal static string Men019CodeFixWithoutDefault {
             get {
-                return ResourceManager.GetString("Men019CodeFix", resourceCulture);
+                return ResourceManager.GetString("Men019CodeFixWithoutDefault", resourceCulture);
             }
         }
     }

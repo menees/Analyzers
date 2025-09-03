@@ -65,13 +65,7 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 					break;
 				}
 
-				if (codeFixIndex != null)
-				{
-					document = ApplyFix(document, actions.ElementAt((int)codeFixIndex));
-					break;
-				}
-
-				document = ApplyFix(document, actions.ElementAt(0));
+				document = ApplyFix(document, actions.ElementAt(codeFixIndex ?? 0));
 				analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, [document]);
 
 				IEnumerable<Diagnostic> newCompilerDiagnostics = GetNewDiagnostics(compilerDiagnostics, GetCompilerDiagnostics(document));
@@ -103,7 +97,7 @@ public abstract partial class CodeFixVerifier : DiagnosticVerifier
 
 			//after applying all of the code fixes, compare the resulting string to the inputted one
 			string actual = GetStringFromDocument(document);
-			Assert.AreEqual(newSource, actual);
+			actual.ShouldBe(newSource);
 		}
 	}
 }

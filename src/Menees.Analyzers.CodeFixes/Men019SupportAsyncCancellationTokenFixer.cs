@@ -36,9 +36,16 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 		{
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					Resources.Men019CodeFix,
-					cancel => GetTransformedDocumentAsync(context.Document, diagnostic, cancel),
+					Resources.Men019CodeFixWithoutDefault,
+					cancel => GetTransformedDocumentAsync(context.Document, diagnostic, false, cancel),
 					nameof(Men019SupportAsyncCancellationTokenFixer)),
+				diagnostic);
+
+			context.RegisterCodeFix(
+				CodeAction.Create(
+					Resources.Men019CodeFixWithDefault,
+					cancel => GetTransformedDocumentAsync(context.Document, diagnostic, true, cancel),
+					nameof(Men019SupportAsyncCancellationTokenFixer) + ".WithDefault"),
 				diagnostic);
 		}
 
@@ -52,6 +59,7 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 	private static async Task<Document> GetTransformedDocumentAsync(
 		Document document,
 		Diagnostic diagnostic,
+		bool withDefault,
 		CancellationToken cancellationToken)
 	{
 		Document result = document;
@@ -67,7 +75,7 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 
 				// Insert it before "ref", "out", "params", and optional parameters.
 				// https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1068#special-cases
-				int insertIndex = separatedParameters.IndexOf(p => p.Default != null
+				int insertIndex = separatedParameters.IndexOf(p => (!withDefault && p.Default != null)
 					|| p.Modifiers.Any(token => token.Kind() is SyntaxKind.RefKeyword
 						or SyntaxKind.OutKeyword
 						or SyntaxKind.ParamsKeyword));
@@ -76,8 +84,16 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 					insertIndex = separatedParameters.Count;
 				}
 
+				TypeSyntax cancellationTokenType = SyntaxFactory.ParseTypeName(typeof(CancellationToken).FullName);
 				ParameterSyntax newParameter = SyntaxFactory.Parameter(SyntaxFactory.Identifier("cancellationToken"))
-					.WithType(SyntaxFactory.ParseTypeName(typeof(CancellationToken).FullName));
+					.WithType(cancellationTokenType);
+				if (withDefault)
+				{
+					newParameter = newParameter.WithDefault(
+						SyntaxFactory.EqualsValueClause(
+							SyntaxFactory.DefaultExpression(cancellationTokenType)));
+				}
+
 				separatedParameters = separatedParameters.Insert(insertIndex, newParameter);
 
 				// https://www.meziantou.net/roslyn-annotations-for-code-fix.htm
