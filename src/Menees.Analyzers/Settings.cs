@@ -140,7 +140,7 @@ internal sealed partial class Settings
 		XElement? supportAsyncCancellationToken = xml.Element("SupportAsyncCancellationToken");
 		if (supportAsyncCancellationToken != null)
 		{
-			if (bool.TryParse(supportAsyncCancellationToken.Attribute("CheckPrivateMethods")?.Value, out bool value))
+			if (TryParseXsBoolean(supportAsyncCancellationToken.Attribute("CheckPrivateMethods")?.Value, out bool value))
 			{
 				this.CheckPrivateMethodsForCancellation = value;
 			}
@@ -373,7 +373,7 @@ internal sealed partial class Settings
 		=> GetSetting(xml, elementName, defaultValue, (string text, out int value) => int.TryParse(text, out value) && value > 0);
 
 	private static bool GetSetting(XElement xml, string elementName, bool defaultValue)
-		=> GetSetting(xml, elementName, defaultValue, bool.TryParse);
+		=> GetSetting(xml, elementName, defaultValue, TryParseXsBoolean);
 
 	private static T GetSetting<T>(XElement xml, string elementName, T defaultValue, TryParse<T> tryParse)
 	{
@@ -390,6 +390,25 @@ internal sealed partial class Settings
 
 		return result;
 	}
+
+	/// <summary>
+	/// Tries to parse an xs:boolean value, which allows true, false, 1, or 0.
+	/// </summary>
+	private static bool TryParseXsBoolean(string? text, out bool value)
+	{
+		bool result = bool.TryParse(text, out value);
+		if (!result)
+		{
+			result = int.TryParse(text, out int number);
+			if (result)
+			{
+				value = number != 0;
+			}
+		}
+
+		return result;
+	}
+
 
 	private static Predicate<string> CreateFileRegexPredicate(string fileRegex)
 		=> value => Regex.IsMatch(value, fileRegex, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);

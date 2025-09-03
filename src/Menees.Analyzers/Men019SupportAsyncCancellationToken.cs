@@ -293,8 +293,9 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 				&& typeHasCancellationTokenProperty.GetOrAdd(parameterSymbol.Type, type =>
 				{
 					bool hasCancellationTokenProperty = false;
+					ITypeSymbol[] typeHierarchy = [.. GetTypeAndBaseTypes(type)];
 					IEnumerable<IPropertySymbol> publicCancellationProperties = propertyNamesToCheck
-						.SelectMany(propertyName => type.GetMembers(propertyName))
+						.SelectMany(propertyName => typeHierarchy.SelectMany(t => t.GetMembers(propertyName)))
 						.Where(m => m.Kind == SymbolKind.Property && m.DeclaredAccessibility == Accessibility.Public)
 						.Cast<IPropertySymbol>();
 					foreach (IPropertySymbol propertySymbol in publicCancellationProperties)

@@ -95,7 +95,9 @@ public interface IThink1 { Task Think1(); }
 public interface IThink2 { Task Think2(); }
 #pragma warning restore MEN019
 
-public sealed class Cancellable { public CancellationToken Cancel {get;}}
+public class Cancellable { public CancellationToken Cancel {get;}}
+public sealed class DerivedCancellable : Cancellable { public bool IsDerived {get;} = true; }
+
 public class TestBase : IThink1
 {
 	public virtual Task Think1() => Task.CompletedTask;
@@ -129,6 +131,7 @@ public class Test : TestBase, IFormattable, IThink2
 	public Task UnitTest() => Task.CompletedTask;
 
 	public Task GetsCancelProperty(Cancellable cancellable) => Task.CompletedTask;
+	public Task GetsInheritedCancelProperty(DerivedCancellable cancellable) => Task.CompletedTask;
 
 	// Normal methods
 	public override string ToString() => nameof(Test);

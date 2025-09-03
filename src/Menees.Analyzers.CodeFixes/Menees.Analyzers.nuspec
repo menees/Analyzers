@@ -17,6 +17,7 @@
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/menees/Analyzers</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<readme>docs\README.md</readme>
 		<description>Provides analyzers for validating that:
 		* Tabs are used for indentation.
 		* Lengths of lines, methods, properties, and files are acceptable.
@@ -31,7 +32,6 @@
 		* TryGetValue is used instead of ContainsKey and this[key].
 		* Preferred terms are used in identifiers.
 		</description>
-		<!-- <releaseNotes></releaseNotes> -->
 		<copyright>$copyright$</copyright>
 		<tags>Analyzers, DotNetAnalyzers, Roslyn</tags>
 		<frameworkAssemblies>
@@ -48,5 +48,8 @@
 		<!-- Scripts -->
 		<file src="tools\install.ps1" target="tools\" />
 		<file src="tools\uninstall.ps1" target="tools\" />
+
+		<!-- Docs -->
+		<file src="..\..\README.md" target="docs\" />
 	</files>
 </package>
