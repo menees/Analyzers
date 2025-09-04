@@ -50,6 +50,16 @@ internal enum ErrorModes : uint // Base as uint since SetErrorMode takes a UINT.
 	SEM_NOALIGNMENTFAULTEXCEPT = 0b0000_0000_0000_0100, // 0x0004,
 	SEM_NOGPFAULTERRORBOX = 0x0002,
 	SEM_NOOPENFILEERRORBOX = 0x8000,
+}
+
+[Flags]
+public enum Shifts
+{
+	None = 0,
+	One = 1 << 0,
+	Two = 1 << 1,
+	Four = 1 << 2,
+	Eight = 1 << 3,
 }";
 		this.VerifyCSharpDiagnostic(test);
 	}
@@ -79,6 +89,16 @@ public enum Unspecified
 	None,
 	First,
 	Second
+}
+
+[Flags]
+public enum Shifts
+{
+	None = 0,
+	One = 1 << 0,
+	Two = 1 << -31,
+	Four = 1 << 2,
+	Eight = 2 << 2,
 }";
 		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
 		DiagnosticResult[] expected =
@@ -122,6 +142,16 @@ public enum Unspecified
 			{
 				Message = "Flags enum member Unspecified.Second should explicitly assign its value to zero or a power of two.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 18, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Flags enum member Shifts.Two has value 1 << -31, which is not a \"1 << x (x >= 0)\" power of two.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 2)]
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Flags enum member Shifts.Eight has value 2 << 2, which is not a \"1 << x (x >= 0)\" power of two.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 28, 2)]
 			},
 		];
 

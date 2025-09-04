@@ -1,5 +1,7 @@
 namespace Menees.Analyzers;
 
+using Microsoft.CodeAnalysis;
+
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class Men012FlagsShouldBePowersOfTwo : Analyzer
 {
@@ -83,21 +85,32 @@ public sealed class Men012FlagsShouldBePowersOfTwo : Analyzer
 							string valueText = literal.Text;
 							if (Settings.TryParseIntegerLiteral(valueText, out ulong value) && value > 0 && !IsPowerOfTwo(value))
 							{
-								Location location = member.GetFirstLineLocation();
-								string enumName = enumSyntax.Identifier.Text;
-								context.ReportDiagnostic(
-									Diagnostic.Create(Rule, location, enumName, member.Identifier.Text, valueText.Trim(), string.Empty));
+								ReportDiagnostic(context, enumSyntax, member, valueText);
+							}
+						}
+						else if (expressionKind == SyntaxKind.LeftShiftExpression)
+						{
+							// Support "1 << x" where x >= 0. Otherwise, warn about it.
+							BinaryExpressionSyntax binaryExpression = (BinaryExpressionSyntax)valueExpression;
+							if (binaryExpression.Left is not LiteralExpressionSyntax leftLiteral
+								|| leftLiteral.Kind() != SyntaxKind.NumericLiteralExpression
+								|| !Settings.TryParseIntegerLiteral(leftLiteral.Token.Text, out ulong leftValue)
+								|| leftValue != 1
+								|| binaryExpression.Right is not LiteralExpressionSyntax rightLiteral
+								|| rightLiteral.Kind() != SyntaxKind.NumericLiteralExpression
+								|| !Settings.TryParseIntegerLiteral(rightLiteral.Token.Text, out ulong rightValue)
+								|| rightValue > int.MaxValue)
+							{
+								string expressionText = binaryExpression.ToString();
+								ReportDiagnostic(context, enumSyntax, member, expressionText, "\"1 << x (x >= 0)\" ");
 							}
 						}
 						else if (expressionKind != SyntaxKind.BitwiseOrExpression)
 						{
 							// Any other expression type is suspicious and should be warned about even if it calculates to a power of two.
 							// Only literal powers of two should be needed for Flags enums.
-							Location location = member.GetFirstLineLocation();
-							string enumName = enumSyntax.Identifier.Text;
-							string expressionText = valueExpression.GetText().ToString().Trim();
-							context.ReportDiagnostic(
-								Diagnostic.Create(Rule, location, enumName, member.Identifier.Text, expressionText, "literal "));
+							string expressionText = valueExpression.GetText().ToString();
+							ReportDiagnostic(context, enumSyntax, member, expressionText, "literal ");
 						}
 					}
 				}
@@ -138,6 +151,19 @@ public sealed class Men012FlagsShouldBePowersOfTwo : Analyzer
 		// Also at http://www.graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2.
 		bool result = value != 0 && (value & (value - 1)) == 0;
 		return result;
+	}
+
+	private static void ReportDiagnostic(
+		SyntaxNodeAnalysisContext context,
+		EnumDeclarationSyntax enumSyntax,
+		EnumMemberDeclarationSyntax member,
+		string valueText,
+		string? valueTypePrefix = null)
+	{
+		Location location = member.GetFirstLineLocation();
+		string enumName = enumSyntax.Identifier.Text;
+		context.ReportDiagnostic(
+			Diagnostic.Create(Rule, location, enumName, member.Identifier.Text, valueText.Trim(), valueTypePrefix ?? string.Empty));
 	}
 
 	#endregion
