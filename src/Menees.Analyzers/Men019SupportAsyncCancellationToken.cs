@@ -73,11 +73,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		private readonly INamedTypeSymbol[] fixedTaskTypes = fixedTaskTypes;
 		private readonly INamedTypeSymbol[] genericTaskTypes = genericTaskTypes;
 		private readonly INamedTypeSymbol asyncMethodBuilderAttributeType = asyncMethodBuilderAttributeType;
-#pragma warning disable IDE0079 // Remove unnecessary suppression. False positive.
-#pragma warning disable RS1024 // Compare symbols correctly. False positive; this is using a SymbolEqualityComparer.
-		private readonly ConcurrentDictionary<ITypeSymbol, bool> typeHasCancellationTokenProperty = new(SymbolComparer);
-#pragma warning restore RS1024 // Compare symbols correctly
-#pragma warning restore IDE0079 // Remove unnecessary suppression
+		private readonly ConcurrentDictionary<(ITypeSymbol Source, ITypeSymbol Target), bool> canAccessCancellationTokenProperty
+			= new(TypeAccessComparer.Instance);
 
 		#endregion
 
@@ -101,16 +98,20 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 		public void HandleNamedTypeSymbol(SymbolAnalysisContext context)
 		{
-			// Look at each overload method group (including inherited methods).
-			// If a method group has any eligible async/awaitable methods and none
-			// of those are cancellable, then we'll report each eligible method.
 			INamedTypeSymbol namedType = (INamedTypeSymbol)context.Symbol;
 
+			// If the namedType has an instance-level CancellationToken property, then instance methods don't need a parameter.
+			bool checkInstanceMethods = !CanAccessCancellationTokenProperty(source: namedType, target: namedType);
+
+			// Look at each overload method group (including inherited methods).
+			// If a method group has any eligible async/awaitable methods and none
+			// of those are cancellable, then we'll report the "most eligible" method.
 #pragma warning disable IDE0079 // Remove unnecessary suppression. False positive!
 #pragma warning disable RS1024 // Compare symbols correctly. False positive! We're grouping by the Name not IMethodSymbol.
 			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = GetTypeAndBaseTypes(namedType)
 				.SelectMany(type => type.GetMembers())
 				.OfType<IMethodSymbol>()
+				.Where(method => checkInstanceMethods || method.IsStatic)
 				.GroupBy(m => m.Name, m => m, StringComparer.Ordinal);
 #pragma warning restore RS1024 // Compare symbols correctly
 #pragma warning restore IDE0079 // Remove unnecessary suppression
@@ -138,7 +139,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 						List<IParameterSymbol> parameters = GetEligibleParameters(method);
 						if (HasCancellationTokenParameter(parameters)
-							|| parameters.Any(ParameterHasCancellationTokenProperty))
+							|| parameters.Any(p => CanAccessCancellationTokenProperty(source: namedType, target: p.Type)))
 						{
 							isAtLeastOneOverloadCancellable = true;
 						}
@@ -286,17 +287,22 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			return result;
 		}
 
-		private bool ParameterHasCancellationTokenProperty(IParameterSymbol parameterSymbol)
+		private bool CanAccessCancellationTokenProperty(ITypeSymbol source, ITypeSymbol target)
 		{
 			ISet<string> propertyNamesToCheck = this.callingAnalyzer.Settings.PropertyNamesForCancellation;
 			bool result = propertyNamesToCheck.Count > 0
-				&& typeHasCancellationTokenProperty.GetOrAdd(parameterSymbol.Type, type =>
+				&& canAccessCancellationTokenProperty.GetOrAdd((source, target), tuple =>
 				{
 					bool hasCancellationTokenProperty = false;
-					ITypeSymbol[] typeHierarchy = [.. GetTypeAndBaseTypes(type)];
+					ITypeSymbol[] targetTypeHierarchy = [.. GetTypeAndBaseTypes(tuple.Target)];
 					IEnumerable<IPropertySymbol> publicCancellationProperties = propertyNamesToCheck
-						.SelectMany(propertyName => typeHierarchy.SelectMany(t => t.GetMembers(propertyName)))
-						.Where(m => m.Kind == SymbolKind.Property && m.DeclaredAccessibility == Accessibility.Public)
+						.SelectMany(propertyName => targetTypeHierarchy.SelectMany(t => t.GetMembers(propertyName)))
+						.Where(m => m.Kind == SymbolKind.Property
+							// Static CancellationToken properties are rare and don't go well with their
+							// per-operation intent. https://devblogs.microsoft.com/dotnet/net-4-cancellation-framework/
+							&& !m.IsStatic
+							// If m is an inherited property, we have to use its containing type not target.
+							&& m.DeclaredAccessibility >= GetMinimumAccessibility(tuple.Source, m.ContainingType))
 						.Cast<IPropertySymbol>();
 					foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
 					{
@@ -313,7 +319,58 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			return result;
 		}
 
+		private Accessibility GetMinimumAccessibility(ITypeSymbol source, ITypeSymbol target)
+		{
+			Accessibility result = Accessibility.Public;
+
+			if (SymbolComparer.Equals(source, target))
+			{
+				result = Accessibility.NotApplicable;
+			}
+			else
+			{
+				bool useProtected = GetTypeAndBaseTypes(source).Contains(target, SymbolComparer);
+
+				// This doesn't handle InternalsVisibleTo because Roslyn doesn't expose public members for those checks.
+				// https://github.com/dotnet/roslyn/blob/main/src/Compilers/CSharp/Portable/Binder/Semantics/AccessCheck.cs
+				bool useInternal = SymbolComparer.Equals(source.ContainingAssembly, target.ContainingAssembly);
+
+				if (useProtected && useInternal)
+				{
+					result = Accessibility.ProtectedAndInternal;
+				}
+				else if (useProtected)
+				{
+					result = Accessibility.Protected;
+				}
+				else if (useInternal)
+				{
+					result = Accessibility.Internal;
+				}
+			}
+
+			return result;
+		}
+
 		#endregion
+	}
+
+	private sealed class TypeAccessComparer : IEqualityComparer<(ITypeSymbol Source, ITypeSymbol Target)>
+	{
+		private TypeAccessComparer()
+		{
+		}
+
+		public static TypeAccessComparer Instance { get; } = new();
+
+		public bool Equals(
+			(ITypeSymbol Source, ITypeSymbol Target) x,
+			(ITypeSymbol Source, ITypeSymbol Target) y)
+			=> SymbolComparer.Equals(x.Source, y.Source)
+			&& SymbolComparer.Equals(x.Target, y.Target);
+
+		public int GetHashCode((ITypeSymbol Source, ITypeSymbol Target) obj)
+			=> HashCode.Combine(SymbolComparer.GetHashCode(obj.Source), SymbolComparer.GetHashCode(obj.Target));
 	}
 
 	#endregion

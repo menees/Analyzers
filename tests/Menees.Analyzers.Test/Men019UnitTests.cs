@@ -143,7 +143,16 @@ public class Test : TestBase, IFormattable, IThink2
 
 	public Task SplitMethodGroup() => Task.CompletedTask; // Base class's overload is cancellable.
 	public int Ineligible(int i, int multiplier) => i * multiplier;
-}"
+}
+
+public abstract class Job {	protected CancellationToken Cancellation {get;} }
+public sealed class DerivedJob : Job
+{
+	public Task InheritsCancellationProperty() => Task.CompletedTask;
+	public static Task TakesCancellableParameter(Job job) => Task.CompletedTask;
+	public static Task TakesCancellableParameter2(Job job) => Task.CompletedTask; // Cache should already have (DerivedJob,Job) accessibility
+}
+"
 + Environment.NewLine + SharedCode;
 
 		this.VerifyCSharpDiagnostic(test);
