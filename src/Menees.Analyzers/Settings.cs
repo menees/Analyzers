@@ -145,6 +145,11 @@ internal sealed partial class Settings
 				this.CheckPrivateMethodsForCancellation = value;
 			}
 
+			if (TryParseXsBoolean(supportAsyncCancellationToken.Attribute("CheckPrivateTypes")?.Value, out value))
+			{
+				this.CheckPrivateTypesForCancellation = value;
+			}
+
 			XElement? properties = supportAsyncCancellationToken.Element("Properties");
 			if (properties != null)
 			{
@@ -195,6 +200,8 @@ internal sealed partial class Settings
 	public bool AllowLongFourSlashCommentLines { get; }
 
 	public bool CheckPrivateMethodsForCancellation { get; }
+
+	public bool CheckPrivateTypesForCancellation { get; }
 
 	public HashSet<string> PropertyNamesForCancellation { get; } = new HashSet<string>([nameof(CancellationToken), "Cancellation"]);
 

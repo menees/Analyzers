@@ -58,7 +58,7 @@
 		<Binary MinSize="5" GroupSize="4" />
 	</DigitSeparators>
 
-	<SupportAsyncCancellationToken CheckPrivateMethods="true">
+	<SupportAsyncCancellationToken CheckPrivateMethods="true" CheckPrivateTypes="true">
 		<Properties>
 			<Property>CancellationToken</Property>
 			<Property>Cancellation</Property>

@@ -61,6 +61,11 @@ public class Men019UnitTests : CodeFixVerifier
 			public Awaitable TryAwaitable() { return new Awaitable(); }
 
 			public MyTask UseMyTask() => new();
+
+			private class Nested
+			{
+				public Task NestedMethodAsync(string? text) => Task.CompletedTask;
+			}
 		}
 		""" + SharedCode;
 
@@ -208,6 +213,11 @@ public sealed class DerivedJob : Job
 				Message = "Async method UseMyTask should take a CancellationToken parameter.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 28, 16)]
 			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Async method NestedMethodAsync should take a CancellationToken parameter.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 32, 15)]
+			},
 		];
 
 		this.VerifyCSharpDiagnostic(InvalidCode, expected);
@@ -245,6 +255,11 @@ public sealed class DerivedJob : Job
 				public Awaitable TryAwaitable(CancellationToken cancellationToken) { return new Awaitable(); }
 
 				public MyTask UseMyTask(CancellationToken cancellationToken) => new();
+
+				private class Nested
+				{
+					public Task NestedMethodAsync(string? text, CancellationToken cancellationToken) => Task.CompletedTask;
+				}
 			}
 			""" + SharedCode;
 
@@ -283,6 +298,11 @@ public sealed class DerivedJob : Job
 				public Awaitable TryAwaitable(CancellationToken cancellationToken = default) { return new Awaitable(); }
 
 				public MyTask UseMyTask(CancellationToken cancellationToken = default) => new();
+
+				private class Nested
+				{
+					public Task NestedMethodAsync(string? text, CancellationToken cancellationToken = default) => Task.CompletedTask;
+				}
 			}
 			""" + SharedCode;
 

@@ -110,6 +110,7 @@
 							</xs:element>
 						</xs:sequence>
 						<xs:attribute name="CheckPrivateMethods" type="xs:boolean" default="false"/>
+						<xs:attribute name="CheckPrivateTypes" type="xs:boolean" default="false"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:all>

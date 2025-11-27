@@ -102,6 +102,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 
 			// If the namedType has an instance-level CancellationToken property, then instance methods don't need a parameter.
 			bool checkInstanceMethods = !CanAccessCancellationTokenProperty(source: namedType, target: namedType);
+			Settings settings = this.callingAnalyzer.Settings;
 
 			// Look at each overload method group (including inherited methods).
 			// If a method group has any eligible async/awaitable methods and none
@@ -109,6 +110,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 #pragma warning disable IDE0079 // Remove unnecessary suppression. False positive!
 #pragma warning disable RS1024 // Compare symbols correctly. False positive! We're grouping by the Name not IMethodSymbol.
 			IEnumerable<IGrouping<string, IMethodSymbol>> methodGroups = GetTypeAndBaseTypes(namedType)
+				.Where(type => type.DeclaredAccessibility > Accessibility.Private || settings.CheckPrivateTypesForCancellation)
 				.SelectMany(type => type.GetMembers())
 				.OfType<IMethodSymbol>()
 				.Where(method => checkInstanceMethods || method.IsStatic)
@@ -116,7 +118,6 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 #pragma warning restore RS1024 // Compare symbols correctly
 #pragma warning restore IDE0079 // Remove unnecessary suppression
 
-			Settings settings = this.callingAnalyzer.Settings;
 			foreach (IGrouping<string, IMethodSymbol> methodGroup in methodGroups)
 			{
 				List<IMethodSymbol> eligibleMethods = [];
@@ -302,7 +303,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 							// per-operation intent. https://devblogs.microsoft.com/dotnet/net-4-cancellation-framework/
 							&& !m.IsStatic
 							// If m is an inherited property, we have to use its containing type not target.
-							&& m.DeclaredAccessibility >= GetMinimumAccessibility(tuple.Source, m.ContainingType))
+							&& m.DeclaredAccessibility >= GetMinimumAccessibilityToUseTargetMember(tuple.Source, m.ContainingType))
 						.Cast<IPropertySymbol>();
 					foreach (IPropertySymbol propertySymbol in publicCancellationProperties)
 					{
@@ -319,7 +320,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			return result;
 		}
 
-		private Accessibility GetMinimumAccessibility(ITypeSymbol source, ITypeSymbol target)
+		private Accessibility GetMinimumAccessibilityToUseTargetMember(ITypeSymbol source, ITypeSymbol target)
 		{
 			Accessibility result = Accessibility.Public;
 
