@@ -64,7 +64,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		INamedTypeSymbol cancellationTokenType,
 		INamedTypeSymbol[] fixedTaskTypes,
 		INamedTypeSymbol[] genericTaskTypes,
-		INamedTypeSymbol asyncMethodBuilderAttributeType)
+		INamedTypeSymbol asyncMethodBuilderAttributeType,
+		INamedTypeSymbol? jsInvokableAttributeType)
 	{
 		#region Private Data Members
 
@@ -73,6 +74,7 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 		private readonly INamedTypeSymbol[] fixedTaskTypes = fixedTaskTypes;
 		private readonly INamedTypeSymbol[] genericTaskTypes = genericTaskTypes;
 		private readonly INamedTypeSymbol asyncMethodBuilderAttributeType = asyncMethodBuilderAttributeType;
+		private readonly INamedTypeSymbol? jsInvokableAttributeType = jsInvokableAttributeType;
 		private readonly ConcurrentDictionary<(ITypeSymbol Source, ITypeSymbol Target), bool> canAccessCancellationTokenProperty
 			= new(TypeAccessComparer.Instance);
 
@@ -89,9 +91,13 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 			INamedTypeSymbol? valueTask1Type = compilation.GetTypeByMetadataName(typeof(ValueTask<>).FullName);
 			INamedTypeSymbol? asyncMethodBuilderAttributeType = compilation.GetTypeByMetadataName(typeof(AsyncMethodBuilderAttribute).FullName);
 
+			// This may be null if the project doesn't reference Microsoft.JSInterop.
+			// That's fine; the HasJSInvokableAttribute check will simply be skipped.
+			INamedTypeSymbol? jsInvokableAttributeType = compilation.GetTypeByMetadataName("Microsoft.JSInterop.JSInvokableAttribute");
+
 			NestedAnalyzer? result = cancellationTokenType != null && taskType != null && task1Type != null
 					&& valueTaskType != null && valueTask1Type != null && asyncMethodBuilderAttributeType != null
-				? new(caller, cancellationTokenType, [taskType, valueTaskType], [task1Type, valueTask1Type], asyncMethodBuilderAttributeType)
+				? new(caller, cancellationTokenType, [taskType, valueTaskType], [task1Type, valueTask1Type], asyncMethodBuilderAttributeType, jsInvokableAttributeType)
 				: null;
 			return result;
 		}
@@ -134,7 +140,8 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 						&& method.ExplicitInterfaceImplementations.IsDefaultOrEmpty
 						&& !IsImplicitInterfaceImplementation(method)
 						&& !settings.IsUnitTestMethod(method)
-						&& !IsAssemblyEntryPoint(method, ref context))
+						&& !IsAssemblyEntryPoint(method, ref context)
+						&& !HasJSInvokableAttribute(method))
 					{
 						eligibleMethods.Add(method);
 
@@ -260,6 +267,15 @@ public sealed class Men019SupportAsyncCancellationToken : Analyzer
 				}
 			}
 
+			return result;
+		}
+
+		private bool HasJSInvokableAttribute(IMethodSymbol method)
+		{
+			// JSInvokable methods in Blazor must be public and are called from JavaScript.
+			// JavaScript can't pass a CancellationToken.
+			bool result = this.jsInvokableAttributeType != null
+				&& method.GetAttributes().Any(attr => SymbolComparer.Equals(attr.AttributeClass, this.jsInvokableAttributeType));
 			return result;
 		}
 

@@ -77,7 +77,12 @@ public class Men019UnitTests : CodeFixVerifier
 
 	protected override CodeFixProvider? CSharpCodeFixProvider => new Men019SupportAsyncCancellationTokenFixer();
 
-	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(ValueTask), typeof(TestMethodAttribute)];
+	protected override IEnumerable<Type> AssemblyRequiredTypes =>
+#if NET
+		[typeof(ValueTask), typeof(TestMethodAttribute), typeof(Microsoft.JSInterop.JSInvokableAttribute)];
+#else
+		[typeof(ValueTask), typeof(TestMethodAttribute)];
+#endif
 
 	#endregion
 
@@ -164,6 +169,38 @@ public sealed class DerivedJob : Job
 	}
 
 	#endregion
+
+#if NET
+	#region ValidJSInvokableCodeTest
+
+	[TestMethod]
+	public void ValidJSInvokableCodeTest()
+	{
+		string test = @"using System;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.JSInterop;
+
+public class BlazorComponent
+{
+	[JSInvokable]
+	public Task NotifyFromJs() => Task.CompletedTask;
+
+	[JSInvokable(""CustomIdentifier"")]
+	public Task<string> GetDataForJs() => Task.FromResult(""data"");
+
+	[JSInvokable]
+	public ValueTask<int> ComputeForJs() => new(42);
+}
+"
+		+ SharedCode;
+
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	#endregion
+#endif
 
 	#region InvalidCodeTest
 
