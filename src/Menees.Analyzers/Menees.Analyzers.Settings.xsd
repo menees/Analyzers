@@ -25,6 +25,40 @@
 		</xs:attribute>
 	</xs:complexType>
 
+	<xs:complexType name="VarStyleCategory">
+		<xs:choice minOccurs="0" maxOccurs="1">
+			<xs:element name="UseExplicitType">
+				<xs:complexType/>
+			</xs:element>
+			<xs:element name="UseVar">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="Foreach" minOccurs="0" maxOccurs="1">
+							<xs:complexType/>
+						</xs:element>
+						<xs:element name="LinqScalarResult" minOccurs="0" maxOccurs="1">
+							<xs:complexType/>
+						</xs:element>
+						<xs:element name="LinqCollectionResult" minOccurs="0" maxOccurs="1">
+							<xs:complexType/>
+						</xs:element>
+						<xs:element name="LinqAggregateResult" minOccurs="0" maxOccurs="1">
+							<xs:complexType/>
+						</xs:element>
+						<xs:element name="LongTypeName" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:attribute name="Length" type="xs:positiveInteger"/>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Evident" minOccurs="0" maxOccurs="1">
+							<xs:complexType/>
+						</xs:element>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+
 	<xs:element name="Menees.Analyzers.Settings">
 		<xs:complexType>
 			<xs:all>
@@ -97,6 +131,16 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+
+				<xs:element name="UsePreferredVarStyle" minOccurs="0" maxOccurs="1">
+						<xs:complexType>
+							<xs:all>
+								<xs:element name="BuiltInTypes" type="VarStyleCategory" minOccurs="0" maxOccurs="1"/>
+								<xs:element name="SimpleTypes" type="VarStyleCategory" minOccurs="0" maxOccurs="1"/>
+								<xs:element name="Elsewhere" type="VarStyleCategory" minOccurs="0" maxOccurs="1"/>
+							</xs:all>
+						</xs:complexType>
+					</xs:element>
 
 				<xs:element name="SupportAsyncCancellationToken" minOccurs="0" maxOccurs="1">
 					<xs:complexType>

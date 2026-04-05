@@ -137,6 +137,32 @@ internal sealed partial class Settings
 			this.BinarySeparators = GetDigitSeparatorFormat(digitSeparators.Element("Binary"), this.BinarySeparators);
 		}
 
+		XElement? usePreferredVarStyle = xml.Element("UsePreferredVarStyle");
+		if (usePreferredVarStyle != null)
+		{
+			XElement? builtInTypes = usePreferredVarStyle.Element("BuiltInTypes");
+			if (builtInTypes != null)
+			{
+				this.VarBuiltInTypes = VarStyleCategorySettings.Parse(builtInTypes);
+			}
+
+			XElement? simpleTypes = usePreferredVarStyle.Element("SimpleTypes");
+			if (simpleTypes != null)
+			{
+				this.VarSimpleTypes = VarStyleCategorySettings.Parse(simpleTypes);
+			}
+
+			XElement? elsewhere = usePreferredVarStyle.Element("Elsewhere");
+			if (elsewhere != null)
+			{
+				this.VarElsewhere = VarStyleCategorySettings.Parse(elsewhere);
+			}
+
+			this.HasVarStylePreferences = this.VarBuiltInTypes.Mode != VarStyleMode.None
+				|| this.VarSimpleTypes.Mode != VarStyleMode.None
+				|| this.VarElsewhere.Mode != VarStyleMode.None;
+		}
+
 		XElement? supportAsyncCancellationToken = xml.Element("SupportAsyncCancellationToken");
 		if (supportAsyncCancellationToken != null)
 		{
@@ -204,6 +230,14 @@ internal sealed partial class Settings
 	public bool CheckPrivateTypesForCancellation { get; }
 
 	public HashSet<string> PropertyNamesForCancellation { get; } = new HashSet<string>([nameof(CancellationToken), "Cancellation"]);
+
+	public bool HasVarStylePreferences { get; }
+
+	public VarStyleCategorySettings VarBuiltInTypes { get; } = VarStyleCategorySettings.None;
+
+	public VarStyleCategorySettings VarSimpleTypes { get; } = VarStyleCategorySettings.None;
+
+	public VarStyleCategorySettings VarElsewhere { get; } = VarStyleCategorySettings.None;
 
 	#endregion
 
@@ -377,7 +411,7 @@ internal sealed partial class Settings
 	}
 
 	private static int GetSetting(XElement xml, string elementName, int defaultValue)
-		=> GetSetting(xml, elementName, defaultValue, (string text, out int value) => int.TryParse(text, out value) && value > 0);
+		=> GetSetting(xml, elementName, defaultValue, (text, out value) => int.TryParse(text, out value) && value > 0);
 
 	private static bool GetSetting(XElement xml, string elementName, bool defaultValue)
 		=> GetSetting(xml, elementName, defaultValue, TryParseXsBoolean);

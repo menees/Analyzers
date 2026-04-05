@@ -608,5 +608,32 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men019Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local variable declarations should use the preferred var style based on the configured type category rules..
+        /// </summary>
+        internal static string Men020Description {
+            get {
+                return ResourceManager.GetString("Men020Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use &apos;{0}&apos; instead of &apos;{1}&apos;..
+        /// </summary>
+        internal static string Men020MessageFormat {
+            get {
+                return ResourceManager.GetString("Men020MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred var style.
+        /// </summary>
+        internal static string Men020Title {
+            get {
+                return ResourceManager.GetString("Men020Title", resourceCulture);
+            }
+        }
     }
 }

@@ -1,0 +1,697 @@
+namespace Menees.Analyzers.Test;
+
+// Test settings: BuiltInTypes=UseExplicitType, SimpleTypes=UseVar, Elsewhere=UseVar with conditions
+// (Foreach, LinqScalarResult, LinqCollectionResult, LinqAggregateResult, LongTypeName 30, Evident).
+// Conditions are child elements of UseVar; their presence implies they're enabled.
+[TestClass]
+public class Men020UnitTests : CodeFixVerifier
+{
+	#region Protected Properties
+
+	protected override CodeFixProvider CSharpCodeFixProvider => new Men020UsePreferredVarStyleFixer();
+
+	protected override DiagnosticAnalyzer CSharpDiagnosticAnalyzer => new Men020UsePreferredVarStyle();
+
+	protected override IEnumerable<Type> AssemblyRequiredTypes => [typeof(List<>)];
+
+	#endregion
+
+	#region Valid Code Tests
+
+	[TestMethod]
+	public void EmptyCode()
+	{
+		this.VerifyCSharpDiagnostic(string.Empty);
+	}
+
+	[TestMethod]
+	public void ExplicitBuiltInType()
+	{
+		const string test = @"
+class C
+{
+	string M()
+	{
+		int x = 5;
+		string s = ""hello"";
+		bool b = true;
+		return s + b + x;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentSimpleTypeNewExpression()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	void M()
+	{
+		var x = new MyClass();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentSimpleTypeCast()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	void M(object obj)
+	{
+		var x = (MyClass)obj;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentSimpleTypeAsExpression()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	void M(object obj)
+	{
+		var x = obj as MyClass;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentEnumMember()
+	{
+		const string test = @"
+enum Color { Red, Green, Blue }
+class C
+{
+	Color M()
+	{
+		var c = Color.Red;
+		return c;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentDefaultExpression()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	MyClass M()
+	{
+		var x = default(MyClass);
+		return x;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentArrayCreation()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	void M()
+	{
+		var arr = new MyClass[5];
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForGenericType()
+	{
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var list = new List<int>();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void AnonymousType()
+	{
+		const string test = @"
+class C
+{
+	void M()
+	{
+		var x = new { A = 1, B = ""hello"" };
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void ForeachWithVarSimpleType()
+	{
+		const string test = @"
+using System.Collections.Generic;
+class MyItem { }
+class C
+{
+	void M()
+	{
+		var items = new List<MyItem>();
+		foreach (var item in items)
+		{
+		}
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void ConstDeclaration()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		const int x = 5;
+		return x;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void MultipleDeclarators()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		int a = 1, b = 2;
+		return a + b;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void ExplicitSimpleType()
+	{
+		// UseVar mode flags explicit type when var could be used.
+		const string test = @"
+class MyClass { }
+class C
+{
+	MyClass GetMyClass() => new MyClass();
+	void M()
+	{
+		MyClass m = GetMyClass();
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'var' instead of 'MyClass'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForLinqScalarResult()
+	{
+		const string test = @"
+using System.Collections.Generic;
+using System.Linq;
+class C
+{
+	void M()
+	{
+		var items = new List<KeyValuePair<string, int>>();
+		var first = items.First();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForLinqCollectionResult()
+	{
+		const string test = @"
+using System.Collections.Generic;
+using System.Linq;
+class MyClass { public int Value { get; set; } }
+class C
+{
+	void M()
+	{
+		var items = new List<MyClass>();
+		var filtered = items.Where(x => x.Value > 0);
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForLinqAggregateResult()
+	{
+		// Aggregate with a generic seed type returns a generic type (Elsewhere → UseVar with conditions).
+		const string test = @"
+using System.Collections.Generic;
+using System.Linq;
+class C
+{
+	List<int> M()
+	{
+		var items = new[] { 1, 2, 3 };
+		var result = items.Aggregate(new List<int>(), (acc, x) => { acc.Add(x); return acc; });
+		return result;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForLongTypeName()
+	{
+		// Dictionary<string, List<string>> is 33 chars > 30 threshold.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	Dictionary<string, List<string>> Get() => new Dictionary<string, List<string>>();
+	void M()
+	{
+		var x = Get();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentConversionMethod()
+	{
+		// ToString returns string (built-in type → UseExplicitType), but we test
+		// with a custom ToMyClass conversion method which returns a simple type.
+		const string test = @"
+class MyClass
+{
+	public static MyClass ToMyClass(object obj) => new MyClass();
+}
+class C
+{
+	MyClass M(object obj)
+	{
+		var x = MyClass.ToMyClass(obj);
+		return x;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void IgnoreGeneratedCode()
+	{
+		const string test = @"
+// <auto-generated>
+class C
+{
+	int M()
+	{
+		var x = 5;
+		return x;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	#endregion
+
+	#region Invalid Code Tests
+
+	[TestMethod]
+	public void VarForBuiltInInt()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		var x = 5;
+		return x;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'int' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForBuiltInString()
+	{
+		const string test = @"
+class C
+{
+	string M()
+	{
+		var s = ""hello"";
+		return s;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'string' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForBuiltInBool()
+	{
+		const string test = @"
+class C
+{
+	bool M()
+	{
+		var b = true;
+		return b;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'bool' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void ExplicitGenericType()
+	{
+		// Explicit type in conditional UseVar mode is always OK.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		List<int> list = new List<int>();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForNonEvidentSimpleType()
+	{
+		// UseVar mode allows var for all simple types.
+		const string test = @"
+class MyClass { }
+class C
+{
+	MyClass GetMyClass() => new MyClass();
+	void M()
+	{
+		var m = GetMyClass();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void ExplicitGenericForeach()
+	{
+		// Elsewhere mode (conditional UseVar) allows explicit generic types.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var list = new List<int>();
+		foreach (int item in list)
+		{
+		}
+	}
+}";
+		// int is built-in → UseExplicitType mode → explicit is OK, no diagnostic expected.
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForBuiltInForeach()
+	{
+		// Built-in type in foreach with UseExplicitType mode → diagnostic even in foreach.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var list = new List<int>();
+		foreach (var item in list)
+		{
+		}
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'int' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 12)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void MultipleDiagnosticsInOneMethod()
+	{
+		const string test = @"
+using System.Collections.Generic;
+class MyClass { }
+class C
+{
+	MyClass GetMyClass() => new MyClass();
+	string M()
+	{
+		var x = 5;
+		var m = GetMyClass();
+		Dictionary<string, int> dict = new Dictionary<string, int>();
+		return x + """" + m + dict.Count;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'int' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForNonEvidentGenericType()
+	{
+		// Conditional UseVar mode flags var when no condition is met.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	List<int> GetList() => new List<int>();
+	void M()
+	{
+		var list = GetList();
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'List<int>' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	#endregion
+
+	#region Code Fix Tests
+
+	[TestMethod]
+	public void FixVarToExplicitBuiltInType()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		var x = 5;
+		return x;
+	}
+}";
+		const string fixtest = @"
+class C
+{
+	int M()
+	{
+		int x = 5;
+		return x;
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixExplicitToVarSimpleType()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	MyClass GetMyClass() => new MyClass();
+	void M()
+	{
+		MyClass m = GetMyClass();
+	}
+}";
+		const string fixtest = @"
+class MyClass { }
+class C
+{
+	MyClass GetMyClass() => new MyClass();
+	void M()
+	{
+		var m = GetMyClass();
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixVarToExplicitGenericType()
+	{
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	List<int> GetList() => new List<int>();
+	void M()
+	{
+		var list = GetList();
+	}
+}";
+		const string fixtest = @"
+using System.Collections.Generic;
+class C
+{
+	List<int> GetList() => new List<int>();
+	void M()
+	{
+		List<int> list = GetList();
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixVarToExplicitBuiltInForeach()
+	{
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var list = new List<int>();
+		foreach (var item in list)
+		{
+		}
+	}
+}";
+		const string fixtest = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var list = new List<int>();
+		foreach (int item in list)
+		{
+		}
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixMultipleDiagnostics()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		var x = 5;
+		var s = ""hello"";
+		return x + s.Length;
+	}
+}";
+		const string fixtest = @"
+class C
+{
+	int M()
+	{
+		int x = 5;
+		string s = ""hello"";
+		return x + s.Length;
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	#endregion
+}

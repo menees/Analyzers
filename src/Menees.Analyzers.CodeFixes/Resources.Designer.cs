@@ -140,5 +140,14 @@ namespace Menees.Analyzers {
                 return ResourceManager.GetString("Men019CodeFixWithoutDefault", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred type style.
+        /// </summary>
+        internal static string Men020CodeFix {
+            get {
+                return ResourceManager.GetString("Men020CodeFix", resourceCulture);
+            }
+        }
     }
 }

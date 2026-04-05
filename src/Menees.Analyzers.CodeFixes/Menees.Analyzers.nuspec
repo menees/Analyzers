@@ -31,6 +31,11 @@
 		* UTC times are used.
 		* TryGetValue is used instead of ContainsKey and this[key].
 		* Preferred terms are used in identifiers.
+		* Top-level statements are avoided.
+		* Unused private setters are removed.
+		* Digit separators are used in numeric literals.
+		* Async methods take a CancellationToken parameter.
+		* The preferred var style is used for local variable declarations.
 		</description>
 		<copyright>$copyright$</copyright>
 		<tags>Analyzers, DotNetAnalyzers, Roslyn</tags>

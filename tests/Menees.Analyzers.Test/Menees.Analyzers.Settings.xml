@@ -65,4 +65,23 @@
 			<Property>Cancel</Property>
 		</Properties>
 	</SupportAsyncCancellationToken>
+
+	<UsePreferredVarStyle>
+		<BuiltInTypes>
+			<UseExplicitType />
+		</BuiltInTypes>
+		<SimpleTypes>
+			<UseVar />
+		</SimpleTypes>
+		<Elsewhere>
+			<UseVar>
+				<Foreach />
+				<LinqScalarResult />
+				<LinqCollectionResult />
+				<LinqAggregateResult />
+				<LongTypeName Length="30" />
+				<Evident />
+			</UseVar>
+		</Elsewhere>
+	</UsePreferredVarStyle>
 </Menees.Analyzers.Settings>
