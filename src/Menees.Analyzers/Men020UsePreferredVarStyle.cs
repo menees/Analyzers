@@ -235,13 +235,24 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		{
 			result = TypeCategory.BuiltIn;
 		}
-		else if (type is INamedTypeSymbol namedType && namedType.IsGenericType)
-		{
-			result = TypeCategory.Elsewhere;
-		}
 		else
 		{
-			result = TypeCategory.Simple;
+			// Unwrap array types to categorize based on their element type.
+			// For example, KeyValuePair<string, int>[] should be Elsewhere (generic element type).
+			ITypeSymbol effectiveType = type;
+			while (effectiveType is IArrayTypeSymbol arrayType)
+			{
+				effectiveType = arrayType.ElementType;
+			}
+
+			if (effectiveType is INamedTypeSymbol namedType && namedType.IsGenericType)
+			{
+				result = TypeCategory.Elsewhere;
+			}
+			else
+			{
+				result = TypeCategory.Simple;
+			}
 		}
 
 		return result;

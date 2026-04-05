@@ -309,6 +309,23 @@ class C
 	}
 
 	[TestMethod]
+	public void VarForEvidentGenericArrayType()
+	{
+		// Array of generic type → Elsewhere → conditional UseVar.
+		// Each element is an ObjectCreationExpression → Evident condition met.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var x = new[] { new KeyValuePair<string, int>(""a"", 1) };
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
 	public void VarForEvidentConversionMethod()
 	{
 		// ToString returns string (built-in type → UseExplicitType), but we test
@@ -551,6 +568,33 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Message = "Use 'List<int>' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForNonEvidentGenericArrayType()
+	{
+		// Array of generic type → Elsewhere → conditional UseVar.
+		// kvp is an identifier (not evident), and KeyValuePair<string, int>[] is 27 chars < 30 threshold.
+		const string test = @"
+using System.Collections.Generic;
+class C
+{
+	void M()
+	{
+		var kvp = new KeyValuePair<string, int>(""a"", 1);
+		var x = new[] { kvp };
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'KeyValuePair<string, int>[]' instead of 'var'.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
