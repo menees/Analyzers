@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Src/">
+    <File Path="src/Analyzers.ruleset" />
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Project Path="src/Menees.Analyzers.CodeFixes/Menees.Analyzers.CodeFixes.csproj" />
+  <Project Path="src/Menees.Analyzers.Vsix/Menees.Analyzers.Vsix.csproj" DefaultStartup="true" />
+  <Project Path="src/Menees.Analyzers/Menees.Analyzers.csproj" />
+  <Project Path="tests/Menees.Analyzers.Test/Menees.Analyzers.Test.csproj" />
+</Solution>

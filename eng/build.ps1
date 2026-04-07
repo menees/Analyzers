@@ -12,7 +12,7 @@ $ErrorActionPreference = "Stop"
 
 $scriptPath = [IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $repoPath = Resolve-Path (Join-Path $scriptPath '..')
-$slnPath = Get-ChildItem -Path $repoPath -Filter *.sln
+$slnPath = Get-ChildItem -Path $repoPath -Filter *.slnx
 
 function GetXmlPropertyValue($fileName, $propertyName)
 {
