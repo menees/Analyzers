@@ -24,23 +24,24 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		new(DiagnosticId, Title, MessageFormat, Rules.Usage, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
 
 	private static readonly string[] FactoryMethodSubstrings =
-		["Create", "Build", "Construct", "Make", "Generate", "Produce", "New", "Instance"];
-
-	private static readonly string[] SingletonFieldSubstrings =
-		["Empty", "Instance", "Default", "Value"];
+		["Create", "Build", "Construct", "Make", "Generate", "Produce", "New", "Instance", "Parse", "SpecifyKind"];
 
 	private static readonly HashSet<string> LinqScalarMethodNames = new(StringComparer.Ordinal)
 	{
 		"First", "FirstOrDefault", "Single", "SingleOrDefault",
 		"Last", "LastOrDefault", "ElementAt", "ElementAtOrDefault",
-		"MinBy", "MaxBy",
 	};
 
 	private static readonly HashSet<string> LinqAggregateMethodNames = new(StringComparer.Ordinal)
 	{
-		"Count", "LongCount", "Sum", "Average", "Min", "Max",
+		"Count", "LongCount", "Sum", "Average", "Min", "MinBy", "Max", "MaxBy",
 		"Any", "All", "Contains", "SequenceEqual", "Aggregate",
 	};
+
+	private static readonly SymbolDisplayFormat NullableAwareMinimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
+		.WithMiscellaneousOptions(
+			SymbolDisplayFormat.MinimallyQualifiedFormat.MiscellaneousOptions
+			| SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
 
 	#endregion
 
@@ -63,6 +64,18 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			this,
 			HandleForEachStatement,
 			SyntaxKind.ForEachStatement);
+		context.RegisterSyntaxNodeActionHonorExclusions(
+			this,
+			HandleForStatement,
+			SyntaxKind.ForStatement);
+		context.RegisterSyntaxNodeActionHonorExclusions(
+			this,
+			HandleUsingStatement,
+			SyntaxKind.UsingStatement);
+		context.RegisterSyntaxNodeActionHonorExclusions(
+			this,
+			HandleDeclarationExpression,
+			SyntaxKind.DeclarationExpression);
 	}
 
 	#endregion
@@ -74,28 +87,11 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		if (this.Settings.HasVarStylePreferences)
 		{
 			LocalDeclarationStatementSyntax localDecl = (LocalDeclarationStatementSyntax)context.Node;
-			VariableDeclarationSyntax declaration = localDecl.Declaration;
-			TypeSyntax typeSyntax = declaration.Type;
 
 			// Can't use var with const declarations.
 			if (!localDecl.IsConst)
 			{
-				bool isVar = typeSyntax.IsVar;
-				SemanticModel model = context.SemanticModel;
-
-				ITypeSymbol? typeSymbol = model.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
-
-				// Skip unresolvable types and always allow var for anonymous types.
-				if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
-				{
-					bool hasMultipleDeclarators = declaration.Variables.Count > 1;
-					VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
-					ExpressionSyntax? initializer = declaration.Variables.Count == 1
-						? declaration.Variables[0].Initializer?.Value
-						: null;
-
-					AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: false, initializer, hasMultipleDeclarators, model);
-				}
+				AnalyzeVariableDeclaration(context, localDecl.Declaration);
 			}
 		}
 	}
@@ -110,12 +106,86 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			bool isVar = typeSyntax.IsVar;
 			SemanticModel model = context.SemanticModel;
 
-			ITypeSymbol? typeSymbol = model.GetTypeInfo(typeSyntax, context.CancellationToken).Type;
+			TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
+			ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
 			if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 			{
 				VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
-				AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: true, initializer: null, hasMultipleDeclarators: false, model);
+				AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: true, initializer: null, hasMultipleDeclarators: false, isDeclarationExpression: false, model);
 			}
+		}
+	}
+
+	private void HandleForStatement(SyntaxNodeAnalysisContext context)
+	{
+		if (this.Settings.HasVarStylePreferences)
+		{
+			ForStatementSyntax forStatement = (ForStatementSyntax)context.Node;
+			if (forStatement.Declaration != null)
+			{
+				AnalyzeVariableDeclaration(context, forStatement.Declaration);
+			}
+		}
+	}
+
+	private void HandleUsingStatement(SyntaxNodeAnalysisContext context)
+	{
+		if (this.Settings.HasVarStylePreferences)
+		{
+			UsingStatementSyntax usingStatement = (UsingStatementSyntax)context.Node;
+			if (usingStatement.Declaration != null)
+			{
+				AnalyzeVariableDeclaration(context, usingStatement.Declaration);
+			}
+		}
+	}
+
+	private void HandleDeclarationExpression(SyntaxNodeAnalysisContext context)
+	{
+		if (this.Settings.HasVarStylePreferences)
+		{
+			DeclarationExpressionSyntax declExpr = (DeclarationExpressionSyntax)context.Node;
+
+			// Only handle single variable designations (out var, individual deconstruction elements).
+			// Skip parenthesized designations (var (x, y) = ...) as they require different syntax transforms.
+			if (declExpr.Designation is SingleVariableDesignationSyntax)
+			{
+				TypeSyntax typeSyntax = declExpr.Type;
+				bool isVar = typeSyntax.IsVar;
+				SemanticModel model = context.SemanticModel;
+
+				TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
+				ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
+				if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
+				{
+					VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
+					AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings,
+						isForeach: false, initializer: null, hasMultipleDeclarators: false, isDeclarationExpression: true, model);
+				}
+			}
+		}
+	}
+
+	private void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context, VariableDeclarationSyntax declaration)
+	{
+		TypeSyntax typeSyntax = declaration.Type;
+		bool isVar = typeSyntax.IsVar;
+		SemanticModel model = context.SemanticModel;
+
+		ExpressionSyntax? initializer = declaration.Variables.Count == 1
+			? declaration.Variables[0].Initializer?.Value
+			: null;
+
+		TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
+		ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer, model);
+
+		// Skip unresolvable types and always allow var for anonymous types.
+		if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
+		{
+			bool hasMultipleDeclarators = declaration.Variables.Count > 1;
+			VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
+
+			AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: false, initializer, hasMultipleDeclarators, isDeclarationExpression: false, model);
 		}
 	}
 
@@ -128,6 +198,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		bool isForeach,
 		ExpressionSyntax? initializer,
 		bool hasMultipleDeclarators,
+		bool isDeclarationExpression,
 		SemanticModel model)
 	{
 		switch (categorySettings.Mode)
@@ -135,7 +206,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			case VarStyleMode.UseExplicitType:
 				if (isVar)
 				{
-					string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart);
+					string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
 					context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), typeName, "var"));
 				}
 
@@ -146,13 +217,13 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 				{
 					if (isVar && !IsConditionalVarAllowed(categorySettings, isForeach, initializer, typeSymbol, model))
 					{
-						string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart);
+						string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
 						context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), typeName, "var"));
 					}
 				}
 				else if (!isVar && !hasMultipleDeclarators)
 				{
-					if (isForeach || (initializer != null && CanUseVarWithInitializer(initializer, model)))
+					if (isForeach || isDeclarationExpression || (initializer != null && CanUseVarWithInitializer(initializer, model)))
 					{
 						context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), "var", typeSyntax.ToString()));
 					}
@@ -205,7 +276,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 		if (!result && categorySettings.LongTypeName)
 		{
-			string typeName = typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+			string typeName = typeSymbol.ToDisplayString(NullableAwareMinimalFormat);
 			result = typeName.Length > categorySettings.LongTypeNameThreshold;
 		}
 
@@ -215,6 +286,36 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		}
 
 		return result;
+	}
+
+	private static ITypeSymbol? GetNullableAdjustedType(TypeInfo typeInfo, ExpressionSyntax? initializer, SemanticModel model)
+	{
+		ITypeSymbol? type = typeInfo.Type;
+
+		// When using var in a nullable context, Roslyn may report the type as Annotated (nullable).
+		// We need to determine whether the value is actually non-null so we can use the non-nullable type.
+		if (type != null
+			&& type.IsReferenceType
+			&& type.NullableAnnotation == NullableAnnotation.Annotated)
+		{
+			// Check the var keyword's flow state first (works in full compilation).
+			if (typeInfo.Nullability.FlowState == NullableFlowState.NotNull)
+			{
+				type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+			}
+			// Fall back to the initializer's type annotation (handles adhoc workspaces
+			// where flow analysis may not be fully available).
+			else if (initializer != null)
+			{
+				ITypeSymbol? initType = model.GetTypeInfo(initializer).Type;
+				if (initType != null && initType.NullableAnnotation != NullableAnnotation.Annotated)
+				{
+					type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+				}
+			}
+		}
+
+		return type;
 	}
 
 	private VarStyleCategorySettings GetCategorySettings(TypeCategory category)
@@ -247,7 +348,11 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 			if (effectiveType is INamedTypeSymbol namedType && namedType.IsGenericType)
 			{
-				result = TypeCategory.Elsewhere;
+				// Nullable value types (e.g., int?) use simple '?' suffix syntax,
+				// so treat them as Simple rather than Elsewhere.
+				result = namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+					? TypeCategory.Simple
+					: TypeCategory.Elsewhere;
 			}
 			else
 			{
@@ -432,11 +537,20 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			{
 				result = true;
 			}
-			// Singleton field: static/const field returning the type where it's declared,
-			// with field name containing the type name or a singleton substring.
+			// Static/const field returning the type where it's declared (e.g., IPAddress.Any,
+			// string.Empty, Color.Red). The containing type name is visible in the member access.
 			else if ((field.IsStatic || field.IsConst)
-				&& SymbolEqualityComparer.Default.Equals(field.Type, field.ContainingType)
-				&& ContainsAnySubstring(field.Name, field.ContainingType.Name, SingletonFieldSubstrings))
+				&& SymbolEqualityComparer.Default.Equals(field.Type, field.ContainingType))
+			{
+				result = true;
+			}
+		}
+		else if (symbolInfo.Symbol is IPropertySymbol property)
+		{
+			// Static property returning the type where it's declared (e.g., Encoding.UTF8,
+			// CultureInfo.InvariantCulture, TimeProvider.System).
+			if (property.IsStatic
+				&& SymbolEqualityComparer.Default.Equals(property.Type, property.ContainingType))
 			{
 				result = true;
 			}

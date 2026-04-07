@@ -8,6 +8,11 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 
 	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men020UsePreferredVarStyle.DiagnosticId);
 
+	private static readonly SymbolDisplayFormat NullableAwareMinimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
+		.WithMiscellaneousOptions(
+			SymbolDisplayFormat.MinimallyQualifiedFormat.MiscellaneousOptions
+			| SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+
 	#endregion
 
 	#region Public Properties
@@ -57,10 +62,35 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 					SemanticModel? model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 					if (model != null)
 					{
-						ITypeSymbol? typeSymbol = model.GetTypeInfo(typeSyntax, cancellationToken).Type;
+						TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, cancellationToken);
+						ITypeSymbol? typeSymbol = typeInfo.Type;
+
+						// Adjust nullable annotation for reference types using flow state or initializer analysis.
+						if (typeSymbol != null
+							&& typeSymbol.IsReferenceType
+							&& typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+						{
+							if (typeInfo.Nullability.FlowState == NullableFlowState.NotNull)
+							{
+								typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+							}
+							else
+							{
+								ExpressionSyntax? initializer = GetInitializerForType(typeSyntax);
+								if (initializer != null)
+								{
+									ITypeSymbol? initType = model.GetTypeInfo(initializer, cancellationToken).Type;
+									if (initType != null && initType.NullableAnnotation != NullableAnnotation.Annotated)
+									{
+										typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+									}
+								}
+							}
+						}
+
 						if (typeSymbol != null)
 						{
-							string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart);
+							string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
 							TypeSyntax newTypeSyntax = SyntaxFactory.ParseTypeName(typeName)
 								.WithLeadingTrivia(typeSyntax.GetLeadingTrivia())
 								.WithTrailingTrivia(typeSyntax.GetTrailingTrivia());
@@ -81,6 +111,19 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 		}
 
 		return result;
+	}
+
+	private static ExpressionSyntax? GetInitializerForType(TypeSyntax typeSyntax)
+	{
+		// Navigate from the type syntax to find the initializer expression.
+		// For local declarations: TypeSyntax → VariableDeclarationSyntax → VariableDeclaratorSyntax.Initializer.Value
+		if (typeSyntax.Parent is VariableDeclarationSyntax declaration
+			&& declaration.Variables.Count == 1)
+		{
+			return declaration.Variables[0].Initializer?.Value;
+		}
+
+		return null;
 	}
 
 	#endregion

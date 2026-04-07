@@ -103,6 +103,26 @@ class C
 	}
 
 	[TestMethod]
+	public void VarForEvidentStaticProperty()
+	{
+		// Static property returning the declaring type is evident (e.g., Encoding.UTF8, CultureInfo.InvariantCulture).
+		const string test = @"
+class Singleton
+{
+	public static Singleton Instance { get; } = new Singleton();
+}
+class C
+{
+	Singleton M()
+	{
+		var s = Singleton.Instance;
+		return s;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
 	public void VarForEvidentDefaultExpression()
 	{
 		const string test = @"
@@ -362,6 +382,61 @@ class C
 		this.VerifyCSharpDiagnostic(test);
 	}
 
+	[TestMethod]
+	public void ExplicitBuiltInForLoop()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		int sum = 0;
+		for (int i = 0; i < 10; i++)
+		{
+			sum += i;
+		}
+		return sum;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void OutVarSimpleType()
+	{
+		// Simple type → UseVar (unconditional) → var is OK.
+		const string test = @"
+class MyClass { }
+class C
+{
+	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
+	void M()
+	{
+		if (TryGet(out var value))
+		{
+		}
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void DeconstructionWithVarSimpleTypes()
+	{
+		// Each var resolves to a simple type → UseVar (unconditional) → var is OK.
+		const string test = @"
+class MyClass { public void Deconstruct(out MyClass a, out MyClass b) { a = this; b = this; } }
+class C
+{
+	void M()
+	{
+		var obj = new MyClass();
+		(var x, var y) = obj;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
 	#endregion
 
 	#region Invalid Code Tests
@@ -433,6 +508,59 @@ class C
 			{
 				Message = "Use 'bool' instead of 'var'.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForBuiltInNonNullableString()
+	{
+		// In a nullable context, var infers string (NotNull flow state) → should suggest 'string', not 'string?'.
+		const string test = @"
+#nullable enable
+class C
+{
+	string M()
+	{
+		var x = ""test"";
+		return x;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'string' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForBuiltInNullableString()
+	{
+		// In a nullable context, var infers string? (MaybeNull flow state) → should suggest 'string?'.
+		const string test = @"
+#nullable enable
+class C
+{
+	string? GetNullable() => null;
+	string? M()
+	{
+		var x = GetNullable();
+		return x;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'string?' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
 		this.VerifyCSharpDiagnostic(test, expected);
@@ -601,6 +729,87 @@ class C
 		this.VerifyCSharpDiagnostic(test, expected);
 	}
 
+	[TestMethod]
+	public void VarForBuiltInForLoop()
+	{
+		// int is BuiltIn → UseExplicitType → var should be flagged.
+		const string test = @"
+class C
+{
+	int M()
+	{
+		int sum = 0;
+		for (var i = 0; i < 10; i++)
+		{
+			sum += i;
+		}
+		return sum;
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'int' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 8)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void OutVarBuiltInType()
+	{
+		// int is BuiltIn → UseExplicitType → out var should be flagged.
+		const string test = @"
+class C
+{
+	void M()
+	{
+		int.TryParse(""5"", out var result);
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'int' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 25)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void ExplicitSimpleTypeOutParam()
+	{
+		// Simple type → UseVar (unconditional) → explicit type should be flagged.
+		const string test = @"
+class MyClass { }
+class C
+{
+	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
+	void M()
+	{
+		if (TryGet(out MyClass value))
+		{
+		}
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'var' instead of 'MyClass'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 18)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
 	#endregion
 
 	#region Code Fix Tests
@@ -732,6 +941,144 @@ class C
 		int x = 5;
 		string s = ""hello"";
 		return x + s.Length;
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixVarToExplicitBuiltInForLoop()
+	{
+		const string test = @"
+class C
+{
+	int M()
+	{
+		int sum = 0;
+		for (var i = 0; i < 10; i++)
+		{
+			sum += i;
+		}
+		return sum;
+	}
+}";
+		const string fixtest = @"
+class C
+{
+	int M()
+	{
+		int sum = 0;
+		for (int i = 0; i < 10; i++)
+		{
+			sum += i;
+		}
+		return sum;
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixOutVarToExplicitBuiltInType()
+	{
+		const string test = @"
+class C
+{
+	void M()
+	{
+		int.TryParse(""5"", out var result);
+	}
+}";
+		const string fixtest = @"
+class C
+{
+	void M()
+	{
+		int.TryParse(""5"", out int result);
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixExplicitToVarOutParam()
+	{
+		const string test = @"
+class MyClass { }
+class C
+{
+	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
+	void M()
+	{
+		if (TryGet(out MyClass value))
+		{
+		}
+	}
+}";
+		const string fixtest = @"
+class MyClass { }
+class C
+{
+	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
+	void M()
+	{
+		if (TryGet(out var value))
+		{
+		}
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixVarToExplicitNullableBuiltInType()
+	{
+		const string test = @"
+#nullable enable
+class C
+{
+	string? GetNullable() => null;
+	string? M()
+	{
+		var x = GetNullable();
+		return x;
+	}
+}";
+		const string fixtest = @"
+#nullable enable
+class C
+{
+	string? GetNullable() => null;
+	string? M()
+	{
+		string? x = GetNullable();
+		return x;
+	}
+}";
+		this.VerifyCSharpFix(test, fixtest);
+	}
+
+	[TestMethod]
+	public void FixVarToExplicitNonNullableBuiltInType()
+	{
+		const string test = @"
+#nullable enable
+class C
+{
+	string M()
+	{
+		var x = ""test"";
+		return x;
+	}
+}";
+		const string fixtest = @"
+#nullable enable
+class C
+{
+	string M()
+	{
+		string x = ""test"";
+		return x;
 	}
 }";
 		this.VerifyCSharpFix(test, fixtest);
