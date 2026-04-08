@@ -23,9 +23,6 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 	private static readonly DiagnosticDescriptor Rule =
 		new(DiagnosticId, Title, MessageFormat, Rules.Usage, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
 
-	private static readonly string[] FactoryMethodSubstrings =
-		["Create", "Build", "Construct", "Make", "Generate", "Produce", "New", "Instance", "Parse", "SpecifyKind"];
-
 	private static readonly HashSet<string> LinqScalarMethodNames = new(StringComparer.Ordinal)
 	{
 		"First", "FirstOrDefault", "Single", "SingleOrDefault",
@@ -35,7 +32,8 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 	private static readonly HashSet<string> LinqAggregateMethodNames = new(StringComparer.Ordinal)
 	{
 		"Count", "LongCount", "Sum", "Average", "Min", "MinBy", "Max", "MaxBy",
-		"Any", "All", "Contains", "SequenceEqual", "Aggregate",
+		"Any", "All", "Contains", "SequenceEqual", "Aggregate", "AggregateBy",
+		"TryGetNonEnumeratedCount",
 	};
 
 	private static readonly SymbolDisplayFormat NullableAwareMinimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
@@ -277,7 +275,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		if (!result && categorySettings.LongTypeName)
 		{
 			string typeName = typeSymbol.ToDisplayString(NullableAwareMinimalFormat);
-			result = typeName.Length > categorySettings.LongTypeNameThreshold;
+			result = typeName.Length >= categorySettings.LongTypeNameLength;
 		}
 
 		if (!result && categorySettings.Evident && initializer != null)
@@ -448,7 +446,10 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			ArrayCreationExpressionSyntax => true,
 			ImplicitArrayCreationExpressionSyntax implicitArray => IsImplicitArrayEvident(implicitArray, model),
 			InvocationExpressionSyntax invocation => IsEvidentInvocation(invocation, model),
+			AwaitExpressionSyntax awaitExpr => IsEvidentAwaitExpression(awaitExpr, model),
 			MemberAccessExpressionSyntax memberAccess => IsEvidentMemberAccess(memberAccess, model),
+			ConditionalExpressionSyntax conditional =>
+				IsTypeEvident(conditional.WhenTrue, model) && IsTypeEvident(conditional.WhenFalse, model),
 			ParenthesizedExpressionSyntax paren => IsTypeEvident(paren.Expression, model),
 			_ => false,
 		};
@@ -474,51 +475,92 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 	private static bool IsEvidentInvocation(InvocationExpressionSyntax invocation, SemanticModel model)
 	{
+		SymbolInfo symbolInfo = model.GetSymbolInfo(invocation);
+		return symbolInfo.Symbol is IMethodSymbol method
+			&& IsEvidentMethodCall(method, method.ReturnType, invocation, model);
+	}
+
+	private static bool IsEvidentAwaitExpression(AwaitExpressionSyntax awaitExpr, SemanticModel model)
+	{
 		bool result = false;
 
-		SymbolInfo symbolInfo = model.GetSymbolInfo(invocation);
-		if (symbolInfo.Symbol is IMethodSymbol method)
+		if (awaitExpr.Expression is InvocationExpressionSyntax invocation)
 		{
-			ITypeSymbol returnType = method.ReturnType;
-			INamedTypeSymbol? containingType = method.ContainingType;
-			if (containingType != null)
+			SymbolInfo symbolInfo = model.GetSymbolInfo(invocation);
+			if (symbolInfo.Symbol is IMethodSymbol method)
 			{
-				// Non-generic factory method: static method declared in type T, returning T,
-				// with method name containing the parent type name or a factory substring.
-				if (method.IsStatic
-					&& returnType is INamedTypeSymbol nonGenReturn
-					&& !nonGenReturn.IsGenericType
-					&& SymbolEqualityComparer.Default.Equals(returnType, containingType)
-					&& ContainsAnySubstring(method.Name, containingType.Name, FactoryMethodSubstrings))
+				// Check if the method's actual return type (e.g., Task<T>) is evident.
+				result = IsEvidentMethodCall(method, method.ReturnType, invocation, model);
+
+				// Check if the awaited type (e.g., T from Task<T>) makes the method evident.
+				if (!result)
 				{
-					result = true;
+					ITypeSymbol? awaitedType = model.GetTypeInfo(awaitExpr).Type;
+					if (awaitedType != null)
+					{
+						result = IsEvidentMethodCall(method, awaitedType, invocation, model);
+					}
 				}
-				// Generic factory method: static method returning generic type,
-				// declared in class with same name as return type.
-				else if (method.IsStatic
-					&& returnType is INamedTypeSymbol genReturn
-					&& genReturn.IsGenericType
-					&& genReturn.Name == containingType.Name
-					&& ContainsAnySubstring(method.Name, containingType.Name, FactoryMethodSubstrings)
-					&& AreAllArgumentsEvident(invocation, model))
-				{
-					result = true;
-				}
-				// Conversion method: method name is "To" + return type name, and return type is not generic.
-				else if (returnType is INamedTypeSymbol convReturn
-					&& !convReturn.IsGenericType
-					&& method.Name == "To" + convReturn.Name)
-				{
-					result = true;
-				}
-				// Generic method with explicit type argument returning the value of that type argument.
-				else if (method.TypeArguments.Length > 0
-					&& method.TypeArguments.Any(ta => SymbolEqualityComparer.Default.Equals(ta, returnType))
-					&& invocation.Expression is MemberAccessExpressionSyntax memberAccess
-					&& memberAccess.Name is GenericNameSyntax)
-				{
-					result = true;
-				}
+			}
+		}
+
+		return result;
+	}
+
+	private static bool IsEvidentMethodCall(
+		IMethodSymbol method,
+		ITypeSymbol returnType,
+		InvocationExpressionSyntax invocation,
+		SemanticModel model)
+	{
+		bool result = false;
+
+		INamedTypeSymbol? containingType = method.ContainingType;
+		if (containingType != null)
+		{
+			// Non-generic factory method: static method declared in type T returning T.
+			// The type name is visible at the call site (e.g., Guid.NewGuid(), Task.Run()).
+			if (method.IsStatic
+				&& returnType is INamedTypeSymbol nonGenReturn
+				&& !nonGenReturn.IsGenericType
+				&& SymbolEqualityComparer.Default.Equals(returnType, containingType))
+			{
+				result = true;
+			}
+			// Generic factory method: static method returning generic type T<...>,
+			// declared in class T, with all arguments evident (so type args are determinable).
+			else if (method.IsStatic
+				&& returnType is INamedTypeSymbol genReturn
+				&& genReturn.IsGenericType
+				&& genReturn.Name == containingType.Name
+				&& AreAllArgumentsEvident(invocation, model))
+			{
+				result = true;
+			}
+			// Conversion method: method name is "To" + return type name, and return type is not generic.
+			else if (returnType is INamedTypeSymbol convReturn
+				&& !convReturn.IsGenericType
+				&& method.Name == "To" + convReturn.Name)
+			{
+				result = true;
+			}
+			// Generic method with explicit type argument returning the value of that type argument.
+			else if (method.TypeArguments.Length > 0
+				&& method.TypeArguments.Any(ta => SymbolEqualityComparer.Default.Equals(ta, returnType))
+				&& invocation.Expression is MemberAccessExpressionSyntax memberAccess
+				&& memberAccess.Name is GenericNameSyntax)
+			{
+				result = true;
+			}
+			// Fluent/builder instance method: returns the containing type (e.g., StringBuilder.Append).
+			// Only evident when the receiver expression is itself type-evident, so the type name
+			// is visible somewhere in the call chain (e.g., new StringBuilder().Append("x")).
+			else if (!method.IsStatic
+				&& SymbolEqualityComparer.Default.Equals(returnType, containingType)
+				&& invocation.Expression is MemberAccessExpressionSyntax fluentAccess
+				&& IsTypeEvident(fluentAccess.Expression, model))
+			{
+				result = true;
 			}
 		}
 
@@ -567,25 +609,6 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		if (argumentList != null)
 		{
 			result = argumentList.Arguments.All(arg => IsTypeEvident(arg.Expression, model));
-		}
-
-		return result;
-	}
-
-	private static bool ContainsAnySubstring(string name, string typeName, string[] substrings)
-	{
-		bool result = name.IndexOf(typeName, StringComparison.Ordinal) >= 0;
-
-		if (!result)
-		{
-			foreach (string substring in substrings)
-			{
-				if (name.IndexOf(substring, StringComparison.Ordinal) >= 0)
-				{
-					result = true;
-					break;
-				}
-			}
 		}
 
 		return result;

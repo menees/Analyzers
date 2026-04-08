@@ -71,7 +71,11 @@
 			<UseExplicitType />
 		</BuiltInTypes>
 		<SimpleTypes>
-			<UseVar />
+			<UseVar>
+				<Foreach />
+				<LongTypeName Length="30" />
+				<Evident />
+			</UseVar>
 		</SimpleTypes>
 		<Elsewhere>
 			<UseVar>

@@ -1,7 +1,7 @@
 namespace Menees.Analyzers.Test;
 
-// Test settings: BuiltInTypes=UseExplicitType, SimpleTypes=UseVar, Elsewhere=UseVar with conditions
-// (Foreach, LinqScalarResult, LinqCollectionResult, LinqAggregateResult, LongTypeName 30, Evident).
+// Test settings: BuiltInTypes=UseExplicitType, SimpleTypes=UseVar with conditions (Foreach, LongTypeName 30, Evident),
+// Elsewhere=UseVar with conditions (Foreach, LinqScalarResult, LinqCollectionResult, LinqAggregateResult, LongTypeName 30, Evident).
 // Conditions are child elements of UseVar; their presence implies they're enabled.
 [TestClass]
 public class Men020UnitTests : CodeFixVerifier
@@ -234,7 +234,7 @@ class C
 	[TestMethod]
 	public void ExplicitSimpleType()
 	{
-		// UseVar mode flags explicit type when var could be used.
+		// Conditional UseVar mode doesn't flag explicit types (only flags var when no condition is met).
 		const string test = @"
 class MyClass { }
 class C
@@ -245,16 +245,7 @@ class C
 		MyClass m = GetMyClass();
 	}
 }";
-		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
-		DiagnosticResult[] expected =
-		[
-			new DiagnosticResult(analyzer)
-			{
-				Message = "Use 'var' instead of 'MyClass'.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
-			},
-		];
-		this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(test);
 	}
 
 	[TestMethod]
@@ -367,6 +358,108 @@ class C
 	}
 
 	[TestMethod]
+	public void VarForEvidentFactoryMethod()
+	{
+		// Guid.NewGuid() is a static factory method returning the declaring type → Evident.
+		// Guid is a Simple type → conditional UseVar → Evident condition met.
+		const string test = @"
+using System;
+class C
+{
+	Guid M()
+	{
+		var guid = Guid.NewGuid();
+		return guid;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentGenericFactoryMethod()
+	{
+		// Generic type with a static factory method → Elsewhere → conditional UseVar.
+		// Factory method name contains type name → Evident condition met.
+		const string test = @"
+class Wrapper<T>
+{
+	public T Value { get; set; }
+	public static Wrapper<T> CreateWrapper(T value) => new Wrapper<T> { Value = value };
+}
+class C
+{
+	Wrapper<int> M()
+	{
+		var w = Wrapper<int>.CreateWrapper(42);
+		return w;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentAwaitExpression()
+	{
+		// Awaiting a generic method with explicit type argument → await unwraps Task<T> to T.
+		// The explicit type argument makes the awaited type evident.
+		const string test = @"
+using System.Threading.Tasks;
+using System.Collections.Generic;
+class Client
+{
+	public static Task<T> GetAsync<T>() => default(Task<T>);
+}
+class C
+{
+	async Task M()
+	{
+		var x = await Client.GetAsync<List<int>>();
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentFluentChain()
+	{
+		// Fluent method chained from an evident root → type is visible at the call site.
+		// StringBuilder is a simple type → conditional UseVar → Evident condition met (fluent chain from evident root).
+		const string test = @"
+using System.Text;
+class C
+{
+	StringBuilder M()
+	{
+		var sb = new StringBuilder().Append(""hello"").AppendLine("" world"");
+		return sb;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
+	public void VarForEvidentConditionalWithNull()
+	{
+		// Conditional expression where one branch is null and the other is evident (new expression).
+		// MyClass? is a simple type → conditional UseVar → Evident condition met.
+		const string test = @"
+#nullable enable
+class MyClass
+{
+	public MyClass(object arg) { }
+}
+class C
+{
+	MyClass? M(object? arg)
+	{
+		var result = arg is null ? null : new MyClass(arg);
+		return result;
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
 	public void IgnoreGeneratedCode()
 	{
 		const string test = @"
@@ -404,7 +497,7 @@ class C
 	[TestMethod]
 	public void OutVarSimpleType()
 	{
-		// Simple type → UseVar (unconditional) → var is OK.
+		// Simple type → conditional UseVar → no condition met for out var → diagnostic.
 		const string test = @"
 class MyClass { }
 class C
@@ -417,13 +510,22 @@ class C
 		}
 	}
 }";
-		this.VerifyCSharpDiagnostic(test);
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'MyClass' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 18)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
 
 	[TestMethod]
 	public void DeconstructionWithVarSimpleTypes()
 	{
-		// Each var resolves to a simple type → UseVar (unconditional) → var is OK.
+		// Each var resolves to a simple type → conditional UseVar → no condition met → diagnostic for each.
 		const string test = @"
 class MyClass { public void Deconstruct(out MyClass a, out MyClass b) { a = this; b = this; } }
 class C
@@ -434,7 +536,21 @@ class C
 		(var x, var y) = obj;
 	}
 }";
-		this.VerifyCSharpDiagnostic(test);
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'MyClass' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 4)],
+			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'MyClass' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 11)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
 
 	#endregion
@@ -585,7 +701,7 @@ class C
 	[TestMethod]
 	public void VarForNonEvidentSimpleType()
 	{
-		// UseVar mode allows var for all simple types.
+		// Conditional UseVar mode flags var when no condition is met.
 		const string test = @"
 class MyClass { }
 class C
@@ -596,7 +712,16 @@ class C
 		var m = GetMyClass();
 	}
 }";
-		this.VerifyCSharpDiagnostic(test);
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'MyClass' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
 	}
 
 	[TestMethod]
@@ -672,6 +797,11 @@ class C
 				Message = "Use 'int' instead of 'var'.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 3)],
 			},
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'MyClass' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 3)],
+			},
 		];
 		this.VerifyCSharpDiagnostic(test, expected);
 	}
@@ -724,6 +854,36 @@ class C
 			{
 				Message = "Use 'KeyValuePair<string, int>[]' instead of 'var'.",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
+			},
+		];
+		this.VerifyCSharpDiagnostic(test, expected);
+	}
+
+	[TestMethod]
+	public void VarForNonEvidentFluentCallOnVariable()
+	{
+		// Fluent method on an existing variable → type not visible at call site → NOT evident.
+		// Builder<int> is generic → Elsewhere → conditional UseVar → no condition met → diagnostic.
+		const string test = @"
+class Builder<T>
+{
+	public Builder<T> Add(T value) => this;
+}
+class C
+{
+	void M()
+	{
+		var builder = new Builder<int>();
+		var b = builder.Add(42);
+	}
+}";
+		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
+		DiagnosticResult[] expected =
+		[
+			new DiagnosticResult(analyzer)
+			{
+				Message = "Use 'Builder<int>' instead of 'var'.",
+				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 3)],
 			},
 		];
 		this.VerifyCSharpDiagnostic(test, expected);
@@ -785,7 +945,7 @@ class C
 	[TestMethod]
 	public void ExplicitSimpleTypeOutParam()
 	{
-		// Simple type → UseVar (unconditional) → explicit type should be flagged.
+		// Simple type → conditional UseVar → explicit type is always OK in conditional mode.
 		const string test = @"
 class MyClass { }
 class C
@@ -798,16 +958,7 @@ class C
 		}
 	}
 }";
-		DiagnosticAnalyzer analyzer = this.CSharpDiagnosticAnalyzer;
-		DiagnosticResult[] expected =
-		[
-			new DiagnosticResult(analyzer)
-			{
-				Message = "Use 'var' instead of 'MyClass'.",
-				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 18)],
-			},
-		];
-		this.VerifyCSharpDiagnostic(test, expected);
+		this.VerifyCSharpDiagnostic(test);
 	}
 
 	#endregion
@@ -839,7 +990,7 @@ class C
 	}
 
 	[TestMethod]
-	public void FixExplicitToVarSimpleType()
+	public void FixVarToExplicitSimpleType()
 	{
 		const string test = @"
 class MyClass { }
@@ -848,7 +999,7 @@ class C
 	MyClass GetMyClass() => new MyClass();
 	void M()
 	{
-		MyClass m = GetMyClass();
+		var m = GetMyClass();
 	}
 }";
 		const string fixtest = @"
@@ -858,7 +1009,7 @@ class C
 	MyClass GetMyClass() => new MyClass();
 	void M()
 	{
-		var m = GetMyClass();
+		MyClass m = GetMyClass();
 	}
 }";
 		this.VerifyCSharpFix(test, fixtest);
@@ -1001,7 +1152,7 @@ class C
 	}
 
 	[TestMethod]
-	public void FixExplicitToVarOutParam()
+	public void FixVarToExplicitOutParam()
 	{
 		const string test = @"
 class MyClass { }
@@ -1010,7 +1161,7 @@ class C
 	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
 	void M()
 	{
-		if (TryGet(out MyClass value))
+		if (TryGet(out var value))
 		{
 		}
 	}
@@ -1022,7 +1173,7 @@ class C
 	bool TryGet(out MyClass value) { value = new MyClass(); return true; }
 	void M()
 	{
-		if (TryGet(out var value))
+		if (TryGet(out MyClass value))
 		{
 		}
 	}

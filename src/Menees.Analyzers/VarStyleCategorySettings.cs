@@ -10,7 +10,7 @@ internal sealed class VarStyleCategorySettings
 {
 	#region Internal Constants
 
-	internal const int DefaultLongTypeNameThreshold = 30;
+	internal const int DefaultLongTypeNameLength = 30;
 
 	#endregion
 
@@ -35,7 +35,7 @@ internal sealed class VarStyleCategorySettings
 		bool conditionalLinqCollectionResult,
 		bool conditionalLinqAggregateResult,
 		bool conditionalLongTypeName,
-		int longTypeNameThreshold,
+		int longTypeNameLength,
 		bool conditionalEvident)
 	{
 		this.Mode = mode;
@@ -45,7 +45,7 @@ internal sealed class VarStyleCategorySettings
 		this.LinqCollectionResult = conditionalLinqCollectionResult;
 		this.LinqAggregateResult = conditionalLinqAggregateResult;
 		this.LongTypeName = conditionalLongTypeName;
-		this.LongTypeNameThreshold = longTypeNameThreshold;
+		this.LongTypeNameLength = longTypeNameLength;
 		this.Evident = conditionalEvident;
 	}
 
@@ -67,7 +67,7 @@ internal sealed class VarStyleCategorySettings
 
 	public bool LongTypeName { get; }
 
-	public int LongTypeNameThreshold { get; }
+	public int LongTypeNameLength { get; }
 
 	public bool Evident { get; }
 
@@ -90,7 +90,7 @@ internal sealed class VarStyleCategorySettings
 				conditionalLinqCollectionResult: false,
 				conditionalLinqAggregateResult: false,
 				conditionalLongTypeName: false,
-				DefaultLongTypeNameThreshold,
+				DefaultLongTypeNameLength,
 				conditionalEvident: false);
 		}
 		else
@@ -105,13 +105,13 @@ internal sealed class VarStyleCategorySettings
 
 				XElement? longTypeNameElement = useVar.Element("LongTypeName");
 				bool hasLongTypeName = longTypeNameElement != null;
-				int threshold = DefaultLongTypeNameThreshold;
+				int longTypeNameLength = DefaultLongTypeNameLength;
 				if (hasLongTypeName)
 				{
 					string? lengthValue = longTypeNameElement!.Attribute("Length")?.Value;
 					if (lengthValue != null && int.TryParse(lengthValue, out int parsedLength) && parsedLength > 0)
 					{
-						threshold = parsedLength;
+						longTypeNameLength = parsedLength;
 					}
 				}
 
@@ -127,7 +127,7 @@ internal sealed class VarStyleCategorySettings
 					hasLinqCollectionResult,
 					hasLinqAggregateResult,
 					hasLongTypeName,
-					threshold,
+					longTypeNameLength,
 					hasEvident);
 			}
 			else
