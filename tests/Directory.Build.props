@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynVersion)" />
-		<PackageReference Include="MSTest" Version="3.10.2" />
+		<PackageReference Include="MSTest" Version="4.2.1" />
 		<PackageReference Include="Shouldly" Version="4.3.0" />
 	</ItemGroup>
 
