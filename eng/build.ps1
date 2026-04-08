@@ -30,7 +30,7 @@ if ($build)
 		# CodeTaskFactory (for SetVsSDKEnvironmentVariables) via Microsoft.VSSDK.BuildTools.targets.
 		# The .NET Core version of MSBuild doesn't support CodeTaskFactory, so we're stuck with MSBuild.
 		# We need to keep the Vsix project for easy debugging and testing of the analyzers in VS.
-		#
+		# "dotnet build" silently skips the Vsix project since those targets aren't found.
 		# Restore NuGet packages first
 		Write-Host "`nRestoring $configuration packages"
 		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo /t:Restore

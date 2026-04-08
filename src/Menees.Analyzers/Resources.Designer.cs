@@ -610,11 +610,38 @@ namespace Menees.Analyzers {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Local variable declarations should use the preferred var style based on the configured type category rules..
+        ///   Looks up a localized string similar to Local variable declarations for built-in types should use the preferred var style..
         /// </summary>
-        internal static string Men020Description {
+        internal static string Men020BDescription {
             get {
-                return ResourceManager.GetString("Men020Description", resourceCulture);
+                return ResourceManager.GetString("Men020BDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred var style for built-in types.
+        /// </summary>
+        internal static string Men020BTitle {
+            get {
+                return ResourceManager.GetString("Men020BTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Local variable declarations for other types (e.g., generic) should use the preferred var style..
+        /// </summary>
+        internal static string Men020EDescription {
+            get {
+                return ResourceManager.GetString("Men020EDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred var style elsewhere.
+        /// </summary>
+        internal static string Men020ETitle {
+            get {
+                return ResourceManager.GetString("Men020ETitle", resourceCulture);
             }
         }
 
@@ -628,11 +655,20 @@ namespace Menees.Analyzers {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use preferred var style.
+        ///   Looks up a localized string similar to Local variable declarations for simple types should use the preferred var style..
         /// </summary>
-        internal static string Men020Title {
+        internal static string Men020SDescription {
             get {
-                return ResourceManager.GetString("Men020Title", resourceCulture);
+                return ResourceManager.GetString("Men020SDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred var style for simple types.
+        /// </summary>
+        internal static string Men020STitle {
+            get {
+                return ResourceManager.GetString("Men020STitle", resourceCulture);
             }
         }
     }

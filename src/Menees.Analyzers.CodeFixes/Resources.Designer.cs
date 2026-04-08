@@ -142,11 +142,29 @@ namespace Menees.Analyzers {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use preferred type style.
+        ///   Looks up a localized string similar to Use preferred built-in type style.
         /// </summary>
-        internal static string Men020CodeFix {
+        internal static string Men020BCodeFix {
             get {
-                return ResourceManager.GetString("Men020CodeFix", resourceCulture);
+                return ResourceManager.GetString("Men020BCodeFix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred type style elsewhere.
+        /// </summary>
+        internal static string Men020ECodeFix {
+            get {
+                return ResourceManager.GetString("Men020ECodeFix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use preferred simple type style.
+        /// </summary>
+        internal static string Men020SCodeFix {
+            get {
+                return ResourceManager.GetString("Men020SCodeFix", resourceCulture);
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<!-- DOTNET_VERSION: Set test run frameworks. -->
 		<TargetFrameworks>net10.0;net48</TargetFrameworks>
 	</PropertyGroup>
 
@@ -17,6 +18,7 @@
 		<None Include="..\Directory.runsettings" Link="Directory.runsettings" />
 	</ItemGroup>
 
+	<!-- DOTNET_VERSION: Use framework-specific JSInterop assembly. -->
 	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
 		<PackageReference Include="Microsoft.JSInterop" Version="10.0.5" />
 	</ItemGroup>

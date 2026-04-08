@@ -303,13 +303,25 @@
   <data name="Men019Title" xml:space="preserve">
     <value>Async method needs CancellationToken</value>
   </data>
-  <data name="Men020Description" xml:space="preserve">
-    <value>Local variable declarations should use the preferred var style based on the configured type category rules.</value>
+  <data name="Men020BDescription" xml:space="preserve">
+    <value>Local variable declarations for built-in types should use the preferred var style.</value>
+  </data>
+  <data name="Men020BTitle" xml:space="preserve">
+    <value>Use preferred var style for built-in types</value>
+  </data>
+  <data name="Men020EDescription" xml:space="preserve">
+    <value>Local variable declarations for other types (e.g., generic) should use the preferred var style.</value>
+  </data>
+  <data name="Men020ETitle" xml:space="preserve">
+    <value>Use preferred var style elsewhere</value>
   </data>
   <data name="Men020MessageFormat" xml:space="preserve">
     <value>Use '{0}' instead of '{1}'.</value>
   </data>
-  <data name="Men020Title" xml:space="preserve">
-    <value>Use preferred var style</value>
+  <data name="Men020SDescription" xml:space="preserve">
+    <value>Local variable declarations for simple types should use the preferred var style.</value>
+  </data>
+  <data name="Men020STitle" xml:space="preserve">
+    <value>Use preferred var style for simple types</value>
   </data>
 </root>

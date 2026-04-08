@@ -35,7 +35,7 @@
 		* Unused private setters are removed.
 		* Digit separators are used in numeric literals.
 		* Async methods take a CancellationToken parameter.
-		* The preferred var style is used for local variable declarations.
+		* The preferred var style is used for local variable declarations (per type category).
 		</description>
 		<copyright>$copyright$</copyright>
 		<tags>Analyzers, DotNetAnalyzers, Roslyn</tags>

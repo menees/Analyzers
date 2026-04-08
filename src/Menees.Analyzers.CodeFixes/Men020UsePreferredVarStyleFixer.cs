@@ -6,7 +6,17 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men020UsePreferredVarStyle.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(
+		Men020UsePreferredVarStyle.DiagnosticIdBuiltIn,
+		Men020UsePreferredVarStyle.DiagnosticIdSimple,
+		Men020UsePreferredVarStyle.DiagnosticIdElsewhere);
+
+	private static readonly Dictionary<string, string> CodeFixTitles = new(StringComparer.Ordinal)
+	{
+		{ Men020UsePreferredVarStyle.DiagnosticIdBuiltIn, Resources.Men020BCodeFix },
+		{ Men020UsePreferredVarStyle.DiagnosticIdSimple, Resources.Men020SCodeFix },
+		{ Men020UsePreferredVarStyle.DiagnosticIdElsewhere, Resources.Men020ECodeFix },
+	};
 
 	private static readonly SymbolDisplayFormat NullableAwareMinimalFormat = SymbolDisplayFormat.MinimallyQualifiedFormat
 		.WithMiscellaneousOptions(
@@ -29,11 +39,12 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 	{
 		foreach (Diagnostic diagnostic in context.Diagnostics.Where(d => FixableDiagnostics.Contains(d.Id)))
 		{
+			string title = CodeFixTitles.TryGetValue(diagnostic.Id, out string? t) ? t : diagnostic.Id;
 			context.RegisterCodeFix(
 				CodeAction.Create(
-					Resources.Men020CodeFix,
+					title,
 					cancel => GetTransformedDocumentAsync(context.Document, diagnostic, cancel),
-					nameof(Men020UsePreferredVarStyleFixer)),
+					diagnostic.Id),
 				diagnostic);
 		}
 

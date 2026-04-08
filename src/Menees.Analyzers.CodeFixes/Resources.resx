@@ -145,7 +145,13 @@
   <data name="Men019CodeFixWithoutDefault" xml:space="preserve">
     <value>Add CancellationToken parameter</value>
   </data>
-  <data name="Men020CodeFix" xml:space="preserve">
-    <value>Use preferred type style</value>
+  <data name="Men020BCodeFix" xml:space="preserve">
+    <value>Use preferred built-in type style</value>
+  </data>
+  <data name="Men020ECodeFix" xml:space="preserve">
+    <value>Use preferred type style elsewhere</value>
+  </data>
+  <data name="Men020SCodeFix" xml:space="preserve">
+    <value>Use preferred simple type style</value>
   </data>
 </root>

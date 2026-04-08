@@ -5,23 +5,45 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 {
 	#region Public Constants
 
-	public const string DiagnosticId = "MEN020";
+	public const string DiagnosticIdBuiltIn = "MEN020B";
+
+	public const string DiagnosticIdSimple = "MEN020S";
+
+	public const string DiagnosticIdElsewhere = "MEN020E";
 
 	#endregion
 
 	#region Private Data Members
 
-	private static readonly LocalizableString Title =
-		new LocalizableResourceString(nameof(Resources.Men020Title), Resources.ResourceManager, typeof(Resources));
-
 	private static readonly LocalizableString MessageFormat =
 		new LocalizableResourceString(nameof(Resources.Men020MessageFormat), Resources.ResourceManager, typeof(Resources));
 
-	private static readonly LocalizableString Description =
-		new LocalizableResourceString(nameof(Resources.Men020Description), Resources.ResourceManager, typeof(Resources));
+	private static readonly DiagnosticDescriptor RuleBuiltIn = new(
+		DiagnosticIdBuiltIn,
+		new LocalizableResourceString(nameof(Resources.Men020BTitle), Resources.ResourceManager, typeof(Resources)),
+		MessageFormat,
+		Rules.Usage,
+		Rules.InfoSeverity,
+		Rules.DisabledByDefault,
+		new LocalizableResourceString(nameof(Resources.Men020BDescription), Resources.ResourceManager, typeof(Resources)));
 
-	private static readonly DiagnosticDescriptor Rule =
-		new(DiagnosticId, Title, MessageFormat, Rules.Usage, Rules.InfoSeverity, Rules.DisabledByDefault, Description);
+	private static readonly DiagnosticDescriptor RuleSimple = new(
+		DiagnosticIdSimple,
+		new LocalizableResourceString(nameof(Resources.Men020STitle), Resources.ResourceManager, typeof(Resources)),
+		MessageFormat,
+		Rules.Usage,
+		Rules.InfoSeverity,
+		Rules.DisabledByDefault,
+		new LocalizableResourceString(nameof(Resources.Men020SDescription), Resources.ResourceManager, typeof(Resources)));
+
+	private static readonly DiagnosticDescriptor RuleElsewhere = new(
+		DiagnosticIdElsewhere,
+		new LocalizableResourceString(nameof(Resources.Men020ETitle), Resources.ResourceManager, typeof(Resources)),
+		MessageFormat,
+		Rules.Usage,
+		Rules.InfoSeverity,
+		Rules.DisabledByDefault,
+		new LocalizableResourceString(nameof(Resources.Men020EDescription), Resources.ResourceManager, typeof(Resources)));
 
 	private static readonly HashSet<string> LinqScalarMethodNames = new(StringComparer.Ordinal)
 	{
@@ -45,7 +67,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(RuleBuiltIn, RuleSimple, RuleElsewhere);
 
 	#endregion
 
@@ -108,8 +130,9 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
 			if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 			{
-				VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
-				AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: true, initializer: null, hasMultipleDeclarators: false, isDeclarationExpression: false, model);
+				TypeCategory category = GetTypeCategory(typeSymbol);
+				VarStyleCategorySettings categorySettings = GetCategorySettings(category);
+				AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, category, categorySettings, isForeach: true, initializer: null, hasMultipleDeclarators: false, isDeclarationExpression: false, model);
 			}
 		}
 	}
@@ -156,8 +179,9 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 				ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
 				if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 				{
-					VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
-					AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings,
+					TypeCategory category = GetTypeCategory(typeSymbol);
+					VarStyleCategorySettings categorySettings = GetCategorySettings(category);
+					AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, category, categorySettings,
 						isForeach: false, initializer: null, hasMultipleDeclarators: false, isDeclarationExpression: true, model);
 				}
 			}
@@ -181,9 +205,10 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 		{
 			bool hasMultipleDeclarators = declaration.Variables.Count > 1;
-			VarStyleCategorySettings categorySettings = GetCategorySettings(GetTypeCategory(typeSymbol));
+			TypeCategory category = GetTypeCategory(typeSymbol);
+			VarStyleCategorySettings categorySettings = GetCategorySettings(category);
 
-			AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, categorySettings, isForeach: false, initializer, hasMultipleDeclarators, isDeclarationExpression: false, model);
+			AnalyzeVarUsage(context, typeSyntax, isVar, typeSymbol, category, categorySettings, isForeach: false, initializer, hasMultipleDeclarators, isDeclarationExpression: false, model);
 		}
 	}
 
@@ -192,6 +217,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		TypeSyntax typeSyntax,
 		bool isVar,
 		ITypeSymbol typeSymbol,
+		TypeCategory category,
 		VarStyleCategorySettings categorySettings,
 		bool isForeach,
 		ExpressionSyntax? initializer,
@@ -199,13 +225,15 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		bool isDeclarationExpression,
 		SemanticModel model)
 	{
+		DiagnosticDescriptor rule = GetRule(category);
+
 		switch (categorySettings.Mode)
 		{
 			case VarStyleMode.UseExplicitType:
 				if (isVar)
 				{
 					string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
-					context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), typeName, "var"));
+					context.ReportDiagnostic(Diagnostic.Create(rule, typeSyntax.GetLocation(), typeName, "var"));
 				}
 
 				break;
@@ -216,14 +244,14 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 					if (isVar && !IsConditionalVarAllowed(categorySettings, isForeach, initializer, typeSymbol, model))
 					{
 						string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
-						context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), typeName, "var"));
+						context.ReportDiagnostic(Diagnostic.Create(rule, typeSyntax.GetLocation(), typeName, "var"));
 					}
 				}
 				else if (!isVar && !hasMultipleDeclarators)
 				{
 					if (isForeach || isDeclarationExpression || (initializer != null && CanUseVarWithInitializer(initializer, model)))
 					{
-						context.ReportDiagnostic(Diagnostic.Create(Rule, typeSyntax.GetLocation(), "var", typeSyntax.ToString()));
+						context.ReportDiagnostic(Diagnostic.Create(rule, typeSyntax.GetLocation(), "var", typeSyntax.ToString()));
 					}
 				}
 
@@ -323,6 +351,16 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			TypeCategory.BuiltIn => this.Settings.VarBuiltInTypes,
 			TypeCategory.Simple => this.Settings.VarSimpleTypes,
 			_ => this.Settings.VarElsewhere,
+		};
+	}
+
+	private static DiagnosticDescriptor GetRule(TypeCategory category)
+	{
+		return category switch
+		{
+			TypeCategory.BuiltIn => RuleBuiltIn,
+			TypeCategory.Simple => RuleSimple,
+			_ => RuleElsewhere,
 		};
 	}
 

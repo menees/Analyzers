@@ -15,12 +15,13 @@ jobs:
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.0.0
       with:
+        # DOTNET_VERSION: Set version used by YAML build pipeline
         dotnet-version: 10.0.x
-        
+
     - name: Build everything
       run: |
         & .\eng\build.ps1 -build $true
