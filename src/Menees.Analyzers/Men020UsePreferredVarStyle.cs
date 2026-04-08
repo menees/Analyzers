@@ -173,13 +173,13 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			if (declExpr.Designation is SingleVariableDesignationSyntax)
 			{
 				TypeSyntax typeSyntax = declExpr.Type;
-					bool isVar = typeSyntax.IsVar;
-					SemanticModel model = context.SemanticModel;
+				bool isVar = typeSyntax.IsVar;
+				SemanticModel model = context.SemanticModel;
 
-					TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
-					ITypeSymbol? contextualType = GetDeclarationExpressionContextualType(declExpr, model);
-					ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model, contextualType);
-					if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
+				TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
+				ITypeSymbol? contextualType = GetDeclarationExpressionContextualType(declExpr, model);
+				ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model, contextualType);
+				if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 				{
 					TypeCategory category = GetTypeCategory(typeSymbol);
 					VarStyleCategorySettings categorySettings = GetCategorySettings(category);
@@ -243,7 +243,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			case VarStyleMode.UseVar:
 				if (categorySettings.HasConditions)
 				{
-					if (isVar && !IsConditionalVarAllowed(categorySettings, isForeach, initializer, typeSymbol, model))
+					if (isVar && !IsConditionalVarAllowed(categorySettings, isForeach, initializer, typeSymbol, model, typeSyntax))
 					{
 						string typeName = typeSymbol.ToMinimalDisplayString(model, typeSyntax.SpanStart, NullableAwareMinimalFormat);
 						context.ReportDiagnostic(Diagnostic.Create(rule, typeSyntax.GetLocation(), typeName, "var"));
@@ -283,7 +283,8 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		bool isForeach,
 		ExpressionSyntax? initializer,
 		ITypeSymbol typeSymbol,
-		SemanticModel model)
+		SemanticModel model,
+		TypeSyntax typeSyntax)
 	{
 		bool result = categorySettings.Foreach && isForeach;
 
@@ -308,9 +309,16 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			result = typeName.Length >= categorySettings.LongTypeNameLength;
 		}
 
-		if (!result && categorySettings.Evident && initializer != null)
+		if (!result && categorySettings.Evident)
 		{
-			result = IsTypeEvident(initializer, model);
+			if (initializer != null)
+			{
+				result = IsTypeEvident(initializer, model);
+			}
+			else if (typeSyntax.Parent is DeclarationExpressionSyntax declExpr)
+			{
+				result = IsEvidentOutParameter(declExpr, typeSymbol, model);
+			}
 		}
 
 		return result;
@@ -674,6 +682,22 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 				result = true;
 			}
 		}
+
+		return result;
+	}
+
+	private static bool IsEvidentOutParameter(DeclarationExpressionSyntax declExpr, ITypeSymbol typeSymbol, SemanticModel model)
+	{
+		// Try-pattern: static method returning bool with out T on type T → the type name
+		// is visible at the call site (e.g., Guid.TryParse(s, out var id), int.TryParse(s, out var n)).
+		bool result = declExpr.Parent is ArgumentSyntax argument
+			&& argument.Parent is BaseArgumentListSyntax argumentList
+			&& argumentList.Parent is ExpressionSyntax containingExpression
+			&& model.GetSymbolInfo(containingExpression).Symbol is IMethodSymbol method
+			&& method.IsStatic
+			&& method.ReturnType.SpecialType == SpecialType.System_Boolean
+			&& method.ContainingType is INamedTypeSymbol containingType
+			&& SymbolEqualityComparer.Default.Equals(typeSymbol, containingType);
 
 		return result;
 	}

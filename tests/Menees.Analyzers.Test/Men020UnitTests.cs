@@ -495,6 +495,23 @@ class C
 	}
 
 	[TestMethod]
+	public void OutVarEvidentStaticMethod()
+	{
+		// out var in static method T.Method(…, out T) → type visible at call site → Evident.
+		// Guid is a Simple type → conditional UseVar → Evident condition met.
+		const string test = @"
+using System;
+class C
+{
+	void M()
+	{
+		Guid.TryParse(""test"", out var id);
+	}
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
 	public void OutVarSimpleType()
 	{
 		// Simple type → conditional UseVar → no condition met for out var → diagnostic.
