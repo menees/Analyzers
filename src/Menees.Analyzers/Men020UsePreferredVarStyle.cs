@@ -127,7 +127,8 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			SemanticModel model = context.SemanticModel;
 
 			TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
-			ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
+			ForEachStatementInfo foreachInfo = model.GetForEachStatementInfo(forEach);
+			ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model, foreachInfo.ElementType);
 			if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 			{
 				TypeCategory category = GetTypeCategory(typeSymbol);
@@ -172,12 +173,13 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			if (declExpr.Designation is SingleVariableDesignationSyntax)
 			{
 				TypeSyntax typeSyntax = declExpr.Type;
-				bool isVar = typeSyntax.IsVar;
-				SemanticModel model = context.SemanticModel;
+					bool isVar = typeSyntax.IsVar;
+					SemanticModel model = context.SemanticModel;
 
-				TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
-				ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model);
-				if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
+					TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, context.CancellationToken);
+					ITypeSymbol? contextualType = GetDeclarationExpressionContextualType(declExpr, model);
+					ITypeSymbol? typeSymbol = GetNullableAdjustedType(typeInfo, initializer: null, model, contextualType);
+					if (typeSymbol != null && typeSymbol.TypeKind != TypeKind.Error && !typeSymbol.IsAnonymousType)
 				{
 					TypeCategory category = GetTypeCategory(typeSymbol);
 					VarStyleCategorySettings categorySettings = GetCategorySettings(category);
@@ -314,7 +316,8 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		return result;
 	}
 
-	private static ITypeSymbol? GetNullableAdjustedType(TypeInfo typeInfo, ExpressionSyntax? initializer, SemanticModel model)
+	private static ITypeSymbol? GetNullableAdjustedType(
+		TypeInfo typeInfo, ExpressionSyntax? initializer, SemanticModel model, ITypeSymbol? contextualType = null)
 	{
 		ITypeSymbol? type = typeInfo.Type;
 
@@ -324,24 +327,60 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			&& type.IsReferenceType
 			&& type.NullableAnnotation == NullableAnnotation.Annotated)
 		{
-			// Check the var keyword's flow state first (works in full compilation).
+			// Check the var keyword's flow state first (most reliable with Roslyn 5.3.0+).
 			if (typeInfo.Nullability.FlowState == NullableFlowState.NotNull)
 			{
 				type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
 			}
-			// Fall back to the initializer's type annotation (handles adhoc workspaces
-			// where flow analysis may not be fully available).
+			// Fall back to the initializer's flow state and type annotation (handles adhoc workspaces
+			// where flow analysis on the var keyword may not be fully available).
 			else if (initializer != null)
 			{
-				ITypeSymbol? initType = model.GetTypeInfo(initializer).Type;
-				if (initType != null && initType.NullableAnnotation != NullableAnnotation.Annotated)
+				TypeInfo initTypeInfo = model.GetTypeInfo(initializer);
+				if (initTypeInfo.Nullability.FlowState == NullableFlowState.NotNull)
+				{
+					type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+				}
+				else if (initTypeInfo.Type != null && initTypeInfo.Type.NullableAnnotation != NullableAnnotation.Annotated)
 				{
 					type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
 				}
 			}
+			// Fall back to a contextual type (e.g., foreach element type, out parameter type)
+			// for scenarios where neither flow state nor initializer is available.
+			else if (contextualType != null && contextualType.NullableAnnotation != NullableAnnotation.Annotated)
+			{
+				type = type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+			}
 		}
 
 		return type;
+	}
+
+	private static ITypeSymbol? GetDeclarationExpressionContextualType(DeclarationExpressionSyntax declExpr, SemanticModel model)
+	{
+		if (declExpr.Parent is ArgumentSyntax argument
+			&& argument.Parent is BaseArgumentListSyntax argumentList
+			&& argumentList.Parent is ExpressionSyntax containingExpression)
+		{
+			SymbolInfo symbolInfo = model.GetSymbolInfo(containingExpression);
+			if (symbolInfo.Symbol is IMethodSymbol method)
+			{
+				if (argument.NameColon != null)
+				{
+					string paramName = argument.NameColon.Name.Identifier.Text;
+					return method.Parameters.FirstOrDefault(p => p.Name == paramName)?.Type;
+				}
+
+				int argIndex = argumentList.Arguments.IndexOf(argument);
+				if (argIndex >= 0 && argIndex < method.Parameters.Length)
+				{
+					return method.Parameters[argIndex].Type;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private VarStyleCategorySettings GetCategorySettings(TypeCategory category)

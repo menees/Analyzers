@@ -78,28 +78,41 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 						TypeInfo typeInfo = model.GetTypeInfo(typeSyntax, cancellationToken);
 						ITypeSymbol? typeSymbol = typeInfo.Type;
 
-						// Adjust nullable annotation for reference types using flow state or initializer analysis.
-						if (typeSymbol != null
-							&& typeSymbol.IsReferenceType
-							&& typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
-						{
-							if (typeInfo.Nullability.FlowState == NullableFlowState.NotNull)
+						// Adjust nullable annotation for reference types using flow state or initializer/contextual type analysis.
+							if (typeSymbol != null
+								&& typeSymbol.IsReferenceType
+								&& typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
 							{
-								typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
-							}
-							else
-							{
-								ExpressionSyntax? initializer = GetInitializerForType(typeSyntax);
-								if (initializer != null)
+								// Check the var keyword's flow state first (most reliable with Roslyn 5.3.0+).
+								if (typeInfo.Nullability.FlowState == NullableFlowState.NotNull)
 								{
-									ITypeSymbol? initType = model.GetTypeInfo(initializer, cancellationToken).Type;
-									if (initType != null && initType.NullableAnnotation != NullableAnnotation.Annotated)
+									typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+								}
+								else
+								{
+									ExpressionSyntax? initializer = GetInitializerForType(typeSyntax);
+									if (initializer != null)
 									{
-										typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+										TypeInfo initTypeInfo = model.GetTypeInfo(initializer, cancellationToken);
+										if (initTypeInfo.Nullability.FlowState == NullableFlowState.NotNull)
+										{
+											typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+										}
+										else if (initTypeInfo.Type != null && initTypeInfo.Type.NullableAnnotation != NullableAnnotation.Annotated)
+										{
+											typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+										}
+									}
+									else
+									{
+										ITypeSymbol? contextualType = GetContextualType(typeSyntax, model);
+										if (contextualType != null && contextualType.NullableAnnotation != NullableAnnotation.Annotated)
+										{
+											typeSymbol = typeSymbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+										}
 									}
 								}
 							}
-						}
 
 						if (typeSymbol != null)
 						{
@@ -134,6 +147,40 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 			&& declaration.Variables.Count == 1)
 		{
 			return declaration.Variables[0].Initializer?.Value;
+		}
+
+		return null;
+	}
+
+	private static ITypeSymbol? GetContextualType(TypeSyntax typeSyntax, SemanticModel model)
+	{
+		// For foreach statements, use the element type from ForEachStatementInfo.
+		if (typeSyntax.Parent is ForEachStatementSyntax forEach)
+		{
+			return model.GetForEachStatementInfo(forEach).ElementType;
+		}
+
+		// For declaration expressions (out var), use the parameter type.
+		if (typeSyntax.Parent is DeclarationExpressionSyntax declExpr
+			&& declExpr.Parent is ArgumentSyntax argument
+			&& argument.Parent is BaseArgumentListSyntax argumentList
+			&& argumentList.Parent is ExpressionSyntax containingExpression)
+		{
+			SymbolInfo symbolInfo = model.GetSymbolInfo(containingExpression);
+			if (symbolInfo.Symbol is IMethodSymbol method)
+			{
+				if (argument.NameColon != null)
+				{
+					string paramName = argument.NameColon.Name.Identifier.Text;
+					return method.Parameters.FirstOrDefault(p => p.Name == paramName)?.Type;
+				}
+
+				int argIndex = argumentList.Arguments.IndexOf(argument);
+				if (argIndex >= 0 && argIndex < method.Parameters.Length)
+				{
+					return method.Parameters[argIndex].Type;
+				}
+			}
 		}
 
 		return null;
