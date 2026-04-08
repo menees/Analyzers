@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 using System;
 using System.Collections.Generic;
@@ -212,47 +212,47 @@ public class BlazorComponent
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method Think1 should take a CancellationToken parameter.",
+				Message = "Async method Think1 should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 33)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method CheckPrivate should take a CancellationToken parameter.",
+				Message = "Async method CheckPrivate should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 21)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method UseAsyncKeyword should take a CancellationToken parameter.",
+				Message = "Async method UseAsyncKeyword should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 20)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method GetString should take a CancellationToken parameter.",
+				Message = "Async method GetString should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 17, 30)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method GetsCancelledProperty should take a CancellationToken parameter.",
+				Message = "Async method GetsCancelledProperty should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 20, 14)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method LocalMethodGroup should take a CancellationToken parameter.",
+				Message = "Async method LocalMethodGroup should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 24, 14)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method TryAwaitable should take a CancellationToken parameter.",
+				Message = "Async method TryAwaitable should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 19)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method UseMyTask should take a CancellationToken parameter.",
+				Message = "Async method UseMyTask should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 28, 16)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Async method NestedMethodAsync should take a CancellationToken parameter.",
+				Message = "Async method NestedMethodAsync should take a CancellationToken parameter",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 32, 15)]
 			},
 		];

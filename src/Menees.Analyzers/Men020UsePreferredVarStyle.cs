@@ -67,7 +67,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(RuleBuiltIn, RuleSimple, RuleElsewhere);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [RuleBuiltIn, RuleSimple, RuleElsewhere];
 
 	#endregion
 

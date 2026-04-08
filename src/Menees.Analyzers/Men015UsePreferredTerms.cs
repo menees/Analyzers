@@ -55,7 +55,7 @@ public sealed class Men015UsePreferredTerms : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 
@@ -108,7 +108,7 @@ public sealed class Men015UsePreferredTerms : Analyzer
 		}
 
 		string spacedTerms = sb.ToString();
-		string[] result = spacedTerms.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+		string[] result = spacedTerms.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 		return result;
 	}
 
@@ -196,16 +196,16 @@ public sealed class Men015UsePreferredTerms : Analyzer
 		SyntaxKind kind = declaration.Kind();
 		bool result = SimpleIdentifierDeclarationKinds.Contains(kind)
 			|| (kind == SyntaxKind.IdentifierName
-				&& declaration.Parent?.Kind() == SyntaxKind.QualifiedName
-				&& declaration.Parent?.Parent?.Kind() == SyntaxKind.NamespaceDeclaration)
+				&& declaration.Parent?.IsKind(SyntaxKind.QualifiedName) is true
+				&& declaration.Parent?.Parent?.IsKind(SyntaxKind.NamespaceDeclaration) is true)
 			|| (kind == SyntaxKind.IdentifierName
-				&& declaration.Parent?.Kind() == SyntaxKind.NameEquals
-				&& declaration.Parent?.Parent?.Kind() == SyntaxKind.UsingDirective);
+				&& declaration.Parent?.IsKind(SyntaxKind.NameEquals) is true
+				&& declaration.Parent?.Parent?.IsKind(SyntaxKind.UsingDirective) is true);
 
 		// If the current identifier is an override, then ignore it because the problem is inherited.
 		if (result
 			&& OverrideIdentifierDeclarationKinds.Contains(kind)
-			&& declaration.ChildTokens().Any(token => token.Kind() == SyntaxKind.OverrideKeyword))
+			&& declaration.ChildTokens().Any(token => token.IsKind(SyntaxKind.OverrideKeyword)))
 		{
 			result = false;
 		}

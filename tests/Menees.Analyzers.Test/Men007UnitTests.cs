@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men007UnitTests : CodeFixVerifier
@@ -168,7 +168,7 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Multiple return statements (2) are used in get_Now.",
+				Message = "Multiple return statements (2) are used in get_Now",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 6, 3),
@@ -178,7 +178,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Multiple return statements (2) are used in get_Item.",
+				Message = "Multiple return statements (2) are used in get_Item",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 19, 3),
@@ -188,7 +188,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Multiple return statements (2) are used in Create.",
+				Message = "Multiple return statements (2) are used in Create",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 30, 2),
@@ -198,7 +198,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "A return statement is used in Check, which returns void.",
+				Message = "A return statement is used in Check, which returns void",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 44, 2),
@@ -207,7 +207,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "A return statement is used in DoOp, which returns void.",
+				Message = "A return statement is used in DoOp, which returns void",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 56, 3),
@@ -216,7 +216,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Multiple return statements (2) are used in DoOp2.",
+				Message = "Multiple return statements (2) are used in DoOp2",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 62, 3),
@@ -226,7 +226,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Multiple return statements (2) are used in <ParenthesizedLambdaExpression>.",
+				Message = "Multiple return statements (2) are used in <ParenthesizedLambdaExpression>",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 73, 21),
@@ -236,7 +236,7 @@ class Testing
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "A return statement is used in <SimpleLambdaExpression>, which returns void.",
+				Message = "A return statement is used in <SimpleLambdaExpression>, which returns void",
 				Locations =
 				[
 					new DiagnosticResultLocation("Test0.cs", 76, 24),

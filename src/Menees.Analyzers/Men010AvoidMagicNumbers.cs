@@ -27,7 +27,7 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 
@@ -179,10 +179,10 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 		bool result = false;
 
 		SyntaxNode? parent = literalExpression.Parent;
-		if (parent?.Kind() == level1)
+		if (parent?.IsKind(level1) is true)
 		{
 			parent = parent.Parent;
-			if (parent?.Kind() == level2)
+			if (parent?.IsKind(level2) is true)
 			{
 				result = true;
 			}
@@ -200,13 +200,13 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 		bool result = false;
 
 		SyntaxNode? parent = literalExpression.Parent;
-		if (parent?.Kind() == level1)
+		if (parent?.IsKind(level1) is true)
 		{
 			parent = parent.Parent;
-			if (parent?.Kind() == level2)
+			if (parent?.IsKind(level2) is true)
 			{
 				parent = parent.Parent;
-				if (parent?.Kind() == level3)
+				if (parent?.IsKind(level3) is true)
 				{
 					result = true;
 				}
@@ -226,16 +226,16 @@ public sealed class Men010AvoidMagicNumbers : Analyzer
 		bool result = false;
 
 		SyntaxNode? parent = literalExpression.Parent;
-		if (parent?.Kind() == level1)
+		if (parent?.IsKind(level1) is true)
 		{
 			parent = parent.Parent;
-			if (parent?.Kind() == level2)
+			if (parent?.IsKind(level2) is true)
 			{
 				parent = parent.Parent;
-				if (parent?.Kind() == level3)
+				if (parent?.IsKind(level3) is true)
 				{
 					parent = parent.Parent;
-					if (parent?.Kind() == level4)
+					if (parent?.IsKind(level4) is true)
 					{
 						result = true;
 					}

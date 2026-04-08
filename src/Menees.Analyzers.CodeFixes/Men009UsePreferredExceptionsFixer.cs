@@ -6,7 +6,7 @@ public sealed class Men009UsePreferredExceptionsFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men009UsePreferredExceptions.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men009UsePreferredExceptions.DiagnosticId];
 
 	#endregion
 

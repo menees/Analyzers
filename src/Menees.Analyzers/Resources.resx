@@ -122,7 +122,7 @@
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="Men001MessageFormat" xml:space="preserve">
-    <value>Tabs should be used for indentation.</value>
+    <value>Tabs should be used for indentation</value>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="Men001Title" xml:space="preserve">
@@ -133,10 +133,10 @@
     <value>Lines should be a readable, maintainable length.</value>
   </data>
   <data name="Men002MessageFormat" xml:space="preserve">
-    <value>Line must be no longer than {0} characters (now {1}).</value>
+    <value>Line must be no longer than {0} characters (now {1})</value>
   </data>
   <data name="Men002MessageFormatNotify" xml:space="preserve">
-    <value>Line is over {0} characters (now {1}).</value>
+    <value>Line is over {0} characters (now {1})</value>
   </data>
   <data name="Men002Title" xml:space="preserve">
     <value>Line is too long</value>
@@ -148,7 +148,7 @@
     <value>Methods should be a readable, maintainable length.</value>
   </data>
   <data name="Men003MessageFormat" xml:space="preserve">
-    <value>{0} must be no longer than {1} lines (now {2}).</value>
+    <value>{0} must be no longer than {1} lines (now {2})</value>
   </data>
   <data name="Men003Title" xml:space="preserve">
     <value>Method is too long</value>
@@ -157,7 +157,7 @@
     <value>Property accessors should be a readable, maintainable length.</value>
   </data>
   <data name="Men004MessageFormat" xml:space="preserve">
-    <value>{0} must be no longer than {1} lines (now {2}).</value>
+    <value>{0} must be no longer than {1} lines (now {2})</value>
   </data>
   <data name="Men004Title" xml:space="preserve">
     <value>Property accessor is too long</value>
@@ -166,7 +166,7 @@
     <value>Files should be a readable, maintainable length.</value>
   </data>
   <data name="Men005MessageFormat" xml:space="preserve">
-    <value>File {0} must be no longer than {1} lines (now {2}).</value>
+    <value>File {0} must be no longer than {1} lines (now {2})</value>
   </data>
   <data name="Men005Title" xml:space="preserve">
     <value>File is too long</value>
@@ -175,7 +175,7 @@
     <value>#regions should be used to group related items in large code files.</value>
   </data>
   <data name="Men006MessageFormat" xml:space="preserve">
-    <value>#regions should be used{0}.</value>
+    <value>#regions should be used{0}</value>
   </data>
   <data name="Men006Title" xml:space="preserve">
     <value>#regions should be used</value>
@@ -184,10 +184,10 @@
     <value>Using a single return keeps control flow simple and makes refactoring easier.</value>
   </data>
   <data name="Men007MessageFormat" xml:space="preserve">
-    <value>Multiple return statements ({0}) are used in {1}.</value>
+    <value>Multiple return statements ({0}) are used in {1}</value>
   </data>
   <data name="Men007MessageFormatVoid" xml:space="preserve">
-    <value>A return statement is used in {0}, which returns void.</value>
+    <value>A return statement is used in {0}, which returns void</value>
   </data>
   <data name="Men007Title" xml:space="preserve">
     <value>Use a single return</value>
@@ -196,7 +196,7 @@
     <value>A file's name should match or include the name of the main type it contains.</value>
   </data>
   <data name="Men008MessageFormat" xml:space="preserve">
-    <value>File name {0} {1}.</value>
+    <value>File name {0} {1}</value>
   </data>
   <data name="Men008Title" xml:space="preserve">
     <value>File name should match type</value>
@@ -205,7 +205,7 @@
     <value>Using preferred exception types makes calling code more consistent and maintainable.</value>
   </data>
   <data name="Men009MessageFormat" xml:space="preserve">
-    <value>Use {0} instead of {1}.</value>
+    <value>Use {0} instead of {1}</value>
   </data>
   <data name="Men009Title" xml:space="preserve">
     <value>Use the preferred exception type</value>
@@ -214,7 +214,7 @@
     <value>Using named constants instead of numeric literals in expressions improves readability and maintainability.</value>
   </data>
   <data name="Men010MessageFormat" xml:space="preserve">
-    <value>The numeric literal {0} should be replaced with a named constant.</value>
+    <value>The numeric literal {0} should be replaced with a named constant</value>
   </data>
   <data name="Men010Title" xml:space="preserve">
     <value>Avoid magic numbers</value>
@@ -223,7 +223,7 @@
     <value>Using directives should be indented consistently based on their nesting level inside a namespace.</value>
   </data>
   <data name="Men011MessageFormat" xml:space="preserve">
-    <value>The using directive should be indented consistent with its nesting level.</value>
+    <value>The using directive should be indented consistent with its nesting level</value>
   </data>
   <data name="Men011Title" xml:space="preserve">
     <value>Align using directives</value>
@@ -232,10 +232,10 @@
     <value>Flags enum members should be powers of two or bitwise-or combinations of named members.</value>
   </data>
   <data name="Men012MessageFormat" xml:space="preserve">
-    <value>Flags enum member {0}.{1} has value {2}, which is not a {3}power of two.</value>
+    <value>Flags enum member {0}.{1} has value {2}, which is not a {3}power of two</value>
   </data>
   <data name="Men012MessageFormatNoValue" xml:space="preserve">
-    <value>Flags enum member {0}.{1} should explicitly assign its value to zero or a power of two.</value>
+    <value>Flags enum member {0}.{1} should explicitly assign its value to zero or a power of two</value>
   </data>
   <data name="Men012Title" xml:space="preserve">
     <value>Flags should be powers of two</value>
@@ -244,7 +244,7 @@
     <value>UTC times are safer because they're unambiguous and always increasing.</value>
   </data>
   <data name="Men013MessageFormat" xml:space="preserve">
-    <value>Use {0} instead of {1}.</value>
+    <value>Use {0} instead of {1}</value>
   </data>
   <data name="Men013Title" xml:space="preserve">
     <value>Use UTC time</value>
@@ -253,7 +253,7 @@
     <value>TryGetValue does a single key lookup, which is more efficient than doing a ContainsKey lookup and a this[key] lookup.</value>
   </data>
   <data name="Men014MessageFormat" xml:space="preserve">
-    <value>Use {0} instead of {1} and {2}.</value>
+    <value>Use {0} instead of {1} and {2}</value>
   </data>
   <data name="Men014Title" xml:space="preserve">
     <value>Prefer TryGetValue</value>
@@ -262,7 +262,7 @@
     <value>Preferred terms and casing should be used in identifiers.</value>
   </data>
   <data name="Men015MessageFormat" xml:space="preserve">
-    <value>Use {0} instead of {1}.</value>
+    <value>Use {0} instead of {1}</value>
   </data>
   <data name="Men015Title" xml:space="preserve">
     <value>Use preferred terms</value>
@@ -271,7 +271,7 @@
     <value>Top-level statements should be avoided in long-term code for consistency and maintainability with other object-oriented modules.</value>
   </data>
   <data name="Men016MessageFormat" xml:space="preserve">
-    <value>Use object-oriented methods instead of top-level statements.</value>
+    <value>Use object-oriented methods instead of top-level statements</value>
   </data>
   <data name="Men016Title" xml:space="preserve">
     <value>Avoid top-level statements</value>
@@ -280,7 +280,7 @@
     <value>A private set accessor is not needed when an auto property is only assigned in the constructor.</value>
   </data>
   <data name="Men017MessageFormat" xml:space="preserve">
-    <value>Remove the unused private set accessor from the {0} auto property.</value>
+    <value>Remove the unused private set accessor from the {0} auto property</value>
   </data>
   <data name="Men017Title" xml:space="preserve">
     <value>Remove unused private setter</value>
@@ -289,7 +289,7 @@
     <value>Numeric literals should use digit separators to improve readability.</value>
   </data>
   <data name="Men018MessageFormat" xml:space="preserve">
-    <value>The numeric literal {0} should use digit separators.</value>
+    <value>The numeric literal {0} should use digit separators</value>
   </data>
   <data name="Men018Title" xml:space="preserve">
     <value>Use digit separators</value>
@@ -298,7 +298,7 @@
     <value>An async method should take a CancellationToken parameter or take a parameter that has a public CancellationToken property.</value>
   </data>
   <data name="Men019MessageFormat" xml:space="preserve">
-    <value>Async method {0} should take a CancellationToken parameter.</value>
+    <value>Async method {0} should take a CancellationToken parameter</value>
   </data>
   <data name="Men019Title" xml:space="preserve">
     <value>Async method needs CancellationToken</value>
@@ -316,7 +316,7 @@
     <value>Use preferred var style elsewhere</value>
   </data>
   <data name="Men020MessageFormat" xml:space="preserve">
-    <value>Use '{0}' instead of '{1}'.</value>
+    <value>Use '{0}' instead of '{1}'</value>
   </data>
   <data name="Men020SDescription" xml:space="preserve">
     <value>Local variable declarations for simple types should use the preferred var style.</value>

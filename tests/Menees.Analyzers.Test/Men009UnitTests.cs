@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men009UnitTests : CodeFixVerifier
@@ -85,37 +85,37 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 13)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 19, 6)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 22, 20)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 38)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 88)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 40)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use NotSupportedException instead of NotImplementedException.",
+				Message = "Use NotSupportedException instead of NotImplementedException",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 27, 90)]
 			},
 		];

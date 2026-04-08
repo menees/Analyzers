@@ -27,7 +27,7 @@ public sealed class Men009UsePreferredExceptions : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 

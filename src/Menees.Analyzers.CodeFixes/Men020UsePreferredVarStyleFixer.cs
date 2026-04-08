@@ -6,10 +6,12 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(
+	private static readonly ImmutableArray<string> FixableDiagnostics =
+	[
 		Men020UsePreferredVarStyle.DiagnosticIdBuiltIn,
 		Men020UsePreferredVarStyle.DiagnosticIdSimple,
-		Men020UsePreferredVarStyle.DiagnosticIdElsewhere);
+		Men020UsePreferredVarStyle.DiagnosticIdElsewhere,
+	];
 
 	private static readonly Dictionary<string, string> CodeFixTitles = new(StringComparer.Ordinal)
 	{

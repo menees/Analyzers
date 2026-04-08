@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public sealed class Men008UnitTests : CodeFixVerifier
@@ -39,18 +39,16 @@ namespace ValidCode
 		this.VerifyCSharpDiagnostic("struct Outer { struct Test0 { } }");
 
 		// These will use file names Test0.cs and Test1.cs.
-#pragma warning disable CA1861 // Avoid constant arrays as arguments. This is ok in a unit test.
-		this.VerifyCSharpDiagnostic(new[] { @"partial class Test { }", @"partial class Test { }" });
-		this.VerifyCSharpDiagnostic(new[] { @"partial struct Test { }", @"partial struct Test { }" });
-		this.VerifyCSharpDiagnostic(new[] { @"partial interface Test { }", @"partial interface Test { }" });
-		this.VerifyCSharpDiagnostic(new[] { @"class Test0 { }", @"class Test<T> { }" });
+		this.VerifyCSharpDiagnostic([@"partial class Test { }", @"partial class Test { }"]);
+		this.VerifyCSharpDiagnostic([@"partial struct Test { }", @"partial struct Test { }"]);
+		this.VerifyCSharpDiagnostic([@"partial interface Test { }", @"partial interface Test { }"]);
+		this.VerifyCSharpDiagnostic([@"class Test0 { }", @"class Test<T> { }"]);
 
 		string previousPrefix = DefaultFilePathPrefix.Value ?? string.Empty;
 		DefaultFilePathPrefix.Value = "Test.aspx"; // This will use a file name of Test0.aspx.cs.
 		try
 		{
-			this.VerifyCSharpDiagnostic(new[] { @"class Test { }" });
-#pragma warning restore CA1861 // Avoid constant arrays as arguments
+			this.VerifyCSharpDiagnostic([@"class Test { }"]);
 		}
 		finally
 		{
@@ -73,7 +71,7 @@ namespace ValidCode
 			[
 				new DiagnosticResult(analyzer)
 				{
-					Message = "File name Test0.cs doesn't match the name of a contained type.",
+					Message = "File name Test0.cs doesn't match the name of a contained type",
 					Locations = [new DiagnosticResultLocation("Test0.cs", 1, 20)]
 				},
 			];
@@ -94,7 +92,7 @@ namespace ValidCode
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "File name Test1.cs doesn't match the name of a contained type.",
+				Message = "File name Test1.cs doesn't match the name of a contained type",
 				Locations = [new DiagnosticResultLocation("Test1.cs", 2, 1)]
 			},
 		];
@@ -124,7 +122,7 @@ namespace Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "File name Test0.cs doesn't exactly match type test0.",
+				Message = "File name Test0.cs doesn't exactly match type test0",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
 			},
 		];

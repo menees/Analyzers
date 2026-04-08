@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 using System.Diagnostics;
 
@@ -7,7 +7,7 @@ public class Men016UnitTests : CodeFixVerifier
 {
 	#region Private Data Members
 
-	private const string ExpectedMessage = "Use object-oriented methods instead of top-level statements.";
+	private const string ExpectedMessage = "Use object-oriented methods instead of top-level statements";
 
 	#endregion
 

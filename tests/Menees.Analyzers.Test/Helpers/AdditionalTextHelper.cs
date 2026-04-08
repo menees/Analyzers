@@ -1,4 +1,4 @@
-namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test.Helpers;
 
 // This code started from StyleCopAnalyzers-master\StyleCop.Analyzers\StyleCop.Analyzers.Test\Settings\SettingsUnitTests.cs
 internal sealed class AdditionalTextHelper(string path, string text) : AdditionalText

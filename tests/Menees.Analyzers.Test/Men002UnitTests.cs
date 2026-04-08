@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public sealed class Men002UnitTests : CodeFixVerifier
@@ -81,17 +81,17 @@ namespace ConsoleApplication1
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Line must be no longer than 40 characters (now 83).",
+				Message = "Line must be no longer than 40 characters (now 83)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 38)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Line must be no longer than 40 characters (now 73).",
+				Message = "Line must be no longer than 40 characters (now 73)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 12, 35)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Line must be no longer than 40 characters (now 61).",
+				Message = "Line must be no longer than 40 characters (now 61)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 13, 35)]
 			},
 #if DEBUG // MEN002A is disabled by default, so it won't run in release build unit tests.
@@ -99,13 +99,13 @@ namespace ConsoleApplication1
 			{
 				Id = Men002LineTooLong.DiagnosticIdNotify,
 				Severity = DiagnosticSeverity.Info,
-				Message = "Line is over 35 characters (now 37).",
+				Message = "Line is over 35 characters (now 37)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 27)],
 			},
 #endif
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Line must be no longer than 40 characters (now 149).",
+				Message = "Line must be no longer than 40 characters (now 149)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 16, 32)]
 			},
 		];

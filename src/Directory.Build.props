@@ -21,9 +21,9 @@
 		<AssemblyOriginatorKeyFile>../Analyzers.snk</AssemblyOriginatorKeyFile>
 
 		<!-- NOTE: Change the version in Vsix\source.extension.vsixmanifest to match this! -->
-		<Version>3.3.9</Version>
+		<Version>3.4.0</Version>
 
-		<RoslynVersion>3.11.0</RoslynVersion>
+		<RoslynVersion>5.3.0</RoslynVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -36,10 +36,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="codecracker.CSharp" Version="1.1.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
 		<PackageReference Update="NETStandard.Library" PrivateAssets="all" />
-		<PackageReference Update="StyleCop.Analyzers" Version="1.1.118">
+		<PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.556">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

@@ -14,7 +14,7 @@ public sealed class Men011AlignUsingDirectivesFixer : CodeFixProvider
 
 	private const string LevelProperty = "Level";
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men011AlignUsingDirectives.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men011AlignUsingDirectives.DiagnosticId];
 
 	#endregion
 

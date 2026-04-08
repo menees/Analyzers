@@ -516,7 +516,7 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdSimple,
-				Message = "Use 'MyClass' instead of 'var'.",
+				Message = "Use 'MyClass' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 18)],
 			},
 		];
@@ -543,13 +543,13 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdSimple,
-				Message = "Use 'MyClass' instead of 'var'.",
+				Message = "Use 'MyClass' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 4)],
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdSimple,
-				Message = "Use 'MyClass' instead of 'var'.",
+				Message = "Use 'MyClass' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 11)],
 			},
 		];
@@ -577,7 +577,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'int' instead of 'var'.",
+				Message = "Use 'int' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
 			},
 		];
@@ -601,7 +601,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'string' instead of 'var'.",
+				Message = "Use 'string' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
 			},
 		];
@@ -625,7 +625,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'bool' instead of 'var'.",
+				Message = "Use 'bool' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)],
 			},
 		];
@@ -651,7 +651,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'string' instead of 'var'.",
+				Message = "Use 'string' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 3)],
 			},
 		];
@@ -678,7 +678,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'string?' instead of 'var'.",
+				Message = "Use 'string?' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
@@ -721,7 +721,7 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdSimple,
-				Message = "Use 'MyClass' instead of 'var'.",
+				Message = "Use 'MyClass' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
@@ -769,7 +769,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'int' instead of 'var'.",
+				Message = "Use 'int' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 12)],
 			},
 		];
@@ -798,13 +798,13 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'int' instead of 'var'.",
+				Message = "Use 'int' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 3)],
 			},
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdSimple,
-				Message = "Use 'MyClass' instead of 'var'.",
+				Message = "Use 'MyClass' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 3)],
 			},
 		];
@@ -831,7 +831,7 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdElsewhere,
-				Message = "Use 'List<int>' instead of 'var'.",
+				Message = "Use 'List<int>' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
@@ -859,7 +859,7 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdElsewhere,
-				Message = "Use 'KeyValuePair<string, int>[]' instead of 'var'.",
+				Message = "Use 'KeyValuePair<string, int>[]' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 3)],
 			},
 		];
@@ -890,7 +890,7 @@ class C
 			new DiagnosticResult(analyzer)
 			{
 				Id = Men020UsePreferredVarStyle.DiagnosticIdElsewhere,
-				Message = "Use 'Builder<int>' instead of 'var'.",
+				Message = "Use 'Builder<int>' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 11, 3)],
 			},
 		];
@@ -919,7 +919,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'int' instead of 'var'.",
+				Message = "Use 'int' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 8)],
 			},
 		];
@@ -943,7 +943,7 @@ class C
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use 'int' instead of 'var'.",
+				Message = "Use 'int' instead of 'var'",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 25)],
 			},
 		];

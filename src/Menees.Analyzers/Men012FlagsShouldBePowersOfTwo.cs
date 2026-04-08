@@ -37,7 +37,7 @@ public sealed class Men012FlagsShouldBePowersOfTwo : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, RuleNoValue);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, RuleNoValue];
 
 	#endregion
 

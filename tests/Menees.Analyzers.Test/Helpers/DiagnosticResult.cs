@@ -1,4 +1,4 @@
-namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test.Helpers;
 
 /// <summary>
 /// Location where the diagnostic appears, as determined by path, line number, and column number.

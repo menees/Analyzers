@@ -70,11 +70,11 @@ internal sealed partial class Settings
 
 	private readonly IEnumerable<Predicate<string>> analyzeFileNameExclusions;
 	private readonly IEnumerable<Predicate<string>> typeFileNameExclusions;
-	private readonly HashSet<string> allowedNumericLiterals = new(["0", "1", "2", "100"]);
-	private readonly HashSet<string> allowedNumericCallerNames = new(
+	private readonly HashSet<string> allowedNumericLiterals = ["0", "1", "2", "100"];
+	private readonly HashSet<string> allowedNumericCallerNames =
 	[
 		"FromDays", "FromHours", "FromMicroseconds", "FromMilliseconds", "FromMinutes", "FromSeconds", "FromTicks", "MaxLength"
-	]);
+	];
 	private readonly IEnumerable<Predicate<string>>? allowedNumericCallerRegexes;
 	private readonly Dictionary<string, string> preferredTerms = DefaultPreferredTerms;
 
@@ -229,7 +229,7 @@ internal sealed partial class Settings
 
 	public bool CheckPrivateTypesForCancellation { get; }
 
-	public HashSet<string> PropertyNamesForCancellation { get; } = new HashSet<string>([nameof(CancellationToken), "Cancellation"]);
+	public HashSet<string> PropertyNamesForCancellation { get; } = [nameof(CancellationToken), "Cancellation"];
 
 	public bool HasVarStylePreferences { get; }
 
@@ -250,9 +250,9 @@ internal sealed partial class Settings
 	private (byte MinSize, byte GroupSize) BinarySeparators { get; } = (8, 4); // Group Per-Nibble
 
 	// These attributes cover MSTest, NUnit, and xUnit.
-	private HashSet<string> TestMethodAttributeNames { get; } = new HashSet<string>(["TestMethod", "Test", "Fact", "Theory"]);
+	private HashSet<string> TestMethodAttributeNames { get; } = ["TestMethod", "Test", "Fact", "Theory"];
 
-	private HashSet<string> TestClassAttributeNames { get; } = new HashSet<string>(["TestClass", "TestFixture"]);
+	private HashSet<string> TestClassAttributeNames { get; } = ["TestClass", "TestFixture"];
 
 	#endregion
 

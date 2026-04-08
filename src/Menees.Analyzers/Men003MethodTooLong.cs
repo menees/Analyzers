@@ -36,7 +36,7 @@ public sealed class Men003MethodTooLong : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 
@@ -87,46 +87,23 @@ public sealed class Men003MethodTooLong : Analyzer
 
 	private static string GetBlockDescription(string blockName, SyntaxKind blockKind, string? containingTypeName)
 	{
-		string result;
-		switch (blockKind)
+		string result = blockKind switch
 		{
-			case SyntaxKind.ConstructorDeclaration:
-				result = (blockName == ".cctor" ? "Static constructor " : "Constructor ") + (containingTypeName ?? blockName);
-				break;
+			SyntaxKind.ConstructorDeclaration => (blockName == ".cctor" ? "Static constructor " : "Constructor ") + (containingTypeName ?? blockName),
+			SyntaxKind.DestructorDeclaration => "Destructor " + ('~' + containingTypeName ?? blockName),
 
-			case SyntaxKind.DestructorDeclaration:
-				result = "Destructor " + ('~' + containingTypeName ?? blockName);
-				break;
+			// Improve: This could describe Implicit and Explicit conversion operators better (e.g., show converted type name).
+			SyntaxKind.ConversionOperatorDeclaration or SyntaxKind.OperatorDeclaration => "Operator " + TrimPrefix(blockName, "op_"),
 
-			case SyntaxKind.ConversionOperatorDeclaration:
-			case SyntaxKind.OperatorDeclaration:
-				// Improve: This could describe Implicit and Explicit conversion operators better (e.g., show converted type name).
-				result = "Operator " + TrimPrefix(blockName, "op_");
-				break;
+			// Improve: This could describe indexers better (e.g., report this instead of Item).
+			SyntaxKind.GetAccessorDeclaration => "Property " + TrimPrefix(blockName, "get_") + " get accessor",
 
-			case SyntaxKind.GetAccessorDeclaration:
-				// Improve: This could describe indexers better (e.g., report this instead of Item).
-				result = "Property " + TrimPrefix(blockName, "get_") + " get accessor";
-				break;
-
-			case SyntaxKind.SetAccessorDeclaration:
-				// Improve: This could describe indexers better (e.g., report this instead of Item).
-				result = "Property " + TrimPrefix(blockName, "set_") + " set accessor";
-				break;
-
-			case SyntaxKind.AddAccessorDeclaration:
-				result = "Event " + TrimPrefix(blockName, "add_") + " add accessor";
-				break;
-
-			case SyntaxKind.RemoveAccessorDeclaration:
-				result = "Event " + TrimPrefix(blockName, "remove_") + " remove accessor";
-				break;
-
-			default:
-				result = TrimSuffix(blockKind.ToString(), "Declaration") + ' ' + blockName;
-				break;
-		}
-
+			// Improve: This could describe indexers better (e.g., report this instead of Item).
+			SyntaxKind.SetAccessorDeclaration => "Property " + TrimPrefix(blockName, "set_") + " set accessor",
+			SyntaxKind.AddAccessorDeclaration => "Event " + TrimPrefix(blockName, "add_") + " add accessor",
+			SyntaxKind.RemoveAccessorDeclaration => "Event " + TrimPrefix(blockName, "remove_") + " remove accessor",
+			_ => TrimSuffix(blockKind.ToString(), "Declaration") + ' ' + blockName,
+		};
 		return result;
 	}
 

@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men012UnitTests : CodeFixVerifier
@@ -105,52 +105,52 @@ public enum Shifts
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Test.First should explicitly assign its value to zero or a power of two.",
+				Message = "Flags enum member Test.First should explicitly assign its value to zero or a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Test.Second has value -2, which is not a literal power of two.",
+				Message = "Flags enum member Test.Second has value -2, which is not a literal power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Test.Twelve has value 12, which is not a power of two.",
+				Message = "Flags enum member Test.Twelve has value 12, which is not a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Test.Eight has value 3 + 5, which is not a literal power of two.",
+				Message = "Flags enum member Test.Eight has value 3 + 5, which is not a literal power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Test.Seventeen has value 0x0011, which is not a power of two.",
+				Message = "Flags enum member Test.Seventeen has value 0x0011, which is not a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Unspecified.None should explicitly assign its value to zero or a power of two.",
+				Message = "Flags enum member Unspecified.None should explicitly assign its value to zero or a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 16, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Unspecified.First should explicitly assign its value to zero or a power of two.",
+				Message = "Flags enum member Unspecified.First should explicitly assign its value to zero or a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 17, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Unspecified.Second should explicitly assign its value to zero or a power of two.",
+				Message = "Flags enum member Unspecified.Second should explicitly assign its value to zero or a power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 18, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Shifts.Two has value 1 << -31, which is not a \"1 << x (x >= 0)\" power of two.",
+				Message = "Flags enum member Shifts.Two has value 1 << -31, which is not a \"1 << x (x >= 0)\" power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Flags enum member Shifts.Eight has value 2 << 2, which is not a \"1 << x (x >= 0)\" power of two.",
+				Message = "Flags enum member Shifts.Eight has value 2 << 2, which is not a \"1 << x (x >= 0)\" power of two",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 28, 2)]
 			},
 		];

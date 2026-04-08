@@ -12,7 +12,7 @@ public sealed class Men015UsePreferredTermsFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men015UsePreferredTerms.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men015UsePreferredTerms.DiagnosticId];
 
 	#endregion
 
@@ -71,8 +71,7 @@ public sealed class Men015UsePreferredTermsFixer : CodeFixProvider
 					ISymbol? symbol = semanticModel.GetDeclaredSymbol(violatingNode, cancellationToken);
 					if (symbol != null)
 					{
-						OptionSet optionSet = result.Workspace.Options;
-						result = await Renamer.RenameSymbolAsync(result, symbol, preferredTerm, optionSet, cancellationToken);
+						result = await Renamer.RenameSymbolAsync(result, symbol, default, preferredTerm, cancellationToken);
 					}
 				}
 			}

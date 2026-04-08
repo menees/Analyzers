@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men015UnitTests : CodeFixVerifier
@@ -65,37 +65,37 @@ namespace TestID.Kustom
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use TestId instead of TestID.",
+				Message = "Use TestId instead of TestID",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 2, 11)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Id" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use Custom instead of Kustom.",
+				Message = "Use Custom instead of Kustom",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 2, 18)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use Canceled instead of Cancelled.",
+				Message = "Use Canceled instead of Cancelled",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 8)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Canceled" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use colorId instead of colourID.",
+				Message = "Use colorId instead of colourID",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 15)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "color" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use Custom instead of Kustom.",
+				Message = "Use Custom instead of Kustom",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 12, 14)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use GetIndexes instead of GetIndices.",
+				Message = "Use GetIndexes instead of GetIndices",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 14, 15)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Custom" } }
 			},
@@ -161,13 +161,13 @@ class Derived : Base
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use Color instead of Colour.",
+				Message = "Use Color instead of Colour",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 21)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Color" } }
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use GetIndexes instead of GetIndices.",
+				Message = "Use GetIndexes instead of GetIndices",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 21)],
 				Properties = new Dictionary<string, string>() { { Men015UsePreferredTerms.PreferredKey, "Indexes" } }
 			},

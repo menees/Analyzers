@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men004UnitTests : CodeFixVerifier
@@ -142,27 +142,27 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Property Now get accessor must be no longer than 5 lines (now 8).",
+				Message = "Property Now get accessor must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 3)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Property Now set accessor must be no longer than 5 lines (now 7).",
+				Message = "Property Now set accessor must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 15, 3)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Event Changed add accessor must be no longer than 5 lines (now 7).",
+				Message = "Event Changed add accessor must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 26, 3)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Event Changed remove accessor must be no longer than 5 lines (now 7).",
+				Message = "Event Changed remove accessor must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 34, 3)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Property Item get accessor must be no longer than 5 lines (now 8).",
+				Message = "Property Item get accessor must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 45, 3)]
 			},
 		];

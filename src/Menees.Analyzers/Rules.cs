@@ -80,7 +80,7 @@ public static class Rules
 			if (children[0].IsKind(SyntaxKind.AttributeList))
 			{
 				// There can be multiple attribute lists on a node, but a node must have at least one leaf token child.
-				nodeStart = children.First(child => child.Kind() != SyntaxKind.AttributeList).SpanStart;
+				nodeStart = children.First(child => !child.IsKind(SyntaxKind.AttributeList)).SpanStart;
 			}
 
 			TextSpan lineSpan = text.Lines.GetLineFromPosition(nodeStart).Span;

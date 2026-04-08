@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 using System;
 using System.Collections.Generic;
@@ -619,7 +619,7 @@ public class Men017UnitTests : CodeFixVerifier
 				[
 					new DiagnosticResult(this.CSharpDiagnosticAnalyzer)
 					{
-						Message = $"Remove the unused private set accessor from the {propertyName} auto property.",
+						Message = $"Remove the unused private set accessor from the {propertyName} auto property",
 						Locations = [new DiagnosticResultLocation("Test0.cs", lineNumber, prefixIndex + 1)]
 					},
 				];

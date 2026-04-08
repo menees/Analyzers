@@ -29,7 +29,7 @@ public sealed class Men013UseUtcTime : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 
@@ -87,34 +87,20 @@ public sealed class Men013UseUtcTime : Analyzer
 
 	private static bool IsSystemDateTimeReference(ExpressionSyntax expression)
 	{
-		bool result;
-
-		switch (expression)
+		var result = expression switch
 		{
-			case MemberAccessExpressionSyntax memberAccess:
-				result = memberAccess.Expression.ToString() == "System" && memberAccess.Name.ToString() == "DateTime";
-				break;
-
-			case IdentifierNameSyntax identifier:
-				result = identifier.ToString() == "DateTime" && HasUsingDirective(identifier.SyntaxTree, "System");
-				break;
-
-			case QualifiedNameSyntax qualified:
-				result = qualified.ToString() == "System.DateTime";
-				break;
-
-			default:
-				result = false;
-				break;
-		}
-
+			MemberAccessExpressionSyntax memberAccess => memberAccess.Expression.ToString() == "System" && memberAccess.Name.ToString() == "DateTime",
+			IdentifierNameSyntax identifier => identifier.ToString() == "DateTime" && HasUsingDirective(identifier.SyntaxTree, "System"),
+			QualifiedNameSyntax qualified => qualified.ToString() == "System.DateTime",
+			_ => false,
+		};
 		return result;
 	}
 
 	private static bool HasUsingDirective(SyntaxTree syntaxTree, string name)
 	{
 		IEnumerable<UsingDirectiveSyntax> usingDirectives = GetUsingDirectives(syntaxTree);
-		bool result = usingDirectives.Any(directive => string.IsNullOrEmpty(directive.StaticKeyword.Text) && directive.Name.ToString() == name);
+		bool result = usingDirectives.Any(directive => string.IsNullOrEmpty(directive.StaticKeyword.Text) && directive.Name?.ToString() == name);
 		return result;
 	}
 
@@ -122,7 +108,7 @@ public sealed class Men013UseUtcTime : Analyzer
 	{
 		IEnumerable<UsingDirectiveSyntax> usingDirectives = GetUsingDirectives(syntaxTree);
 		bool result = usingDirectives.Any(directive => !string.IsNullOrEmpty(directive.StaticKeyword.Text)
-			&& IsSystemDateTimeReference(directive.Name));
+			&& directive.Name is not null && IsSystemDateTimeReference(directive.Name));
 		return result;
 	}
 

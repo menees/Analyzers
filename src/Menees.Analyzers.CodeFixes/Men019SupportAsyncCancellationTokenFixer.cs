@@ -16,7 +16,7 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men019SupportAsyncCancellationToken.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men019SupportAsyncCancellationToken.DiagnosticId];
 
 	#endregion
 

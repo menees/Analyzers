@@ -15,7 +15,7 @@ public sealed class Men017RemoveUnusedPrivateSetterFixer : CodeFixProvider
 	#region Private Data Members
 
 	private static readonly ImmutableArray<string> FixableDiagnostics
-		= ImmutableArray.Create(Men017RemoveUnusedPrivateSetter.DiagnosticId);
+		= [Men017RemoveUnusedPrivateSetter.DiagnosticId];
 
 	#endregion
 

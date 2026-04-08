@@ -53,7 +53,7 @@ public sealed class Men002LineTooLong : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, RuleNotify);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, RuleNotify];
 
 	#endregion
 

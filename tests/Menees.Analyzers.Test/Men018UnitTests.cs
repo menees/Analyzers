@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 using Microsoft.CodeAnalysis.CodeFixes;
 
@@ -66,37 +66,37 @@ public class Test
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 1000000 should use digit separators.",
+				Message = "The numeric literal 1000000 should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 30)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 0xFFFFFFFFu should use digit separators.",
+				Message = "The numeric literal 0xFFFFFFFFu should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 5, 31)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 10000000000m should use digit separators.",
+				Message = "The numeric literal 10000000000m should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 6, 37)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 1000 should use digit separators.",
+				Message = "The numeric literal 1000 should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 7, 31)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 0x100u should use digit separators.",
+				Message = "The numeric literal 0x100u should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 8, 34)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 0b1000000UL should use digit separators.",
+				Message = "The numeric literal 0b1000000UL should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 38)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "The numeric literal 123456.7890 should use digit separators.",
+				Message = "The numeric literal 123456.7890 should use digit separators",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 35)]
 			},
 		];

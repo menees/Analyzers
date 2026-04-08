@@ -12,7 +12,7 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men018UseDigitSeparators.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men018UseDigitSeparators.DiagnosticId];
 
 	#endregion
 

@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public sealed class Men005UnitTests : CodeFixVerifier
@@ -65,7 +65,7 @@ namespace ConsoleApplication1
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "File Test0.cs must be no longer than 20 lines (now 21).",
+				Message = "File Test0.cs must be no longer than 20 lines (now 21)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 21, 1)]
 			},
 		];

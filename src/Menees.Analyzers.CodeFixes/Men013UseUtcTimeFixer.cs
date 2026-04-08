@@ -6,7 +6,7 @@ public sealed class Men013UseUtcTimeFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men013UseUtcTime.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men013UseUtcTime.DiagnosticId];
 
 	#endregion
 

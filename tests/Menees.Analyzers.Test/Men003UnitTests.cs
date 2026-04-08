@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 [TestClass]
 public class Men003UnitTests : CodeFixVerifier
@@ -151,42 +151,42 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Constructor Testing must be no longer than 5 lines (now 7).",
+				Message = "Constructor Testing must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 4, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Method Create must be no longer than 5 lines (now 7).",
+				Message = "Method Create must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 12, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Static constructor Testing must be no longer than 5 lines (now 7).",
+				Message = "Static constructor Testing must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 25, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Destructor ~Testing must be no longer than 5 lines (now 7).",
+				Message = "Destructor ~Testing must be no longer than 5 lines (now 7)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 33, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Operator Explicit must be no longer than 5 lines (now 8).",
+				Message = "Operator Explicit must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 54, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Operator Implicit must be no longer than 5 lines (now 8).",
+				Message = "Operator Implicit must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 63, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Operator Equality must be no longer than 5 lines (now 8).",
+				Message = "Operator Equality must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 72, 2)]
 			},
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Operator Inequality must be no longer than 5 lines (now 8).",
+				Message = "Operator Inequality must be no longer than 5 lines (now 8)",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 81, 2)]
 			},
 		];

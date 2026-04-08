@@ -6,7 +6,7 @@ public sealed class Men001TabsShouldBeUsedFixer : CodeFixProvider
 {
 	#region Private Data Members
 
-	private static readonly ImmutableArray<string> FixableDiagnostics = ImmutableArray.Create(Men001TabsShouldBeUsed.DiagnosticId);
+	private static readonly ImmutableArray<string> FixableDiagnostics = [Men001TabsShouldBeUsed.DiagnosticId];
 
 	#endregion
 

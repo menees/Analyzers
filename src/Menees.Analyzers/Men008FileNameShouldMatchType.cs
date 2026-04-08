@@ -12,13 +12,13 @@ public sealed class Men008FileNameShouldMatchType : Analyzer
 	#region Private Data Members
 
 	private static readonly LocalizableString Title =
-		new LocalizableResourceString(nameof(Resources.Men008Description), Resources.ResourceManager, typeof(Resources));
+		new LocalizableResourceString(nameof(Resources.Men008Title), Resources.ResourceManager, typeof(Resources));
 
 	private static readonly LocalizableString MessageFormat =
 		new LocalizableResourceString(nameof(Resources.Men008MessageFormat), Resources.ResourceManager, typeof(Resources));
 
 	private static readonly LocalizableString Description =
-		new LocalizableResourceString(nameof(Resources.Men008Title), Resources.ResourceManager, typeof(Resources));
+		new LocalizableResourceString(nameof(Resources.Men008Description), Resources.ResourceManager, typeof(Resources));
 
 	private static readonly DiagnosticDescriptor Rule =
 		new(DiagnosticId, Title, MessageFormat, Rules.Naming, DiagnosticSeverity.Warning, Rules.EnabledByDefault, Description);
@@ -37,7 +37,7 @@ public sealed class Men008FileNameShouldMatchType : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
 	#endregion
 

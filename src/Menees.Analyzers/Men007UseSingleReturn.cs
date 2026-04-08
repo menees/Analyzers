@@ -33,7 +33,7 @@ public sealed class Men007UseSingleReturn : Analyzer
 
 	#region Public Properties
 
-	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule, RuleVoid);
+	public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, RuleVoid];
 
 	#endregion
 
@@ -51,30 +51,16 @@ public sealed class Men007UseSingleReturn : Analyzer
 
 	private static bool IsReturnContainer(SyntaxNode node)
 	{
-		bool result;
-
-		// Checking the node's type (instead of Kind()) allows us to detect lambda expressions
-		// and anonymous methods with a single call.  Otherwise, we'd have to search for several
-		// different SyntaxKind values, and we might miss some variations.  There are at least:
-		// SimpleLambdaExpression, ParenthesizedLambdaExpression, AnonymousMethodExpression
-		// C#7 also adds LocalFunctionStatementSyntax, which has a different base type (StatementSyntax).
-		// Also, as of VS 2017 Update 15.5, sometimes CodeBlockActions are invoked on whole classes
-		// not just functions.  So, we need to check for a few types here instead of dozens of kinds.
-		switch (node)
+		// Note: If you add another case here, then add another case in GetReturnContainerInfo.
+		var result = node switch
 		{
-			case AccessorDeclarationSyntax:
-			case AnonymousFunctionExpressionSyntax:
-			case BaseMethodDeclarationSyntax:
-			case LocalFunctionStatementSyntax:
-				// Note: If you add another case here, then add another case in GetReturnContainerInfo.
-				result = true;
-				break;
-
-			default:
-				result = false;
-				break;
-		}
-
+			// Note: If you add another case here, then add another case in GetReturnContainerInfo.
+			AccessorDeclarationSyntax or
+			AnonymousFunctionExpressionSyntax or
+			BaseMethodDeclarationSyntax or
+			LocalFunctionStatementSyntax => true,
+			_ => false,
+		};
 		return result;
 	}
 
@@ -145,16 +131,15 @@ public sealed class Men007UseSingleReturn : Analyzer
 		return Tuple.Create(name, returnsVoid);
 	}
 
-	private static bool IsReturnTypeVoid(TypeSyntax type) => type is PredefinedTypeSyntax pre && pre.Keyword.Kind() == SyntaxKind.VoidKeyword;
+	private static bool IsReturnTypeVoid(TypeSyntax type) => type is PredefinedTypeSyntax pre && pre.Keyword.IsKind(SyntaxKind.VoidKeyword);
 
 	private static void HandleCodeBlock(CodeBlockAnalysisContext context)
 	{
 		// As of VS 2017 Update 15.5, this code block can be an entire class; it's not necessarily a function/accessor.
 		SyntaxNode codeBlock = context.CodeBlock;
-		IEnumerable<ReturnStatementSyntax> allReturnStatements = codeBlock.DescendantNodesAndSelf()
+		IEnumerable<ReturnStatementSyntax> allReturnStatements = [.. codeBlock.DescendantNodesAndSelf()
 			.Where(node => node.IsKind(SyntaxKind.ReturnStatement))
-			.Cast<ReturnStatementSyntax>()
-			.ToList();
+			.Cast<ReturnStatementSyntax>()];
 
 		// Group the return statements by the member function/accessor, local function, lambda, or anonymous function that most directly contains them.
 		IEnumerable<IGrouping<SyntaxNode, ReturnStatementSyntax>> localBlockGroups = allReturnStatements

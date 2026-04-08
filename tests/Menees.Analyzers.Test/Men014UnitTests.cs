@@ -1,4 +1,4 @@
-﻿namespace Menees.Analyzers.Test;
+namespace Menees.Analyzers.Test;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -77,7 +77,7 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use test.TryGetValue(\"a\", out var value) instead of test.ContainsKey(\"a\") and test[\"a\"].",
+				Message = "Use test.TryGetValue(\"a\", out var value) instead of test.ContainsKey(\"a\") and test[\"a\"]",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 9, 12)],
 			},
 		];
@@ -109,7 +109,7 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key]",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
 			},
 		];
@@ -142,7 +142,7 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key]",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 21)],
 			},
 		];
@@ -174,7 +174,7 @@ class Testing
 		[
 			new DiagnosticResult(analyzer)
 			{
-				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key].",
+				Message = "Use test.TryGetValue(key, out var value) instead of test.ContainsKey(key) and test[key]",
 				Locations = [new DiagnosticResultLocation("Test0.cs", 10, 12)],
 			},
 		];
