@@ -44,7 +44,7 @@ public static class Rules
 	public static FileLinePositionSpan GetLineSpan(this SyntaxTrivia trivia)
 		=> trivia.SyntaxTree?.GetLineSpan(trivia.Span) ?? default;
 
-	public static Tuple<string, Location> GetFileLocation(SyntaxTree tree, SourceText text, int startLine = 0, int endLine = 0)
+	public static (string FileName, Location Location) GetFileLocation(SyntaxTree tree, SourceText text, int startLine = 0, int endLine = 0)
 	{
 		Location location = Location.None;
 		TextLineCollection lines = text.Lines;
@@ -64,7 +64,7 @@ public static class Rules
 
 		string filePath = tree.FilePath;
 		string fileName = !string.IsNullOrEmpty(filePath) ? Path.GetFileName(filePath) : string.Empty;
-		return Tuple.Create(fileName, location);
+		return (fileName, location);
 	}
 
 	public static Location GetFirstLineLocation(this SyntaxNode node)

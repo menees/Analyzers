@@ -64,8 +64,7 @@ public sealed class Men007UseSingleReturn : Analyzer
 		return result;
 	}
 
-	// I originally returned (string name, bool returnsVoid) here, but that caused problems with ValueTuple not being available everywhere.
-	private static Tuple<string?, bool> GetReturnContainerInfo(SyntaxNode node, IEnumerable<ReturnStatementSyntax> returns)
+	private static (string? Name, bool ReturnsVoid) GetReturnContainerInfo(SyntaxNode node, IEnumerable<ReturnStatementSyntax> returns)
 	{
 		string? name = null;
 		bool returnsVoid = false;
@@ -128,7 +127,7 @@ public sealed class Men007UseSingleReturn : Analyzer
 				break;
 		}
 
-		return Tuple.Create(name, returnsVoid);
+		return (name, returnsVoid);
 	}
 
 	private static bool IsReturnTypeVoid(TypeSyntax type) => type is PredefinedTypeSyntax pre && pre.Keyword.IsKind(SyntaxKind.VoidKeyword);
@@ -158,9 +157,7 @@ public sealed class Men007UseSingleReturn : Analyzer
 			}
 			else
 			{
-				Tuple<string?, bool> tuple = GetReturnContainerInfo(localBlockNode, localBlockReturns);
-				name = tuple.Item1;
-				returnsVoid = tuple.Item2;
+				(name, returnsVoid) = GetReturnContainerInfo(localBlockNode, localBlockReturns);
 			}
 
 			int allowedReturnStatements = returnsVoid ? 0 : 1;

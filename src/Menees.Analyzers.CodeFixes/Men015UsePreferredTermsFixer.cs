@@ -43,7 +43,7 @@ public sealed class Men015UsePreferredTermsFixer : CodeFixProvider
 			}
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

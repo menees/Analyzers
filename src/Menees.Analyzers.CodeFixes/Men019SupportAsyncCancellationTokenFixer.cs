@@ -49,7 +49,7 @@ public sealed class Men019SupportAsyncCancellationTokenFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

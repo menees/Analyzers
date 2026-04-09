@@ -42,7 +42,7 @@ public sealed class Men018UseDigitSeparatorsFixer : CodeFixProvider
 			}
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

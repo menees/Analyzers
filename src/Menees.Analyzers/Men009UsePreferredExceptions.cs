@@ -34,18 +34,11 @@ public sealed class Men009UsePreferredExceptions : Analyzer
 	#region Public Methods
 
 	public static string? GetPreferredTypeName(string currentTypeName)
-	{
-		string? result = null;
-
-		switch (currentTypeName)
+		=> currentTypeName switch
 		{
-			case "NotImplementedException":
-				result = "NotSupportedException";
-				break;
-		}
-
-		return result;
-	}
+			"NotImplementedException" => "NotSupportedException",
+			_ => null,
+		};
 
 	public override void Initialize(AnalysisContext context)
 	{

@@ -36,21 +36,12 @@ public sealed class Men013UseUtcTime : Analyzer
 	#region Public Methods
 
 	public static string? GetPreferredText(string text)
-	{
-		string? preferredText = null;
-		switch (text)
+		=> text switch
 		{
-			case "Now":
-				preferredText = "UtcNow";
-				break;
-
-			case "Today":
-				preferredText = "UtcNow.Date";
-				break;
-		}
-
-		return preferredText;
-	}
+			"Now" => "UtcNow",
+			"Today" => "UtcNow.Date",
+			_ => null,
+		};
 
 	public override void Initialize(AnalysisContext context)
 	{

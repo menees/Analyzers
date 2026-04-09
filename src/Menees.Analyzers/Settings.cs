@@ -111,7 +111,11 @@ internal sealed partial class Settings
 		{
 			this.allowedNumericLiterals = [.. allowedNumericLiteralsElement.Elements("Literal").Select(literal => literal.Value)];
 			this.allowedNumericCallerNames = [.. allowedNumericLiteralsElement.Elements("CallerName").Select(callerName => callerName.Value)];
-			this.allowedNumericCallerRegexes = [.. allowedNumericLiteralsElement.Elements("CallerRegex").Select<XElement, Predicate<string>>(callerRegex => callerName => Regex.IsMatch(callerName, callerRegex.Value))];
+			this.allowedNumericCallerRegexes = [.. allowedNumericLiteralsElement.Elements("CallerRegex").Select<XElement, Predicate<string>>(callerRegex =>
+			{
+				Regex regex = new(callerRegex.Value, RegexOptions.Compiled);
+				return callerName => regex.IsMatch(callerName);
+			})];
 		}
 
 		XElement unitTestAttributes = xml.Element("UnitTestAttributes");
@@ -293,7 +297,7 @@ internal sealed partial class Settings
 					value = Convert.ToUInt64(scrubbed, 2);
 					result = true;
 				}
-				catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is OverflowException)
+				catch (Exception ex) when (ex is ArgumentException or FormatException or OverflowException)
 				{
 					value = 0;
 					result = false;
@@ -452,10 +456,13 @@ internal sealed partial class Settings
 
 
 	private static Predicate<string> CreateFileRegexPredicate(string fileRegex)
-		=> value => Regex.IsMatch(value, fileRegex, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+	{
+		Regex regex = new(fileRegex, RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+		return value => regex.IsMatch(value);
+	}
 
 	private static Predicate<string> CreateFileNamePredicate(string fileName)
-		=> value => string.Equals(value, fileName, StringComparison.CurrentCultureIgnoreCase);
+		=> value => string.Equals(value, fileName, StringComparison.OrdinalIgnoreCase);
 
 
 	private static IEnumerable<Predicate<string>> GetFileNameExclusions(

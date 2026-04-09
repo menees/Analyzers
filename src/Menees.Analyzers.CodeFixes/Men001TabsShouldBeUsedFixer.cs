@@ -32,7 +32,7 @@ public sealed class Men001TabsShouldBeUsedFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

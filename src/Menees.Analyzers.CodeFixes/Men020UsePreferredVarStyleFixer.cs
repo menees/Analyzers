@@ -50,7 +50,7 @@ public sealed class Men020UsePreferredVarStyleFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

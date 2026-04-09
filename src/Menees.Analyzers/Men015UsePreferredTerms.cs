@@ -33,6 +33,7 @@ public sealed class Men015UsePreferredTerms : Analyzer
 		SyntaxKind.StructDeclaration,
 		SyntaxKind.InterfaceDeclaration,
 		SyntaxKind.RecordDeclaration,
+		SyntaxKind.RecordStructDeclaration,
 		SyntaxKind.EnumDeclaration,
 		SyntaxKind.DelegateDeclaration,
 		SyntaxKind.MethodDeclaration,

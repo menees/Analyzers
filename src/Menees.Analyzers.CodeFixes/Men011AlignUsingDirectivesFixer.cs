@@ -40,7 +40,7 @@ public sealed class Men011AlignUsingDirectivesFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

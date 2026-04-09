@@ -32,7 +32,7 @@ public sealed class Men009UsePreferredExceptionsFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

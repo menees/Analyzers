@@ -2,13 +2,11 @@
 
 public abstract class Analyzer : DiagnosticAnalyzer
 {
-	#region Constructors
+	#region Private Data Members
 
-	protected Analyzer()
-	{
-		// Ensure Settings is never null.
-		this.Settings = Settings.Default;
-	}
+	// Use a volatile field to ensure thread-safe reads/writes since EnableConcurrentExecution
+	// allows multiple threads to run analysis callbacks concurrently on the same analyzer instance.
+	private volatile Settings settings = Settings.Default;
 
 	#endregion
 
@@ -25,7 +23,11 @@ public abstract class Analyzer : DiagnosticAnalyzer
 
 	#region Internal Properties
 
-	internal Settings Settings { get; set; }
+	internal Settings Settings
+	{
+		get => this.settings;
+		set => this.settings = value;
+	}
 
 	#endregion
 }

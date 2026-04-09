@@ -36,7 +36,7 @@ public sealed class Men013UseUtcTimeFixer : CodeFixProvider
 			}
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

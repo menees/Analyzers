@@ -41,7 +41,7 @@ public sealed class Men017RemoveUnusedPrivateSetterFixer : CodeFixProvider
 				diagnostic);
 		}
 
-		return Task.FromResult(true);
+		return Task.CompletedTask;
 	}
 
 	#endregion

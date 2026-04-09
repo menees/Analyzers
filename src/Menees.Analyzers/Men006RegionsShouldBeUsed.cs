@@ -148,15 +148,15 @@ public sealed class Men006RegionsShouldBeUsed : Analyzer
 			int fileLength = text.Lines.Count;
 			if (fileLength > maxLength)
 			{
-				Tuple<string, Location> fileLocation = Rules.GetFileLocation(tree, text);
-				string message = $" because {fileLocation.Item1} is longer than {maxLength} lines (now {fileLength})";
-				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Item2, message));
+				var fileLocation = Rules.GetFileLocation(tree, text);
+				string message = $" because {fileLocation.FileName} is longer than {maxLength} lines (now {fileLength})";
+				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Location, message));
 			}
 			else if (ContainsMultipleTypeDeclarations(root))
 			{
-				Tuple<string, Location> fileLocation = Rules.GetFileLocation(tree, text);
-				string message = $" because {fileLocation.Item1} contains multiple type declarations";
-				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Item2, message));
+				var fileLocation = Rules.GetFileLocation(tree, text);
+				string message = $" because {fileLocation.FileName} contains multiple type declarations";
+				context.ReportDiagnostic(Diagnostic.Create(Rule, fileLocation.Location, message));
 			}
 		}
 	}
