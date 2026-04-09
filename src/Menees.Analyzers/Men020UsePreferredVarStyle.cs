@@ -571,6 +571,9 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 
 		if (awaitExpr.Expression is InvocationExpressionSyntax invocation)
 		{
+			// Unwrap chained calls like .ConfigureAwait(false) to get the underlying async invocation.
+			invocation = UnwrapChainedAwaitCalls(invocation, model);
+
 			SymbolInfo symbolInfo = model.GetSymbolInfo(invocation);
 			if (symbolInfo.Symbol is IMethodSymbol method)
 			{
@@ -590,6 +593,38 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 		}
 
 		return result;
+	}
+
+	private static InvocationExpressionSyntax UnwrapChainedAwaitCalls(InvocationExpressionSyntax invocation, SemanticModel model)
+	{
+		// Unwrap chained calls on awaitable expressions (e.g., .ConfigureAwait(false), custom .BackgroundOnly())
+		// to get the underlying async invocation for evidence checking.
+		// For example: TryGetAsAsync<T>(uri, ct).ConfigureAwait(false) → TryGetAsAsync<T>(uri, ct).
+		while (invocation.Expression is MemberAccessExpressionSyntax memberAccess
+			&& memberAccess.Expression is InvocationExpressionSyntax innerInvocation)
+		{
+			// If the inner invocation returns an awaitable type (i.e., has a GetAwaiter() method),
+			// then the outer call is just configuring/wrapping the awaitable, so unwrap it.
+			if (model.GetTypeInfo(innerInvocation).Type is ITypeSymbol innerType && IsAwaitableType(innerType))
+			{
+				invocation = innerInvocation;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return invocation;
+	}
+
+	private static bool IsAwaitableType(ITypeSymbol type)
+	{
+		// The standard C# awaitable pattern requires a GetAwaiter() instance method.
+		// This covers Task, Task<T>, ValueTask, ValueTask<T>, and custom awaitables.
+		return type.GetMembers("GetAwaiter")
+			.OfType<IMethodSymbol>()
+			.Any(m => m.Parameters.Length == 0 && !m.IsStatic);
 	}
 
 	private static bool IsEvidentMethodCall(
