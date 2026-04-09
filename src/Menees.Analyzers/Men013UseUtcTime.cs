@@ -70,11 +70,11 @@ public sealed class Men013UseUtcTime : Analyzer
 			string? preferredText = GetPreferredText(text);
 			if (preferredText != null)
 			{
-				// Check for DateTime, which could be fully-qualified, partially-qualified, or unqualified (e.g., via "using static").
+				// Use the semantic model to verify this is a System.DateTime property.
 				// I'm omitting DateTimeOffset.Now since it retains the local offset, and its comparisons use the UTC time.
-				MemberAccessExpressionSyntax? memberAccess = identifier.Parent as MemberAccessExpressionSyntax;
-				if ((memberAccess != null && memberAccess.Name == identifier && IsSystemDateTimeReference(memberAccess.Expression))
-					|| ((memberAccess == null || memberAccess.Expression == identifier) && IsUsingStaticDateTimeReference(identifier.SyntaxTree)))
+				SymbolInfo symbolInfo = context.SemanticModel.GetSymbolInfo(identifier, context.CancellationToken);
+				if (symbolInfo.Symbol is IPropertySymbol propertySymbol
+					&& propertySymbol.ContainingType?.SpecialType == SpecialType.System_DateTime)
 				{
 					// The code fix provider depends on this returning the location of the IdentifierNameSyntax.
 					Location location = identifier.GetLocation();
@@ -83,40 +83,6 @@ public sealed class Men013UseUtcTime : Analyzer
 				}
 			}
 		}
-	}
-
-	private static bool IsSystemDateTimeReference(ExpressionSyntax expression)
-	{
-		var result = expression switch
-		{
-			MemberAccessExpressionSyntax memberAccess => memberAccess.Expression.ToString() == "System" && memberAccess.Name.ToString() == "DateTime",
-			IdentifierNameSyntax identifier => identifier.ToString() == "DateTime" && HasUsingDirective(identifier.SyntaxTree, "System"),
-			QualifiedNameSyntax qualified => qualified.ToString() == "System.DateTime",
-			_ => false,
-		};
-		return result;
-	}
-
-	private static bool HasUsingDirective(SyntaxTree syntaxTree, string name)
-	{
-		IEnumerable<UsingDirectiveSyntax> usingDirectives = GetUsingDirectives(syntaxTree);
-		bool result = usingDirectives.Any(directive => string.IsNullOrEmpty(directive.StaticKeyword.Text) && directive.Name?.ToString() == name);
-		return result;
-	}
-
-	private static bool IsUsingStaticDateTimeReference(SyntaxTree syntaxTree)
-	{
-		IEnumerable<UsingDirectiveSyntax> usingDirectives = GetUsingDirectives(syntaxTree);
-		bool result = usingDirectives.Any(directive => !string.IsNullOrEmpty(directive.StaticKeyword.Text)
-			&& directive.Name is not null && IsSystemDateTimeReference(directive.Name));
-		return result;
-	}
-
-	private static IEnumerable<UsingDirectiveSyntax> GetUsingDirectives(SyntaxTree syntaxTree)
-	{
-		return syntaxTree.GetRoot().DescendantNodes()
-			.Where(node => node.IsKind(SyntaxKind.UsingDirective))
-			.Select(directive => (UsingDirectiveSyntax)directive);
 	}
 
 	private static ImmutableDictionary<string, string?> GetProperties(IdentifierNameSyntax identifier, string preferredText)
