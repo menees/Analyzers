@@ -139,5 +139,71 @@ internal sealed class VarStyleCategorySettings
 		return result;
 	}
 
+	internal static VarStyleCategorySettings Resolve(AnalyzerConfigOptions options, string keyPrefix, VarStyleCategorySettings fallback)
+	{
+		VarStyleCategorySettings result = fallback;
+
+		if (options.TryGetValue(keyPrefix, out string? modeValue) && !string.IsNullOrWhiteSpace(modeValue))
+		{
+			modeValue = modeValue.Trim();
+
+			if (string.Equals(modeValue, "use_explicit_type", StringComparison.OrdinalIgnoreCase))
+			{
+				result = new VarStyleCategorySettings(
+					VarStyleMode.UseExplicitType,
+					hasConditions: false,
+					conditionalForeach: false,
+					conditionalLinqScalarResult: false,
+					conditionalLinqCollectionResult: false,
+					conditionalLinqAggregateResult: false,
+					conditionalLongTypeName: false,
+					DefaultLongTypeNameLength,
+					conditionalEvident: false);
+			}
+			else if (string.Equals(modeValue, "use_var", StringComparison.OrdinalIgnoreCase))
+			{
+				bool hasForeach = GetBool(options, keyPrefix + ".foreach");
+				bool hasLinqScalarResult = GetBool(options, keyPrefix + ".linq_scalar_result");
+				bool hasLinqCollectionResult = GetBool(options, keyPrefix + ".linq_collection_result");
+				bool hasLinqAggregateResult = GetBool(options, keyPrefix + ".linq_aggregate_result");
+				bool hasLongTypeName = GetBool(options, keyPrefix + ".long_type_name");
+				int longTypeNameLength = DefaultLongTypeNameLength;
+				if (hasLongTypeName
+					&& options.TryGetValue(keyPrefix + ".long_type_name_length", out string? lengthValue)
+					&& int.TryParse(lengthValue, out int parsedLength) && parsedLength > 0)
+				{
+					longTypeNameLength = parsedLength;
+				}
+
+				bool hasEvident = GetBool(options, keyPrefix + ".evident");
+				bool hasConditions = hasForeach || hasLinqScalarResult || hasLinqCollectionResult
+					|| hasLinqAggregateResult || hasLongTypeName || hasEvident;
+
+				result = new VarStyleCategorySettings(
+					VarStyleMode.UseVar,
+					hasConditions,
+					hasForeach,
+					hasLinqScalarResult,
+					hasLinqCollectionResult,
+					hasLinqAggregateResult,
+					hasLongTypeName,
+					longTypeNameLength,
+					hasEvident);
+			}
+		}
+
+		return result;
+	}
+
+	#endregion
+
+	#region Private Methods
+
+	private static bool GetBool(AnalyzerConfigOptions options, string key)
+	{
+		return options.TryGetValue(key, out string? value)
+			&& (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) || value == "1");
+	}
+
 	#endregion
 }

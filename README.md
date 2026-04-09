@@ -2,9 +2,7 @@
 
 # Analyzers 
 
-This project provides several new C# code analysis rules for Visual Studio 2015 and later. These rules can be used standalone, or they can be used with other analyzers like [StyleCopAnalyzers](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) and [Code-Cracker](https://github.com/code-cracker/code-cracker).
-
-Many of the rule limits can be configured using a Menees.Analyzers.Settings.xml file, which must comply with the Menees.Analyzers.Settings.xsd schema.  The schema and Settings.cs file (for "documentation") are available in the [Menees.Analyzers source code](src/Menees.Analyzers).  A project using Menees.Analyzers with a custom settings file should set the Build Action for its Menees.Analyzers.Settings.xml file to "C# analyzer additional file".
+This project provides several new C# code analysis rules for projects built with the .NET 10 SDK or later. These rules can be used with other analyzers like [\.NET's](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview).
 
 This software is CharityWare. If you use it, I ask that you donate something to the charity of your choice.
 
@@ -33,3 +31,73 @@ This software is CharityWare. If you use it, I ask that you donate something to 
 | MEN020B | Use preferred var style for built-in types | Local variable declarations for built-in types (e.g., `int`, `string`, `bool`) should use the preferred `var` style based on the configured BuiltInTypes rules. The BuiltInTypes category can contain a `<UseExplicitType />` or `<UseVar>` child element. `<UseVar>` can optionally include condition children (Foreach, LinqScalarResult, LinqCollectionResult, LinqAggregateResult, LongTypeName, Evident) to only allow `var` when a condition is met. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
 | MEN020S | Use preferred var style for simple types | Local variable declarations for simple types (non-generic, non-built-in types like `Guid`, `MyClass`) should use the preferred `var` style based on the configured SimpleTypes rules. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
 | MEN020E | Use preferred var style elsewhere | Local variable declarations for other types (e.g., generic types like `List<int>`, `Dictionary<string, int>`) should use the preferred `var` style based on the configured Elsewhere rules. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
+
+## Configuration
+
+Many of the rule limits and settings can be configured via `.editorconfig` or an XML settings file.
+When both are present, `.editorconfig` values take precedence over XML values, which take precedence over defaults.
+
+### .editorconfig
+
+Add `menees_analyzers.*` keys to your `.editorconfig` file:
+
+```ini
+[*.cs]
+menees_analyzers.max_line_columns = 120
+menees_analyzers.tab_size = 4
+menees_analyzers.allow_long_uri_lines = true
+menees_analyzers.preferred_term.Cancelled = Canceled
+menees_analyzers.var_style.built_in_types = use_explicit_type
+```
+
+#### Supported keys
+
+| Category | Key | Type | Default |
+|---|---|---|---|
+| Scalars | `menees_analyzers.tab_size` | int | `4` |
+| | `menees_analyzers.max_line_columns` | int | `160` |
+| | `menees_analyzers.notify_line_columns` | int | `160` |
+| | `menees_analyzers.max_method_lines` | int | `120` |
+| | `menees_analyzers.max_property_accessor_lines` | int | `80` |
+| | `menees_analyzers.max_file_lines` | int | `2000` |
+| | `menees_analyzers.max_unregioned_lines` | int | `100` |
+| | `menees_analyzers.allow_long_uri_lines` | bool | `true` |
+| | `menees_analyzers.allow_long_four_slash_comment_lines` | bool | `false` |
+| Cancellation | `menees_analyzers.cancellation.check_private_methods` | bool | `false` |
+| | `menees_analyzers.cancellation.check_private_types` | bool | `false` |
+| | `menees_analyzers.cancellation.property_names` | comma-delimited | `CancellationToken, Cancellation` |
+| Digit Separators | `menees_analyzers.decimal.min_size` | byte | `6` |
+| | `menees_analyzers.decimal.group_size` | byte | `3` |
+| | `menees_analyzers.hexadecimal.min_size` | byte | `8` |
+| | `menees_analyzers.hexadecimal.group_size` | byte | `4` |
+| | `menees_analyzers.binary.min_size` | byte | `8` |
+| | `menees_analyzers.binary.group_size` | byte | `4` |
+| Collections | `menees_analyzers.allowed_numeric_literals` | comma-delimited | `0, 1, 2, 100` |
+| | `menees_analyzers.allowed_numeric_caller_names` | comma-delimited | `FromDays, FromHours, ...` |
+| | `menees_analyzers.allowed_numeric_caller_regexes` | comma-delimited | _(none)_ |
+| | `menees_analyzers.test_class_attributes` | comma-delimited | `TestClass, TestFixture` |
+| | `menees_analyzers.test_method_attributes` | comma-delimited | `TestMethod, Test, Fact, Theory` |
+| File Exclusions | `menees_analyzers.analyze_file_name_exclusions` | comma-delimited | `GeneratedCode.cs` |
+| | `menees_analyzers.analyze_file_regex_exclusions` | comma-delimited | _(see [source](src/Menees.Analyzers/Settings.cs))_ |
+| | `menees_analyzers.type_file_name_exclusions` | comma-delimited | `Enumerations.cs, Interfaces.cs, Delegates.cs` |
+| | `menees_analyzers.type_file_regex_exclusions` | comma-delimited | _(see [source](src/Menees.Analyzers/Settings.cs))_ |
+| Preferred Terms | `menees_analyzers.preferred_term.<Avoid>` | string (Prefer) | _(merged with [defaults](src/Menees.Analyzers/Settings.cs))_ |
+| Var Style | `menees_analyzers.var_style.built_in_types` | `use_explicit_type` \| `use_var` | _(none)_ |
+| | `menees_analyzers.var_style.simple_types` | `use_explicit_type` \| `use_var` | _(none)_ |
+| | `menees_analyzers.var_style.elsewhere` | `use_explicit_type` \| `use_var` | _(none)_ |
+| Var Conditions | `menees_analyzers.var_style.<category>.foreach` | bool | |
+| | `menees_analyzers.var_style.<category>.linq_scalar_result` | bool | |
+| | `menees_analyzers.var_style.<category>.linq_collection_result` | bool | |
+| | `menees_analyzers.var_style.<category>.linq_aggregate_result` | bool | |
+| | `menees_analyzers.var_style.<category>.long_type_name` | bool | |
+| | `menees_analyzers.var_style.<category>.long_type_name_length` | int | `30` |
+| | `menees_analyzers.var_style.<category>.evident` | bool | |
+
+**Notes:**
+- Comma-delimited collections (e.g., `allowed_numeric_literals`) **replace** the defaults entirely when specified.
+- Preferred terms **merge** with the [defaults](src/Menees.Analyzers/Settings.cs): `.editorconfig` terms add to or override the default preferred terms.
+- Var style conditions (`foreach`, `evident`, etc.) apply only when the mode is `use_var`. The `<category>` placeholder is `built_in_types`, `simple_types`, or `elsewhere`.
+
+### XML settings file
+
+For backward compatibility, settings can also be configured using a `Menees.Analyzers.Settings.xml` file, which must comply with the `Menees.Analyzers.Settings.xsd` schema. The schema and `Settings.cs` file are available in the [Menees.Analyzers source code](src/Menees.Analyzers). A project using Menees.Analyzers with a custom XML settings file should set the Build Action for its `Menees.Analyzers.Settings.xml` file to "C# analyzer additional file".

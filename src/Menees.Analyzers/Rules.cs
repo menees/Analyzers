@@ -110,8 +110,8 @@ public static class Rules
 		context.RegisterCodeBlockAction(
 			c =>
 			{
-				ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
 				SyntaxTree tree = c.CodeBlock.SyntaxTree;
+				ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
 				if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 				{
 					action(c);
@@ -129,7 +129,7 @@ public static class Rules
 		context.RegisterSyntaxTreeAction(
 			c =>
 			{
-				ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
+				ConfigureSettings(context, analyzer, c.Options, c.Tree, c.CancellationToken);
 				if (!c.IsGeneratedDocument(analyzer.Settings))
 				{
 					action(c);
@@ -148,8 +148,8 @@ public static class Rules
 		context.RegisterSyntaxNodeAction(
 			c =>
 			{
-				ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
 				SyntaxTree? tree = c.Node?.SyntaxTree;
+				ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
 				if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 				{
 					action(c);
@@ -173,15 +173,16 @@ public static class Rules
 				if (initialize?.Invoke(compilationContext.Compilation) ?? true)
 				{
 					compilationContext.RegisterSymbolAction(
-						c =>
-						{
-							ConfigureSettings(context, analyzer, c.Options, c.CancellationToken);
-							if (c.Symbol.Locations.Any(location => location.SourceTree?.IsGeneratedDocument(analyzer.Settings, c.CancellationToken) is false))
+							c =>
 							{
-								action(c);
-							}
-						},
-						ImmutableArray.Create(symbolKinds));
+								SyntaxTree? tree = c.Symbol.Locations.FirstOrDefault(l => l.IsInSource)?.SourceTree;
+								ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
+								if (c.Symbol.Locations.Any(location => location.SourceTree?.IsGeneratedDocument(analyzer.Settings, c.CancellationToken) is false))
+								{
+									action(c);
+								}
+							},
+							ImmutableArray.Create(symbolKinds));
 				}
 			});
 	}
@@ -205,11 +206,15 @@ public static class Rules
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 	}
 
-	private static void ConfigureSettings(AnalysisContext context, Analyzer analyzer, AnalyzerOptions options, CancellationToken cancellationToken)
+	private static void ConfigureSettings(AnalysisContext context, Analyzer analyzer, AnalyzerOptions options, SyntaxTree? tree, CancellationToken cancellationToken)
 	{
 		if (analyzer.Settings?.IsDefault ?? true)
 		{
-			analyzer.Settings = Settings.Cache(context, options, cancellationToken);
+			Settings xmlSettings = Settings.Cache(context, options, cancellationToken);
+			AnalyzerConfigOptions? configOptions = tree != null
+				? options.AnalyzerConfigOptionsProvider.GetOptions(tree)
+				: null;
+			analyzer.Settings = Settings.Resolve(xmlSettings, configOptions);
 		}
 	}
 

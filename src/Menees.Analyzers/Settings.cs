@@ -14,6 +14,7 @@ internal sealed partial class Settings
 
 	private const string SettingsBaseName = "Menees.Analyzers.Settings";
 	private const string SettingsFileName = SettingsBaseName + ".xml";
+	private const string EditorConfigPrefix = "menees_analyzers.";
 
 	private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
 
@@ -190,6 +191,54 @@ internal sealed partial class Settings
 		this.FinishConstruction();
 	}
 
+	private Settings(Settings xmlBase, AnalyzerConfigOptions options, IReadOnlyList<string> meneesKeys)
+	{
+		// Scalars (.editorconfig overrides XML, which overrides defaults).
+		this.TabSize = GetConfigInt(options, "tab_size") ?? xmlBase.TabSize;
+		this.MaxLineColumns = GetConfigInt(options, "max_line_columns") ?? xmlBase.MaxLineColumns;
+		this.NotifyLineColumns = GetConfigInt(options, "notify_line_columns") ?? xmlBase.NotifyLineColumns;
+		this.MaxMethodLines = GetConfigInt(options, "max_method_lines") ?? xmlBase.MaxMethodLines;
+		this.MaxPropertyAccessorLines = GetConfigInt(options, "max_property_accessor_lines") ?? xmlBase.MaxPropertyAccessorLines;
+		this.MaxFileLines = GetConfigInt(options, "max_file_lines") ?? xmlBase.MaxFileLines;
+		this.MaxUnregionedLines = GetConfigInt(options, "max_unregioned_lines") ?? xmlBase.MaxUnregionedLines;
+		this.AllowLongUriLines = GetConfigBool(options, "allow_long_uri_lines") ?? xmlBase.AllowLongUriLines;
+		this.AllowLongFourSlashCommentLines = GetConfigBool(options, "allow_long_four_slash_comment_lines") ?? xmlBase.AllowLongFourSlashCommentLines;
+
+		// Nested scalars
+		this.CheckPrivateMethodsForCancellation = GetConfigBool(options, "cancellation.check_private_methods") ?? xmlBase.CheckPrivateMethodsForCancellation;
+		this.CheckPrivateTypesForCancellation = GetConfigBool(options, "cancellation.check_private_types") ?? xmlBase.CheckPrivateTypesForCancellation;
+		this.DecimalSeparators = GetConfigDigitSeparators(options, "decimal", xmlBase.DecimalSeparators);
+		this.HexadecimalSeparators = GetConfigDigitSeparators(options, "hexadecimal", xmlBase.HexadecimalSeparators);
+		this.BinarySeparators = GetConfigDigitSeparators(options, "binary", xmlBase.BinarySeparators);
+
+		// Comma-delimited collections (replace entire collection when specified)
+		this.allowedNumericLiterals = GetConfigStringSet(options, "allowed_numeric_literals") ?? xmlBase.allowedNumericLiterals;
+		this.allowedNumericCallerNames = GetConfigStringSet(options, "allowed_numeric_caller_names") ?? xmlBase.allowedNumericCallerNames;
+		this.TestClassAttributeNames = GetConfigStringSet(options, "test_class_attributes") ?? xmlBase.TestClassAttributeNames;
+		this.TestMethodAttributeNames = GetConfigStringSet(options, "test_method_attributes") ?? xmlBase.TestMethodAttributeNames;
+		this.PropertyNamesForCancellation = GetConfigStringSet(options, "cancellation.property_names") ?? xmlBase.PropertyNamesForCancellation;
+
+		// File exclusions (comma-delimited file names and/or regexes)
+		this.analyzeFileNameExclusions = GetConfigFileExclusions(options, "analyze_file") ?? xmlBase.analyzeFileNameExclusions;
+		this.typeFileNameExclusions = GetConfigFileExclusions(options, "type_file") ?? xmlBase.typeFileNameExclusions;
+
+		// Caller regexes (comma-delimited)
+		this.allowedNumericCallerRegexes = GetConfigCallerRegexes(options) ?? xmlBase.allowedNumericCallerRegexes;
+
+		// Preferred terms (merge: .editorconfig adds to or overrides XML terms)
+		this.preferredTerms = GetConfigPreferredTerms(options, meneesKeys, xmlBase.preferredTerms);
+
+		// VarStyle
+		this.VarBuiltInTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.built_in_types", xmlBase.VarBuiltInTypes);
+		this.VarSimpleTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.simple_types", xmlBase.VarSimpleTypes);
+		this.VarElsewhere = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.elsewhere", xmlBase.VarElsewhere);
+		this.HasVarStylePreferences = this.VarBuiltInTypes.Mode != VarStyleMode.None
+			|| this.VarSimpleTypes.Mode != VarStyleMode.None
+			|| this.VarElsewhere.Mode != VarStyleMode.None;
+
+		this.FinishConstruction();
+	}
+
 	#endregion
 
 	#region Public Properties
@@ -275,6 +324,22 @@ internal sealed partial class Settings
 		if (sourceText == null || !context.TryGetValue(sourceText, ValueProvider, out Settings? result))
 		{
 			result = DefaultSettings;
+		}
+
+		return result;
+	}
+
+	public static Settings Resolve(Settings xmlSettings, AnalyzerConfigOptions? configOptions)
+	{
+		Settings result = xmlSettings;
+
+		if (configOptions is not null)
+		{
+			IReadOnlyList<string>? meneesKeys = GetMeneesKeys(configOptions);
+			if (meneesKeys is { Count: > 0 })
+			{
+				result = new Settings(xmlSettings, configOptions, meneesKeys);
+			}
 		}
 
 		return result;
@@ -589,6 +654,168 @@ internal sealed partial class Settings
 	{
 		NormalizeAttributeNames(this.TestClassAttributeNames);
 		NormalizeAttributeNames(this.TestMethodAttributeNames);
+	}
+
+	private static IReadOnlyList<string>? GetMeneesKeys(AnalyzerConfigOptions options)
+	{
+		List<string>? result = null;
+
+		try
+		{
+			foreach (string key in options.Keys)
+			{
+				if (key.StartsWith(EditorConfigPrefix, StringComparison.OrdinalIgnoreCase))
+				{
+					(result ??= []).Add(key);
+				}
+			}
+		}
+		catch (NotImplementedException)
+		{
+		}
+
+		return result;
+	}
+
+	private static int? GetConfigInt(AnalyzerConfigOptions options, string keySuffix)
+	{
+		int? result = null;
+
+		if (options.TryGetValue(EditorConfigPrefix + keySuffix, out string? value)
+			&& int.TryParse(value, out int parsed) && parsed > 0)
+		{
+			result = parsed;
+		}
+
+		return result;
+	}
+
+	private static bool? GetConfigBool(AnalyzerConfigOptions options, string keySuffix)
+	{
+		bool? result = null;
+
+		if (options.TryGetValue(EditorConfigPrefix + keySuffix, out string? value)
+			&& TryParseXsBoolean(value, out bool parsed))
+		{
+			result = parsed;
+		}
+
+		return result;
+	}
+
+	private static byte? GetConfigByte(AnalyzerConfigOptions options, string keySuffix)
+	{
+		byte? result = null;
+
+		if (options.TryGetValue(EditorConfigPrefix + keySuffix, out string? value)
+			&& byte.TryParse(value, out byte parsed))
+		{
+			result = parsed;
+		}
+
+		return result;
+	}
+
+	private static (byte MinSize, byte GroupSize) GetConfigDigitSeparators(
+		AnalyzerConfigOptions options, string baseName, (byte MinSize, byte GroupSize) fallback)
+	{
+		byte minSize = GetConfigByte(options, baseName + ".min_size") ?? fallback.MinSize;
+		byte groupSize = GetConfigByte(options, baseName + ".group_size") ?? fallback.GroupSize;
+		return (minSize, groupSize);
+	}
+
+	private static HashSet<string>? GetConfigStringSet(AnalyzerConfigOptions options, string keySuffix)
+	{
+		HashSet<string>? result = null;
+
+		if (options.TryGetValue(EditorConfigPrefix + keySuffix, out string? value)
+			&& !string.IsNullOrWhiteSpace(value))
+		{
+			result = [.. value.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0)];
+		}
+
+		return result;
+	}
+
+	private static IEnumerable<Predicate<string>>? GetConfigFileExclusions(
+		AnalyzerConfigOptions options, string exclusionPrefix)
+	{
+		string nameKey = exclusionPrefix + "_name_exclusions";
+		string regexKey = exclusionPrefix + "_regex_exclusions";
+
+		bool hasNames = options.TryGetValue(EditorConfigPrefix + nameKey, out string? nameValue) && !string.IsNullOrWhiteSpace(nameValue);
+		bool hasRegexes = options.TryGetValue(EditorConfigPrefix + regexKey, out string? regexValue) && !string.IsNullOrWhiteSpace(regexValue);
+
+		List<Predicate<string>>? result = null;
+
+		if (hasNames || hasRegexes)
+		{
+			result = [];
+			if (hasNames)
+			{
+				result.AddRange(nameValue!.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).Select(CreateFileNamePredicate));
+			}
+
+			if (hasRegexes)
+			{
+				result.AddRange(regexValue!.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).Select(CreateFileRegexPredicate));
+			}
+		}
+
+		return result;
+	}
+
+	private static IEnumerable<Predicate<string>>? GetConfigCallerRegexes(AnalyzerConfigOptions options)
+	{
+		IEnumerable<Predicate<string>>? result = null;
+
+		if (options.TryGetValue(EditorConfigPrefix + "allowed_numeric_caller_regexes", out string? value)
+			&& !string.IsNullOrWhiteSpace(value))
+		{
+			result =
+			[
+				.. value.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0)
+					.Select<string, Predicate<string>>(pattern =>
+					{
+						Regex regex = new(pattern, RegexOptions.Compiled);
+						return callerName => regex.IsMatch(callerName);
+					}),
+			];
+		}
+
+		return result;
+	}
+
+	private static Dictionary<string, string> GetConfigPreferredTerms(
+		AnalyzerConfigOptions options, IReadOnlyList<string> meneesKeys, Dictionary<string, string> fallback)
+	{
+		const string TermPrefix = EditorConfigPrefix + "preferred_term.";
+		List<KeyValuePair<string, string>>? terms = null;
+		foreach (string key in meneesKeys)
+		{
+			if (key.StartsWith(TermPrefix, StringComparison.OrdinalIgnoreCase)
+				&& key.Length > TermPrefix.Length
+				&& options.TryGetValue(key, out string? prefer)
+				&& !string.IsNullOrWhiteSpace(prefer))
+			{
+				string avoid = key.Substring(TermPrefix.Length);
+				(terms ??= []).Add(new(avoid, prefer.Trim()));
+			}
+		}
+
+		Dictionary<string, string> result = fallback;
+
+		if (terms is not null)
+		{
+			// Merge: start with fallback, override/add with .editorconfig terms.
+			result = new(fallback);
+			foreach (KeyValuePair<string, string> term in terms)
+			{
+				result[term.Key] = term.Value;
+			}
+		}
+
+		return result;
 	}
 
 	#endregion
