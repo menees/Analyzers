@@ -1,0 +1,56 @@
+[*.cs]
+menees_analyzers.tab_size = 4
+
+# Note: The rest of these values are intentionally set small for unit testing. Production values should be larger.
+menees_analyzers.notify_line_columns = 35
+menees_analyzers.max_line_columns = 40
+menees_analyzers.max_method_lines = 5
+menees_analyzers.max_property_accessor_lines = 5
+menees_analyzers.max_file_lines = 20
+menees_analyzers.max_unregioned_lines = 20
+menees_analyzers.allow_long_four_slash_comment_lines = true
+
+menees_analyzers.analyze_file_name_exclusions = Test21.cs
+menees_analyzers.analyze_file_regex_exclusions = \..*Gen.*\.cs
+
+menees_analyzers.type_file_name_exclusions = Enumerations.cs, Interfaces.cs, Delegates.cs
+menees_analyzers.type_file_regex_exclusions = .*AssemblyInfo\.cs$
+
+menees_analyzers.allowed_numeric_literals = 0, 1, 2
+menees_analyzers.allowed_numeric_caller_names = FromDays, MaxLength
+menees_analyzers.allowed_numeric_caller_regexes = ^From(Hours|Minutes)$
+
+menees_analyzers.test_class_attributes = TestClass, TestFixture
+menees_analyzers.test_method_attributes = TestMethod, Test
+
+menees_analyzers.preferred_term.Cancelled = Canceled
+menees_analyzers.preferred_term.Colour = Color
+menees_analyzers.preferred_term.ID = Id
+menees_analyzers.preferred_term.Indices = Indexes
+menees_analyzers.preferred_term.Kustom = Custom
+
+menees_analyzers.decimal.min_size = 4
+menees_analyzers.decimal.group_size = 3
+menees_analyzers.hexadecimal.min_size = 3
+menees_analyzers.hexadecimal.group_size = 2
+menees_analyzers.binary.min_size = 5
+menees_analyzers.binary.group_size = 4
+
+menees_analyzers.cancellation.check_private_methods = true
+menees_analyzers.cancellation.check_private_types = true
+menees_analyzers.cancellation.property_names = CancellationToken, Cancellation, Cancel
+
+menees_analyzers.var_style.built_in_types = use_explicit_type
+menees_analyzers.var_style.simple_types = use_var
+menees_analyzers.var_style.simple_types.foreach = true
+menees_analyzers.var_style.simple_types.long_type_name = true
+menees_analyzers.var_style.simple_types.long_type_name_length = 30
+menees_analyzers.var_style.simple_types.evident = true
+menees_analyzers.var_style.elsewhere = use_var
+menees_analyzers.var_style.elsewhere.foreach = true
+menees_analyzers.var_style.elsewhere.linq_scalar_result = true
+menees_analyzers.var_style.elsewhere.linq_collection_result = true
+menees_analyzers.var_style.elsewhere.linq_aggregate_result = true
+menees_analyzers.var_style.elsewhere.long_type_name = true
+menees_analyzers.var_style.elsewhere.long_type_name_length = 30
+menees_analyzers.var_style.elsewhere.evident = true

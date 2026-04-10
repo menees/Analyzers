@@ -36,6 +36,7 @@
 
 ## Project Structure
 
+<!-- DOTNET_VERSION: Tell Copilot what .NET versions the tests target. -->
 * This is a Roslyn analyzer project targeting .NET Standard 2.0 (for the analyzer) and .NET 10 / .NET Framework 4.8 (for tests and VSIX).
 * Assemblies are strong-name signed.
-* Configuration is supported via `.editorconfig` (preferred) and `Menees.Analyzers.Settings.xml`.
+* Configuration is supported via `.editorconfig`.

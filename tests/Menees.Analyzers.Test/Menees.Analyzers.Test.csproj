@@ -6,10 +6,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<AdditionalFiles Include="Menees.Analyzers.Settings.xml" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Include="..\ParallelizeUnitTests.cs" Link="ParallelizeUnitTests.cs" />
 	</ItemGroup>
 
@@ -25,18 +21,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Menees.Analyzers.CodeFixes\Menees.Analyzers.CodeFixes.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Update="Properties\Resources.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Resources.resx</DependentUpon>
-		</Compile>
-		<EmbeddedResource Update="Properties\Resources.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>

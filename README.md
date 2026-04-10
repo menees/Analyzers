@@ -9,16 +9,16 @@ This software is CharityWare. If you use it, I ask that you donate something to 
 | ID  | Title | Comment |
 | ------ | ----------------------------------- | --- |
 | MEN001 | Tabs should be used for indentation | Ensures tabs are used for indentation instead of spaces. This is the _opposite_ of StyleCop's [SA1027: TabsMustNotBeUsed](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1027.md) rule. This is similar to the StyleCop+ rule [SP2001: CheckAllowedIndentationCharacters](https://stylecopplus.codeplex.com/#MoreCustomRules) when set to "Tabs only".<br><br>This rule is off by default because it conflicts with Visual Studio's default settings, which use spaces instead of tabs for indentation. This rule can be enabled using a custom ruleset file, and it includes a code fix provider.  |
-| MEN002 | Line is too long  | Ensures that lines are not longer than 160 characters. This is similar to the StyleCop+ rule [SP2100: CodeLineMustNotBeLongerThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxLineColumns and TabSize values for this rule can be configured in Menees.Analyzers.Settings.xml. |
-| MEN002A | Line is long  | Notifies when lines are longer than 160 characters. This rule is off by default because MEN002 takes precedence and is sufficient for most cases. If you enable this rule, then you should also configure NotifyLineColumns to be less than MaxLineColumns in Menees.Analyzers.Settings.xml. |
-| MEN003 | Method is too long | Ensures that methods are not longer than 120 lines. This is similar to the StyleCop+ rule [SP2101: MethodMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxMethodLines limit for this rule can be configured in Menees.Analyzers.Settings.xml.  |
-| MEN004 | Property accessor is too long | Ensures that property accessors are not longer than 80 lines. This is similar to the StyleCop+ rule [SP2102: PropertyMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxPropertyAccessorLines limit for this rule can be configured in Menees.Analyzers.Settings.xml. |
-| MEN005 | File is too long  | Ensures that files are not longer than 2000 lines. This is similar to the StyleCop+ rule [SP2103: FileMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxFileLines limit for this rule can be configured in Menees.Analyzers.Settings.xml. |
-| MEN006 | #regions should be used | Recommends that #regions be used when there are over 100 lines in a file or if there is more than one class, struct, enum, or interface defined in a file.<br><br>This rule is off by default because it conflicts with StyleCop's [SA1124: DoNotUseRegions](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1124.md) rule. This rule can be enabled using a custom ruleset file. The MaxUnregionedLines limit for this rule can be configured in Menees.Analyzers.Settings.xml.<br><br>Note: [Menees VS Tools](https://github.com/menees/VsTools) can be used to easily add, collapse, and expand #regions in C# code (as well as in VB, XML, XAML, HTML, SQL, JavaScript, and TypeScript code). |
+| MEN002 | Line is too long  | Ensures that lines are not longer than 160 characters. This is similar to the StyleCop+ rule [SP2100: CodeLineMustNotBeLongerThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxLineColumns and TabSize values for this rule can be configured in `.editorconfig`. |
+| MEN002A | Line is long  | Notifies when lines are longer than 160 characters. This rule is off by default because MEN002 takes precedence and is sufficient for most cases. If you enable this rule, then you should also configure NotifyLineColumns to be less than MaxLineColumns in `.editorconfig`. |
+| MEN003 | Method is too long | Ensures that methods are not longer than 120 lines. This is similar to the StyleCop+ rule [SP2101: MethodMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxMethodLines limit for this rule can be configured in `.editorconfig`.  |
+| MEN004 | Property accessor is too long | Ensures that property accessors are not longer than 80 lines. This is similar to the StyleCop+ rule [SP2102: PropertyMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxPropertyAccessorLines limit for this rule can be configured in `.editorconfig`. |
+| MEN005 | File is too long  | Ensures that files are not longer than 2000 lines. This is similar to the StyleCop+ rule [SP2103: FileMustNotContainMoreLinesThan](https://stylecopplus.codeplex.com/#MoreCustomRules). The MaxFileLines limit for this rule can be configured in `.editorconfig`. |
+| MEN006 | #regions should be used | Recommends that #regions be used when there are over 100 lines in a file or if there is more than one class, struct, enum, or interface defined in a file.<br><br>This rule is off by default because it conflicts with StyleCop's [SA1124: DoNotUseRegions](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1124.md) rule. This rule can be enabled using a custom ruleset file. The MaxUnregionedLines limit for this rule can be configured in `.editorconfig`.<br><br>Note: [Menees VS Tools](https://github.com/menees/VsTools) can be used to easily add, collapse, and expand #regions in C# code (as well as in VB, XML, XAML, HTML, SQL, JavaScript, and TypeScript code). |
 | MEN007 | Use a single return  | Recommends that only a single return statement should be used in a code block. "_One entry, one exit_" keeps control flow simple and makes refactoring easier. |
-| MEN008 | File name should match type | Ensures that a file name matches or includes the name of the main type it contains. The TypeFileNameExclusions for this rule can be configured in Menees.Analyzers.Settings.xml. |
+| MEN008 | File name should match type | Ensures that a file name matches or includes the name of the main type it contains. The TypeFileNameExclusions for this rule can be configured in `.editorconfig`. |
 | MEN009 | Use the preferred exception type | Recommends preferred exception types (e.g., [NotSupportedException instead of NotImplementedException](http://blogs.msdn.com/b/brada/archive/2004/07/29/201354.aspx)). This rule is a complement to [CA2201](https://msdn.microsoft.com/library/ms182338.aspx), and it includes a code fix provider. |
-| MEN010 | Avoid magic numbers  | Recommends that named constants be used instead of numeric literals (i.e., [magic numbers](https://en.wikipedia.org/wiki/Magic_number_(programming)#Accepted_limited_use_of_magic_numbers)). The AllowedNumericLiterals for this rule can be configured in Menees.Analyzers.Settings.xml. |
+| MEN010 | Avoid magic numbers  | Recommends that named constants be used instead of numeric literals (i.e., [magic numbers](https://en.wikipedia.org/wiki/Magic_number_(programming)#Accepted_limited_use_of_magic_numbers)). The AllowedNumericLiterals for this rule can be configured in `.editorconfig`. |
 | MEN011 | Align using directives  | Ensures that using directives are aligned.  This is important when using directives are nested inside a namespace (per [SA1200: UsingDirectivesMustBePlacedWithinNamespace](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1200.md)) because Visual Studio will often fail to indent them correctly if they're added while code contains syntax errors.  This rule includes a code fix provider. |
 | MEN012 | Flags should be powers of two | Flags enum members should be powers of two or bitwise-or combinations of named members. This rule is a complement to [CA2217](https://msdn.microsoft.com/en-us/library/ms182335.aspx). |
 | MEN013 | Use UTC time | Recommends UTC times because they're unambiguous and always increasing. This rule includes a code fix provider.  |
@@ -28,14 +28,13 @@ This software is CharityWare. If you use it, I ask that you donate something to 
 | MEN017 | Remove Unused Private Setter | A private set accessor is not needed when an auto property is only assigned in the constructor. Inspired by [C# Essentials' Use Getter-Only Auto-Property](https://github.com/DustinCampbell/CSharpEssentials?tab=readme-ov-file#use-getter-only-auto-property). |
 | MEN018 | Use Digit Separators | Numeric literals should use digit separators ('_' from C# 7) to improve readability. This applies to hexadecimal, binary, and [integer](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types#integer-literals) or [real](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types#real-literals) literals. |
 | MEN019 | Async method needs CancellationToken | An async method should take a [CancellationToken](https://learn.microsoft.com/en-us/dotnet/api/system.threading.cancellationtoken) parameter or take a parameter that has a public CancellationToken property. Inspired by [this dotnet issue](https://github.com/dotnet/runtime/issues/78397) and related to [CA2016](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2016) and [CA1068](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1068#special-cases). |
-| MEN020B | Use preferred var style for built-in types | Local variable declarations for built-in types (e.g., `int`, `string`, `bool`) should use the preferred `var` style based on the configured BuiltInTypes rules. The BuiltInTypes category can contain a `<UseExplicitType />` or `<UseVar>` child element. `<UseVar>` can optionally include condition children (Foreach, LinqScalarResult, LinqCollectionResult, LinqAggregateResult, LongTypeName, Evident) to only allow `var` when a condition is met. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
+| MEN020B | Use preferred var style for built-in types | Local variable declarations for built-in types (e.g., `int`, `string`, `bool`) should use the preferred `var` style based on the configured BuiltInTypes rules. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
 | MEN020S | Use preferred var style for simple types | Local variable declarations for simple types (non-generic, non-built-in types like `Guid`, `MyClass`) should use the preferred `var` style based on the configured SimpleTypes rules. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
 | MEN020E | Use preferred var style elsewhere | Local variable declarations for other types (e.g., generic types like `List<int>`, `Dictionary<string, int>`) should use the preferred `var` style based on the configured Elsewhere rules. This rule includes a code fix provider and is related to [IDE0007 and IDE0008](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007-ide0008). |
 
 ## Configuration
 
-Many of the rule limits and settings can be configured via `.editorconfig` or an XML settings file.
-When both are present, `.editorconfig` values take precedence over XML values, which take precedence over defaults.
+Many of the rule limits and settings can be configured via `.editorconfig`.
 
 ### .editorconfig
 
@@ -98,6 +97,48 @@ menees_analyzers.var_style.built_in_types = use_explicit_type
 - Preferred terms **merge** with the [defaults](src/Menees.Analyzers/Settings.cs): `.editorconfig` terms add to or override the default preferred terms.
 - Var style conditions (`foreach`, `evident`, etc.) apply only when the mode is `use_var`. The `<category>` placeholder is `built_in_types`, `simple_types`, or `elsewhere`.
 
-### XML settings file
+### Migrating From XML Settings
 
-For backward compatibility, settings can also be configured using a `Menees.Analyzers.Settings.xml` file, which must comply with the `Menees.Analyzers.Settings.xsd` schema. The schema and `Settings.cs` file are available in the [Menees.Analyzers source code](src/Menees.Analyzers). A project using Menees.Analyzers with a custom XML settings file should set the Build Action for its `Menees.Analyzers.Settings.xml` file to "C# analyzer additional file".
+In version 4.0, support for `Menees.Analyzers.Settings.xml` was removed. All settings must now be configured via `.editorconfig`.
+The following table maps each former XML setting (as an XPath expression) to its `.editorconfig` counterpart:
+
+| XML Setting (XPath) | .editorconfig Key |
+|---|---|
+| `/Menees.Analyzers.Settings/TabSize` | `menees_analyzers.tab_size` |
+| `/Menees.Analyzers.Settings/MaxLineColumns` | `menees_analyzers.max_line_columns` |
+| `/Menees.Analyzers.Settings/NotifyLineColumns` | `menees_analyzers.notify_line_columns` |
+| `/Menees.Analyzers.Settings/MaxMethodLines` | `menees_analyzers.max_method_lines` |
+| `/Menees.Analyzers.Settings/MaxPropertyAccessorLines` | `menees_analyzers.max_property_accessor_lines` |
+| `/Menees.Analyzers.Settings/MaxFileLines` | `menees_analyzers.max_file_lines` |
+| `/Menees.Analyzers.Settings/MaxUnregionedLines` | `menees_analyzers.max_unregioned_lines` |
+| `/Menees.Analyzers.Settings/AllowLongUriLines` | `menees_analyzers.allow_long_uri_lines` |
+| `/Menees.Analyzers.Settings/AllowLongFourSlashCommentLines` | `menees_analyzers.allow_long_four_slash_comment_lines` |
+| `/Menees.Analyzers.Settings/AnalyzeFileNameExclusions/FileName` | `menees_analyzers.analyze_file_name_exclusions` (comma-delimited) |
+| `/Menees.Analyzers.Settings/AnalyzeFileNameExclusions/FileRegex` | `menees_analyzers.analyze_file_regex_exclusions` (comma-delimited) |
+| `/Menees.Analyzers.Settings/TypeFileNameExclusions/FileName` | `menees_analyzers.type_file_name_exclusions` (comma-delimited) |
+| `/Menees.Analyzers.Settings/TypeFileNameExclusions/FileRegex` | `menees_analyzers.type_file_regex_exclusions` (comma-delimited) |
+| `/Menees.Analyzers.Settings/AllowedNumericLiterals/Literal` | `menees_analyzers.allowed_numeric_literals` (comma-delimited) |
+| `/Menees.Analyzers.Settings/AllowedNumericLiterals/CallerName` | `menees_analyzers.allowed_numeric_caller_names` (comma-delimited) |
+| `/Menees.Analyzers.Settings/AllowedNumericLiterals/CallerRegex` | `menees_analyzers.allowed_numeric_caller_regexes` (comma-delimited) |
+| `/Menees.Analyzers.Settings/UnitTestAttributes/Class` | `menees_analyzers.test_class_attributes` (comma-delimited) |
+| `/Menees.Analyzers.Settings/UnitTestAttributes/Method` | `menees_analyzers.test_method_attributes` (comma-delimited) |
+| `/Menees.Analyzers.Settings/PreferredTerms/Term[@Avoid]` | `menees_analyzers.preferred_term.<Avoid> = <Prefer>` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Decimal/@MinSize` | `menees_analyzers.decimal.min_size` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Decimal/@GroupSize` | `menees_analyzers.decimal.group_size` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Hexadecimal/@MinSize` | `menees_analyzers.hexadecimal.min_size` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Hexadecimal/@GroupSize` | `menees_analyzers.hexadecimal.group_size` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Binary/@MinSize` | `menees_analyzers.binary.min_size` |
+| `/Menees.Analyzers.Settings/DigitSeparators/Binary/@GroupSize` | `menees_analyzers.binary.group_size` |
+| `/Menees.Analyzers.Settings/SupportAsyncCancellationToken/@CheckPrivateMethods` | `menees_analyzers.cancellation.check_private_methods` |
+| `/Menees.Analyzers.Settings/SupportAsyncCancellationToken/@CheckPrivateTypes` | `menees_analyzers.cancellation.check_private_types` |
+| `/Menees.Analyzers.Settings/SupportAsyncCancellationToken/Properties/Property` | `menees_analyzers.cancellation.property_names` (comma-delimited) |
+| `/Menees.Analyzers.Settings/UsePreferredVarStyle/BuiltInTypes` | `menees_analyzers.var_style.built_in_types` |
+| `/Menees.Analyzers.Settings/UsePreferredVarStyle/SimpleTypes` | `menees_analyzers.var_style.simple_types` |
+| `/Menees.Analyzers.Settings/UsePreferredVarStyle/Elsewhere` | `menees_analyzers.var_style.elsewhere` |
+| `UseVar/Foreach` | `menees_analyzers.var_style.<category>.foreach` |
+| `UseVar/LinqScalarResult` | `menees_analyzers.var_style.<category>.linq_scalar_result` |
+| `UseVar/LinqCollectionResult` | `menees_analyzers.var_style.<category>.linq_collection_result` |
+| `UseVar/LinqAggregateResult` | `menees_analyzers.var_style.<category>.linq_aggregate_result` |
+| `UseVar/LongTypeName` | `menees_analyzers.var_style.<category>.long_type_name` |
+| `UseVar/LongTypeName/@Length` | `menees_analyzers.var_style.<category>.long_type_name_length` |
+| `UseVar/Evident` | `menees_analyzers.var_style.<category>.evident` |

@@ -4,7 +4,6 @@
 
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 #endregion
 
@@ -12,11 +11,12 @@ internal sealed partial class Settings
 {
 	#region Private Data Members
 
-	private const string SettingsBaseName = "Menees.Analyzers.Settings";
-	private const string SettingsFileName = SettingsBaseName + ".xml";
 	private const string EditorConfigPrefix = "menees_analyzers.";
 
-	private static readonly SourceTextValueProvider<Settings> ValueProvider = new(LoadSettings);
+	// Use a ConditionalWeakTable to share a single parsed Settings instance across all ~20 analyzer
+	// instances per compilation. GetValue is thread-safe and calls the factory at most once per key.
+	// The weak key reference ensures automatic cleanup when the compilation's options are GC'd.
+	private static readonly ConditionalWeakTable<AnalyzerConfigOptions, Settings> ResolvedCache = new();
 
 	private static readonly IEnumerable<Predicate<string>> DefaultAnalyzeFileNameExclusions =
 	[
@@ -92,146 +92,47 @@ internal sealed partial class Settings
 		this.FinishConstruction();
 	}
 
-	private Settings(XElement xml)
+	private Settings(Settings baseSettings, AnalyzerConfigOptions options, IReadOnlyList<string> meneesKeys)
 	{
-		this.TabSize = GetSetting(xml, nameof(this.TabSize), this.TabSize);
-		this.MaxLineColumns = GetSetting(xml, nameof(this.MaxLineColumns), this.MaxLineColumns);
-		this.NotifyLineColumns = GetSetting(xml, nameof(this.NotifyLineColumns), this.NotifyLineColumns);
-		this.MaxMethodLines = GetSetting(xml, nameof(this.MaxMethodLines), this.MaxMethodLines);
-		this.MaxPropertyAccessorLines = GetSetting(xml, nameof(this.MaxPropertyAccessorLines), this.MaxPropertyAccessorLines);
-		this.MaxFileLines = GetSetting(xml, nameof(this.MaxFileLines), this.MaxFileLines);
-		this.MaxUnregionedLines = GetSetting(xml, nameof(this.MaxUnregionedLines), this.MaxUnregionedLines);
-		this.AllowLongUriLines = GetSetting(xml, nameof(this.AllowLongUriLines), this.AllowLongUriLines);
-		this.AllowLongFourSlashCommentLines = GetSetting(xml, nameof(this.AllowLongFourSlashCommentLines), this.AllowLongFourSlashCommentLines);
-
-		this.analyzeFileNameExclusions = GetFileNameExclusions(xml, "AnalyzeFileNameExclusions", DefaultAnalyzeFileNameExclusions);
-		this.typeFileNameExclusions = GetFileNameExclusions(xml, "TypeFileNameExclusions", DefaultTypeFileNameExclusions);
-
-		XElement allowedNumericLiteralsElement = xml.Element("AllowedNumericLiterals");
-		if (allowedNumericLiteralsElement != null)
-		{
-			this.allowedNumericLiterals = [.. allowedNumericLiteralsElement.Elements("Literal").Select(literal => literal.Value)];
-			this.allowedNumericCallerNames = [.. allowedNumericLiteralsElement.Elements("CallerName").Select(callerName => callerName.Value)];
-			this.allowedNumericCallerRegexes = [.. allowedNumericLiteralsElement.Elements("CallerRegex").Select<XElement, Predicate<string>>(callerRegex =>
-			{
-				Regex regex = new(callerRegex.Value, RegexOptions.Compiled);
-				return callerName => regex.IsMatch(callerName);
-			})];
-		}
-
-		XElement unitTestAttributes = xml.Element("UnitTestAttributes");
-		if (unitTestAttributes != null)
-		{
-			this.TestClassAttributeNames = [.. unitTestAttributes.Elements("Class").Select(element => element.Value)];
-			this.TestMethodAttributeNames = [.. unitTestAttributes.Elements("Method").Select(element => element.Value)];
-		}
-
-		XElement preferredTermsElement = xml.Element("PreferredTerms");
-		if (preferredTermsElement != null)
-		{
-			this.preferredTerms = preferredTermsElement.Elements("Term")
-				.Select(term => new KeyValuePair<string, string>(term.Attribute("Avoid").Value, term.Attribute("Prefer").Value))
-				.ToDictionary(pair => pair.Key, pair => pair.Value);
-		}
-
-		XElement digitSeparators = xml.Element("DigitSeparators");
-		if (digitSeparators != null)
-		{
-			this.DecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Decimal"), this.DecimalSeparators);
-			this.HexadecimalSeparators = GetDigitSeparatorFormat(digitSeparators.Element("Hexadecimal"), this.HexadecimalSeparators);
-			this.BinarySeparators = GetDigitSeparatorFormat(digitSeparators.Element("Binary"), this.BinarySeparators);
-		}
-
-		XElement? usePreferredVarStyle = xml.Element("UsePreferredVarStyle");
-		if (usePreferredVarStyle != null)
-		{
-			XElement? builtInTypes = usePreferredVarStyle.Element("BuiltInTypes");
-			if (builtInTypes != null)
-			{
-				this.VarBuiltInTypes = VarStyleCategorySettings.Parse(builtInTypes);
-			}
-
-			XElement? simpleTypes = usePreferredVarStyle.Element("SimpleTypes");
-			if (simpleTypes != null)
-			{
-				this.VarSimpleTypes = VarStyleCategorySettings.Parse(simpleTypes);
-			}
-
-			XElement? elsewhere = usePreferredVarStyle.Element("Elsewhere");
-			if (elsewhere != null)
-			{
-				this.VarElsewhere = VarStyleCategorySettings.Parse(elsewhere);
-			}
-
-			this.HasVarStylePreferences = this.VarBuiltInTypes.Mode != VarStyleMode.None
-				|| this.VarSimpleTypes.Mode != VarStyleMode.None
-				|| this.VarElsewhere.Mode != VarStyleMode.None;
-		}
-
-		XElement? supportAsyncCancellationToken = xml.Element("SupportAsyncCancellationToken");
-		if (supportAsyncCancellationToken != null)
-		{
-			if (TryParseXsBoolean(supportAsyncCancellationToken.Attribute("CheckPrivateMethods")?.Value, out bool value))
-			{
-				this.CheckPrivateMethodsForCancellation = value;
-			}
-
-			if (TryParseXsBoolean(supportAsyncCancellationToken.Attribute("CheckPrivateTypes")?.Value, out value))
-			{
-				this.CheckPrivateTypesForCancellation = value;
-			}
-
-			XElement? properties = supportAsyncCancellationToken.Element("Properties");
-			if (properties != null)
-			{
-				this.PropertyNamesForCancellation = [.. properties.Elements("Property").Select(p => p.Value)];
-			}
-		}
-
-		this.FinishConstruction();
-	}
-
-	private Settings(Settings xmlBase, AnalyzerConfigOptions options, IReadOnlyList<string> meneesKeys)
-	{
-		// Scalars (.editorconfig overrides XML, which overrides defaults).
-		this.TabSize = GetConfigInt(options, "tab_size") ?? xmlBase.TabSize;
-		this.MaxLineColumns = GetConfigInt(options, "max_line_columns") ?? xmlBase.MaxLineColumns;
-		this.NotifyLineColumns = GetConfigInt(options, "notify_line_columns") ?? xmlBase.NotifyLineColumns;
-		this.MaxMethodLines = GetConfigInt(options, "max_method_lines") ?? xmlBase.MaxMethodLines;
-		this.MaxPropertyAccessorLines = GetConfigInt(options, "max_property_accessor_lines") ?? xmlBase.MaxPropertyAccessorLines;
-		this.MaxFileLines = GetConfigInt(options, "max_file_lines") ?? xmlBase.MaxFileLines;
-		this.MaxUnregionedLines = GetConfigInt(options, "max_unregioned_lines") ?? xmlBase.MaxUnregionedLines;
-		this.AllowLongUriLines = GetConfigBool(options, "allow_long_uri_lines") ?? xmlBase.AllowLongUriLines;
-		this.AllowLongFourSlashCommentLines = GetConfigBool(options, "allow_long_four_slash_comment_lines") ?? xmlBase.AllowLongFourSlashCommentLines;
+		// Scalars (.editorconfig overrides defaults).
+		this.TabSize = GetConfigInt(options, "tab_size") ?? baseSettings.TabSize;
+		this.MaxLineColumns = GetConfigInt(options, "max_line_columns") ?? baseSettings.MaxLineColumns;
+		this.NotifyLineColumns = GetConfigInt(options, "notify_line_columns") ?? baseSettings.NotifyLineColumns;
+		this.MaxMethodLines = GetConfigInt(options, "max_method_lines") ?? baseSettings.MaxMethodLines;
+		this.MaxPropertyAccessorLines = GetConfigInt(options, "max_property_accessor_lines") ?? baseSettings.MaxPropertyAccessorLines;
+		this.MaxFileLines = GetConfigInt(options, "max_file_lines") ?? baseSettings.MaxFileLines;
+		this.MaxUnregionedLines = GetConfigInt(options, "max_unregioned_lines") ?? baseSettings.MaxUnregionedLines;
+		this.AllowLongUriLines = GetConfigBool(options, "allow_long_uri_lines") ?? baseSettings.AllowLongUriLines;
+		this.AllowLongFourSlashCommentLines = GetConfigBool(options, "allow_long_four_slash_comment_lines") ?? baseSettings.AllowLongFourSlashCommentLines;
 
 		// Nested scalars
-		this.CheckPrivateMethodsForCancellation = GetConfigBool(options, "cancellation.check_private_methods") ?? xmlBase.CheckPrivateMethodsForCancellation;
-		this.CheckPrivateTypesForCancellation = GetConfigBool(options, "cancellation.check_private_types") ?? xmlBase.CheckPrivateTypesForCancellation;
-		this.DecimalSeparators = GetConfigDigitSeparators(options, "decimal", xmlBase.DecimalSeparators);
-		this.HexadecimalSeparators = GetConfigDigitSeparators(options, "hexadecimal", xmlBase.HexadecimalSeparators);
-		this.BinarySeparators = GetConfigDigitSeparators(options, "binary", xmlBase.BinarySeparators);
+		this.CheckPrivateMethodsForCancellation = GetConfigBool(options, "cancellation.check_private_methods") ?? baseSettings.CheckPrivateMethodsForCancellation;
+		this.CheckPrivateTypesForCancellation = GetConfigBool(options, "cancellation.check_private_types") ?? baseSettings.CheckPrivateTypesForCancellation;
+		this.DecimalSeparators = GetConfigDigitSeparators(options, "decimal", baseSettings.DecimalSeparators);
+		this.HexadecimalSeparators = GetConfigDigitSeparators(options, "hexadecimal", baseSettings.HexadecimalSeparators);
+		this.BinarySeparators = GetConfigDigitSeparators(options, "binary", baseSettings.BinarySeparators);
 
 		// Comma-delimited collections (replace entire collection when specified)
-		this.allowedNumericLiterals = GetConfigStringSet(options, "allowed_numeric_literals") ?? xmlBase.allowedNumericLiterals;
-		this.allowedNumericCallerNames = GetConfigStringSet(options, "allowed_numeric_caller_names") ?? xmlBase.allowedNumericCallerNames;
-		this.TestClassAttributeNames = GetConfigStringSet(options, "test_class_attributes") ?? xmlBase.TestClassAttributeNames;
-		this.TestMethodAttributeNames = GetConfigStringSet(options, "test_method_attributes") ?? xmlBase.TestMethodAttributeNames;
-		this.PropertyNamesForCancellation = GetConfigStringSet(options, "cancellation.property_names") ?? xmlBase.PropertyNamesForCancellation;
+		this.allowedNumericLiterals = GetConfigStringSet(options, "allowed_numeric_literals") ?? baseSettings.allowedNumericLiterals;
+		this.allowedNumericCallerNames = GetConfigStringSet(options, "allowed_numeric_caller_names") ?? baseSettings.allowedNumericCallerNames;
+		this.TestClassAttributeNames = GetConfigStringSet(options, "test_class_attributes") ?? baseSettings.TestClassAttributeNames;
+		this.TestMethodAttributeNames = GetConfigStringSet(options, "test_method_attributes") ?? baseSettings.TestMethodAttributeNames;
+		this.PropertyNamesForCancellation = GetConfigStringSet(options, "cancellation.property_names") ?? baseSettings.PropertyNamesForCancellation;
 
 		// File exclusions (comma-delimited file names and/or regexes)
-		this.analyzeFileNameExclusions = GetConfigFileExclusions(options, "analyze_file") ?? xmlBase.analyzeFileNameExclusions;
-		this.typeFileNameExclusions = GetConfigFileExclusions(options, "type_file") ?? xmlBase.typeFileNameExclusions;
+		this.analyzeFileNameExclusions = GetConfigFileExclusions(options, "analyze_file") ?? baseSettings.analyzeFileNameExclusions;
+		this.typeFileNameExclusions = GetConfigFileExclusions(options, "type_file") ?? baseSettings.typeFileNameExclusions;
 
 		// Caller regexes (comma-delimited)
-		this.allowedNumericCallerRegexes = GetConfigCallerRegexes(options) ?? xmlBase.allowedNumericCallerRegexes;
+		this.allowedNumericCallerRegexes = GetConfigCallerRegexes(options) ?? baseSettings.allowedNumericCallerRegexes;
 
-		// Preferred terms (merge: .editorconfig adds to or overrides XML terms)
-		this.preferredTerms = GetConfigPreferredTerms(options, meneesKeys, xmlBase.preferredTerms);
+		// Preferred terms (merge: .editorconfig adds to or overrides default terms)
+		this.preferredTerms = GetConfigPreferredTerms(options, meneesKeys, baseSettings.preferredTerms);
 
 		// VarStyle
-		this.VarBuiltInTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.built_in_types", xmlBase.VarBuiltInTypes);
-		this.VarSimpleTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.simple_types", xmlBase.VarSimpleTypes);
-		this.VarElsewhere = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.elsewhere", xmlBase.VarElsewhere);
+		this.VarBuiltInTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.built_in_types", baseSettings.VarBuiltInTypes);
+		this.VarSimpleTypes = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.simple_types", baseSettings.VarSimpleTypes);
+		this.VarElsewhere = VarStyleCategorySettings.Resolve(options, EditorConfigPrefix + "var_style.elsewhere", baseSettings.VarElsewhere);
 		this.HasVarStylePreferences = this.VarBuiltInTypes.Mode != VarStyleMode.None
 			|| this.VarSimpleTypes.Mode != VarStyleMode.None
 			|| this.VarElsewhere.Mode != VarStyleMode.None;
@@ -311,37 +212,11 @@ internal sealed partial class Settings
 
 	#region Public Methods
 
-	public static Settings Cache(AnalysisContext context, AnalyzerOptions options, CancellationToken cancellationToken)
+	public static Settings Resolve(AnalyzerConfigOptions? configOptions)
 	{
-		// See docs for using AdditionalFiles:
-		// https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Using%20Additional%20Files.md
-		// Using OrdinalIgnoreCase to compare file names per MSDN:
-		// https://msdn.microsoft.com/en-us/library/dd465121.aspx#choosing_a_stringcomparison_member_for_your_method_call
-		AdditionalText? additionalText = options?.AdditionalFiles
-			.FirstOrDefault(file => string.Equals(Path.GetFileName(file.Path), SettingsFileName, StringComparison.OrdinalIgnoreCase));
-
-		SourceText? sourceText = additionalText?.GetText(cancellationToken);
-		if (sourceText == null || !context.TryGetValue(sourceText, ValueProvider, out Settings? result))
-		{
-			result = DefaultSettings;
-		}
-
-		return result;
-	}
-
-	public static Settings Resolve(Settings xmlSettings, AnalyzerConfigOptions? configOptions)
-	{
-		Settings result = xmlSettings;
-
-		if (configOptions is not null)
-		{
-			IReadOnlyList<string>? meneesKeys = GetMeneesKeys(configOptions);
-			if (meneesKeys is { Count: > 0 })
-			{
-				result = new Settings(xmlSettings, configOptions, meneesKeys);
-			}
-		}
-
+		Settings result = configOptions is not null
+			? ResolvedCache.GetValue(configOptions, ResolveCore)
+			: DefaultSettings;
 		return result;
 	}
 
@@ -471,40 +346,19 @@ internal sealed partial class Settings
 
 	#region Private Methods
 
-	private static Settings LoadSettings(SourceText sourceText)
+	private static Settings ResolveCore(AnalyzerConfigOptions options)
 	{
-		string text = sourceText.ToString();
-		XElement xml = XElement.Parse(text);
-		Settings result = new(xml);
-		return result;
-	}
-
-	private static int GetSetting(XElement xml, string elementName, int defaultValue)
-		=> GetSetting(xml, elementName, defaultValue, (text, out value) => int.TryParse(text, out value) && value > 0);
-
-	private static bool GetSetting(XElement xml, string elementName, bool defaultValue)
-		=> GetSetting(xml, elementName, defaultValue, TryParseXsBoolean);
-
-	private static T GetSetting<T>(XElement xml, string elementName, T defaultValue, TryParse<T> tryParse)
-	{
-		T result = defaultValue;
-
-		XElement element = xml.Element(elementName);
-		if (element != null)
-		{
-			if (tryParse(element.Value, out T value))
-			{
-				result = value;
-			}
-		}
-
+		IReadOnlyList<string>? meneesKeys = GetMeneesKeys(options);
+		Settings result = meneesKeys is { Count: > 0 }
+			? new Settings(DefaultSettings, options, meneesKeys)
+			: DefaultSettings;
 		return result;
 	}
 
 	/// <summary>
-	/// Tries to parse an xs:boolean value, which allows true, false, 1, or 0.
+	/// Tries to parse a boolean value, which allows true, false, 1, or 0.
 	/// </summary>
-	private static bool TryParseXsBoolean(string? text, out bool value)
+	private static bool TryParseBoolean(string? text, out bool value)
 	{
 		bool result = bool.TryParse(text, out value);
 		if (!result)
@@ -528,25 +382,6 @@ internal sealed partial class Settings
 
 	private static Predicate<string> CreateFileNamePredicate(string fileName)
 		=> value => string.Equals(value, fileName, StringComparison.OrdinalIgnoreCase);
-
-
-	private static IEnumerable<Predicate<string>> GetFileNameExclusions(
-		XElement xml, string elementName, IEnumerable<Predicate<string>> defaultExclusions)
-	{
-		IEnumerable<Predicate<string>> result = defaultExclusions;
-
-		XElement exclusionsElement = xml.Element(elementName);
-		if (exclusionsElement != null)
-		{
-			result =
-				[
-					.. exclusionsElement.Elements("FileRegex").Select(element => CreateFileRegexPredicate(element.Value)),
-					.. exclusionsElement.Elements("FileName").Select(element => CreateFileNamePredicate(element.Value)),
-				];
-		}
-
-		return result;
-	}
 
 	private static bool IsFileNameCandidate(string filePath, IEnumerable<Predicate<string>> exclusions)
 	{
@@ -595,31 +430,6 @@ internal sealed partial class Settings
 		}
 
 		return (text, numericBase);
-	}
-
-	private (byte MinSize, byte GroupSize) GetDigitSeparatorFormat(XElement? baseElement, (byte MinSize, byte GroupSize) defaultSeparators)
-	{
-		(byte MinSize, byte GroupSize) result = defaultSeparators;
-
-		if (baseElement != null)
-		{
-			byte minSize = GetByte(baseElement, "MinSize", defaultSeparators.MinSize);
-			byte groupSize = GetByte(baseElement, "GroupSize", defaultSeparators.GroupSize);
-			result = (minSize, groupSize);
-		}
-
-		static byte GetByte(XElement element, string attributeName, byte defaultValue)
-		{
-			string? value = element.Attribute(attributeName)?.Value;
-			if (!byte.TryParse(value, out byte result))
-			{
-				result = defaultValue;
-			}
-
-			return result;
-		}
-
-		return result;
 	}
 
 	private static bool HasUnitTestAttribute(SyntaxList<AttributeListSyntax> attributeLists, ISet<string> unitTestAttributeNames)
@@ -695,7 +505,7 @@ internal sealed partial class Settings
 		bool? result = null;
 
 		if (options.TryGetValue(EditorConfigPrefix + keySuffix, out string? value)
-			&& TryParseXsBoolean(value, out bool parsed))
+			&& TryParseBoolean(value, out bool parsed))
 		{
 			result = parsed;
 		}
@@ -817,12 +627,6 @@ internal sealed partial class Settings
 
 		return result;
 	}
-
-	#endregion
-
-	#region Private Delegates
-
-	private delegate bool TryParse<T>(string text, out T value);
 
 	#endregion
 }

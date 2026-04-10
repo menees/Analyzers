@@ -111,7 +111,7 @@ public static class Rules
 			c =>
 			{
 				SyntaxTree tree = c.CodeBlock.SyntaxTree;
-				ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
+					ConfigureSettings(analyzer, c.Options, tree);
 				if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 				{
 					action(c);
@@ -129,7 +129,7 @@ public static class Rules
 		context.RegisterSyntaxTreeAction(
 			c =>
 			{
-				ConfigureSettings(context, analyzer, c.Options, c.Tree, c.CancellationToken);
+				ConfigureSettings(analyzer, c.Options, c.Tree);
 				if (!c.IsGeneratedDocument(analyzer.Settings))
 				{
 					action(c);
@@ -149,7 +149,7 @@ public static class Rules
 			c =>
 			{
 				SyntaxTree? tree = c.Node?.SyntaxTree;
-				ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
+					ConfigureSettings(analyzer, c.Options, tree);
 				if (tree != null && !tree.IsGeneratedDocument(analyzer.Settings, c.CancellationToken))
 				{
 					action(c);
@@ -176,7 +176,7 @@ public static class Rules
 							c =>
 							{
 								SyntaxTree? tree = c.Symbol.Locations.FirstOrDefault(l => l.IsInSource)?.SourceTree;
-								ConfigureSettings(context, analyzer, c.Options, tree, c.CancellationToken);
+									ConfigureSettings(analyzer, c.Options, tree);
 								if (c.Symbol.Locations.Any(location => location.SourceTree?.IsGeneratedDocument(analyzer.Settings, c.CancellationToken) is false))
 								{
 									action(c);
@@ -206,15 +206,14 @@ public static class Rules
 		context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 	}
 
-	private static void ConfigureSettings(AnalysisContext context, Analyzer analyzer, AnalyzerOptions options, SyntaxTree? tree, CancellationToken cancellationToken)
+	private static void ConfigureSettings(Analyzer analyzer, AnalyzerOptions options, SyntaxTree? tree)
 	{
 		if (analyzer.Settings?.IsDefault ?? true)
 		{
-			Settings xmlSettings = Settings.Cache(context, options, cancellationToken);
 			AnalyzerConfigOptions? configOptions = tree != null
 				? options.AnalyzerConfigOptionsProvider.GetOptions(tree)
 				: null;
-			analyzer.Settings = Settings.Resolve(xmlSettings, configOptions);
+			analyzer.Settings = Settings.Resolve(configOptions);
 		}
 	}
 

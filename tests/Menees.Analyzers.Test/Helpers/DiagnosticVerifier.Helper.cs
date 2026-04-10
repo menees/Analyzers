@@ -6,8 +6,6 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Xml;
-using System.Xml.Linq;
 
 /// <summary>
 /// Class for turning strings into documents and getting the diagnostics on them
@@ -63,9 +61,12 @@ public abstract partial class DiagnosticVerifier
 			projects.Add(document.Project);
 		}
 
-		AdditionalText additionalText = new AdditionalTextHelper("Menees.Analyzers.Settings.xml", Properties.Resources.Menees_Analyzers_Settings_Xml);
+		Dictionary<string, string> configEntries = LoadTestEditorConfig();
+		TestAnalyzerConfigOptions configOptions = new(configEntries);
+		TestAnalyzerConfigOptionsProvider configProvider = new(configOptions);
+#pragma warning disable IDE0301 // Simplify collection initialization. NET Framework 4.8 doesn't support collection expressions for ImmutableArray.Create.
 #pragma warning disable IDE0303 // Simplify collection initialization. NET Framework 4.8 doesn't support collection expressions for ImmutableArray.Create.
-		AnalyzerOptions options = new(ImmutableArray.Create(additionalText));
+		AnalyzerOptions options = new(ImmutableArray<AdditionalText>.Empty, configProvider);
 		List<Diagnostic> diagnostics = [];
 		foreach (Project project in projects)
 		{
@@ -73,6 +74,7 @@ public abstract partial class DiagnosticVerifier
 			ReportCompilationDiagnostics(compilation);
 			CompilationWithAnalyzers? compilationWithAnalyzers = compilation?.WithAnalyzers(ImmutableArray.Create(analyzer), options);
 #pragma warning restore IDE0303 // Simplify collection initialization
+#pragma warning restore IDE0301 // Simplify collection initialization
 
 			IEnumerable<Diagnostic> diags = compilationWithAnalyzers?.GetAnalyzerDiagnosticsAsync().Result ?? Enumerable.Empty<Diagnostic>();
 			foreach (Diagnostic diag in diags)
@@ -233,6 +235,45 @@ public abstract partial class DiagnosticVerifier
 
 	private static PortableExecutableReference CreateLibraryReference(string fileName)
 		=> MetadataReference.CreateFromFile(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), fileName));
+
+	private static Dictionary<string, string> LoadTestEditorConfig()
+	{
+		// Walk up from the test assembly's output directory to find the test project's .editorconfig.
+		string? directory = Path.GetDirectoryName(typeof(DiagnosticVerifier).Assembly.Location);
+		string? editorConfigPath = null;
+		while (directory != null)
+		{
+			string candidate = Path.Combine(directory, ".editorconfig");
+			if (File.Exists(candidate))
+			{
+				editorConfigPath = candidate;
+				break;
+			}
+
+			directory = Path.GetDirectoryName(directory);
+		}
+
+		Dictionary<string, string> result = [];
+		if (editorConfigPath != null)
+		{
+			foreach (string line in File.ReadAllLines(editorConfigPath))
+			{
+				string trimmed = line.Trim();
+				if (trimmed.Length > 0 && trimmed[0] != '#' && trimmed[0] != '[')
+				{
+					int equalsIndex = trimmed.IndexOf('=');
+					if (equalsIndex > 0)
+					{
+						string key = trimmed.Substring(0, equalsIndex).Trim();
+						string value = trimmed.Substring(equalsIndex + 1).Trim();
+						result[key] = value;
+					}
+				}
+			}
+		}
+
+		return result;
+	}
 
 	#endregion
 }
