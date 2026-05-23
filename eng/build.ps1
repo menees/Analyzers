@@ -43,7 +43,17 @@ if ($test)
 {
 	foreach ($configuration in $configurations)
 	{
-		dotnet test $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
+		# Note: We pipe through a filter to suppress known benign "Failed to load extensions" warnings from
+		# VSTest's TestPlatform when running .NET Framework tests via "dotnet test". The .NET Framework test
+		# host cannot load the .NET Core-only extension DLLs, so VSTest emits warnings for each one. These
+		# have no MSBuild diagnostic code, so /nowarn: cannot suppress them. See: github.com/microsoft/vstest/issues/2488
+		dotnet test $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo 2>&1 |
+			Where-Object { $_ -notmatch 'Failed to load extensions from file' } |
+			ForEach-Object { Write-Output $_ }
+		if ($LASTEXITCODE -ne 0)
+		{
+			throw "dotnet test failed with exit code $LASTEXITCODE."
+		}
 	}
 }
 
