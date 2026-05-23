@@ -249,6 +249,31 @@ class C
 	}
 
 	[TestMethod]
+	public void VarForEvidentConditionalWithCoalesce()
+	{
+		// Awaiting a generic method with explicit type argument followed by ?? operator.
+		// The null-coalescing operator should not block type inference; the left side is evident.
+		// IReadOnlyList<string> is a generic (Elsewhere) type → conditional UseVar → Evident condition met.
+		const string test = @"
+#nullable enable
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+class Test
+{
+	static async Task M(CancellationToken cancellationToken)
+	{
+		var result = await TryGetAsAsync<IReadOnlyList<string>>(cancellationToken).ConfigureAwait(false) ?? [];
+	}
+
+	static Task<T?> TryGetAsAsync<T>(CancellationToken cancellationToken) where T : class
+		=> Task.FromResult(default(T));
+}";
+		this.VerifyCSharpDiagnostic(test);
+	}
+
+	[TestMethod]
 	public void VarForLinqScalarResult()
 	{
 		const string test = @"

@@ -525,6 +525,7 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 			ObjectCreationExpressionSyntax => true,
 			CastExpressionSyntax => true,
 			BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.AsExpression) => true,
+			BinaryExpressionSyntax binary when binary.IsKind(SyntaxKind.CoalesceExpression) => IsTypeEvident(binary.Left, model),
 			LiteralExpressionSyntax => true,
 			DefaultExpressionSyntax => true,
 			TupleExpressionSyntax tuple => tuple.Arguments.All(arg => IsTypeEvident(arg.Expression, model)),
@@ -665,10 +666,14 @@ public sealed class Men020UsePreferredVarStyle : Analyzer
 				result = true;
 			}
 			// Generic method with explicit type argument returning the value of that type argument.
+			// The generic type argument must be syntactically visible at the call site, either as a
+			// qualified call (e.g., Client.GetAsync<T>()) or a direct call (e.g., GetAsync<T>()).
 			else if (method.TypeArguments.Length > 0
-				&& method.TypeArguments.Any(ta => SymbolEqualityComparer.Default.Equals(ta, returnType))
-				&& invocation.Expression is MemberAccessExpressionSyntax memberAccess
-				&& memberAccess.Name is GenericNameSyntax)
+				&& method.TypeArguments.Any(ta => SymbolEqualityComparer.Default.Equals(
+					ta.WithNullableAnnotation(NullableAnnotation.None),
+					returnType.WithNullableAnnotation(NullableAnnotation.None)))
+				&& ((invocation.Expression is MemberAccessExpressionSyntax memberAccess && memberAccess.Name is GenericNameSyntax)
+					|| invocation.Expression is GenericNameSyntax))
 			{
 				result = true;
 			}
