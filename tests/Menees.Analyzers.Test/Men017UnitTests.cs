@@ -48,6 +48,26 @@ public class Men017UnitTests : CodeFixVerifier
 	}
 
 	[TestMethod]
+	public void UsedInMethodInAnotherPartialFile()
+	{
+		const string PropertyCode = """
+			partial class C
+			{
+			    public int Property { get; private set; }
+			}
+			""";
+		const string MethodCode = """
+			partial class C
+			{
+			    public void M() => this.Property = 1;
+			}
+			""";
+
+		this.VerifyCSharpDiagnostic([PropertyCode, MethodCode]);
+		this.VerifyCSharpDiagnostic([MethodCode, PropertyCode]);
+	}
+
+	[TestMethod]
 	public void ExplicitInterfaceProperty()
 	{
 		const string Code = """
@@ -404,6 +424,33 @@ public class Men017UnitTests : CodeFixVerifier
 			""";
 
 		RequireDiagnostic(Code);
+	}
+
+	[TestMethod]
+	public void UsedInConstructorOnlyInAnotherPartialFile()
+	{
+		const string PropertyCode = """
+			partial class C
+			{
+			    public int Property { get; private set; }
+			}
+			""";
+		const string ConstructorCode = """
+			partial class C
+			{
+			    public C() => this.Property = 1;
+			    public int Read() => this.Property;
+			}
+			""";
+
+		DiagnosticResult expected = new(this.CSharpDiagnosticAnalyzer)
+		{
+			Message = "Remove the unused private set accessor from the Property auto property",
+			Locations = [new DiagnosticResultLocation("Test0.cs", 3, 32)],
+		};
+		this.VerifyCSharpDiagnostic([PropertyCode, ConstructorCode], expected);
+		expected.Locations = [new DiagnosticResultLocation("Test1.cs", 3, 32)];
+		this.VerifyCSharpDiagnostic([ConstructorCode, PropertyCode], expected);
 	}
 
 	[TestMethod]

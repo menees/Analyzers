@@ -90,18 +90,23 @@ public sealed class Men017RemoveUnusedPrivateSetter : Analyzer
 				foreach (SyntaxReference typeReference in namedType.DeclaringSyntaxReferences)
 				{
 					SyntaxNode typeNode = typeReference.GetSyntax(context.CancellationToken);
+					// Each partial declaration must be analyzed with its own syntax tree's semantic model.
+#pragma warning disable RS1030 // Cross-file partial declarations require a model not supplied by this syntax node context.
+					SemanticModel typeModel = typeNode.SyntaxTree == model.SyntaxTree
+						? model : context.Compilation.GetSemanticModel(typeNode.SyntaxTree);
+#pragma warning restore RS1030
 					IEnumerable<SyntaxNode> identifierNodes = typeNode.DescendantNodes().Where(node => node.IsKind(SyntaxKind.IdentifierName));
 					foreach (SyntaxNode identifierNode in identifierNodes)
 					{
 						// Is this identifier for the property declaration we're checking?
 						// Is the identifier used on the left-hand side of an assignment statement?
 						// Is this assignment being done outside of a constructor?
-						if (model.GetSymbolInfo(identifierNode, context.CancellationToken).Symbol is IPropertySymbol property
+						if (typeModel.GetSymbolInfo(identifierNode, context.CancellationToken).Symbol is IPropertySymbol property
 							&& SymbolEqualityComparer.Default.Equals(property, propertyDeclarationSymbol)
 							&& TryGetAssignmentExpression(identifierNode) is SyntaxNode assignmentExpression
-							&& model.GetSymbolInfo(assignmentExpression, context.CancellationToken).Symbol is ISymbol assignedSymbol
+							&& typeModel.GetSymbolInfo(assignmentExpression, context.CancellationToken).Symbol is ISymbol assignedSymbol
 							&& SymbolEqualityComparer.Default.Equals(assignedSymbol, property)
-							&& !IsInConstructor(assignmentExpression, property.ContainingType, property.IsStatic, model, context.CancellationToken))
+							&& !IsInConstructor(assignmentExpression, property.ContainingType, property.IsStatic, typeModel, context.CancellationToken))
 						{
 							canRemove = false;
 							break;
